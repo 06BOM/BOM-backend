@@ -1,0 +1,259 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+	userId				Int			@default(autoincrement()) @id
+	emailId 			String 		@unique @db.VarChar(45)
+	userName			String		@db.VarChar(45)
+	password 			String		@db.VarChar(45)
+	nickname 			String		@db.VarChar(45)
+	birth 				DateTime
+	phoneNum 			String		@db.VarChar(45)
+	grade 				Int
+	star 				Int			@default(0)
+	timeItem 			Int			@default(0)
+	passItem 			Int			@default(0)
+	introduction		String?
+	platform 			String?
+	platformId			String?		@db.VarChar(255)
+	lock				Boolean		@default(false)
+	lockFreeDate		DateTime?
+	userType			Int			@default(0)      // 0 -> user, 1 -> administrator, 2-> platform
+	characterId			Int			@default(0)
+	sessions			Session[]
+	character			Character		@relation(fields: [characterId], references: [characterId])
+	daily				Daily[]
+	categories			Category[]
+	receivedMessage		Message			@relation("receive")
+	sentMessage			Message			@relation("send")
+	sentReport			Report			@relation("report")
+	receivedReport		Report			@relation("reported")
+	reportLog			ReportLog
+	mockDB				MockDB[]
+	oxDB				OXDB[]
+	room 				Room
+	questAttempt		QuestAttempt[]
+	fromFollower		Follower		@relation("from")
+	toFollower			Follower		@relation("to")
+	post				Post
+	comment				Comment
+	collection			Collection[]
+}
+
+model Daily {
+	dailyId				Int			@default(autoincrement()) @id
+	date				DateTime
+	obtainedStar		Int			@default(0)
+	userId				Int
+	user				User		@relation(fields: [userId], references: [userId])
+	plans				Plan[]
+}
+
+model Plan {
+	planId				Int			@default(autoincrement()) @id
+	planName			String
+	time				Int			@default(0)			
+	check				Boolean		@default(false)
+	repetitionType		Int?		// 1 -> 매일 반복, 2-> 매주 반복, 2-> 매달 반복
+	dailyId				Int
+	categoryId			Int
+	daily				Daily		@relation(fields: [dailyId], references: [dailyId])
+	category			Category	@relation(fields: [categoryId], references: [categoryId])
+}
+
+model Category {
+	categoryId			Int			@default(autoincrement()) @id
+	categoryName		String
+	color				String
+	type				Boolean		@default(false)
+	userId				Int
+	plan				Plan
+	user				User		@relation(fields: [userId], references: [userId])
+	post				Post
+}
+
+model Message {
+	messageId			Int			@default(autoincrement()) @id
+	sendDate			DateTime
+	contents			String
+	readCheck			Boolean 	@default(false)
+	recvId				Int
+	sentId				Int
+	receiver			User		@relation(name: "receive", fields: [recvId], references: [userId])
+	sender				User		@relation(name: "send", fields: [sentId], references: [userId])
+}
+
+model Session {
+	sessionId			Int			@default(autoincrement()) @id
+	createdAt			DateTime	@default(now())
+	user				User		@relation(fields: [userId], references: [userId])
+	userId				Int
+}
+
+model Report {
+	reportId			Int			@default(autoincrement()) @id
+	contents			String?
+	reportType			Int
+	accept				Boolean		@default(false)
+	reportUser			Int
+	reportedUser		Int
+	reportedPost		Int?
+	reporter			User		@relation(name: "report", fields: [reportUser], references: [userId])
+	receiver			User		@relation(name: "reported", fields: [reportedUser], references: [userId])
+	reportLog			ReportLog
+	post				Post		@relation(fields: [reportedPost], references: [postId])
+}
+/////////////////////////////////////////////////////////////
+model ReportLog {
+	reportLogId			Int			@default(autoincrement()) @id
+	disciplinaryAction	Int
+	reportId			Int
+	adminId				Int
+	user				User		@relation(fields: [adminId], references: [userId])
+	report				Report		@relation(fields: [reportId], references: [reportId])
+}
+
+model Character {
+	characterId			Int			@default(autoincrement()) @id
+	characterName		String
+	star				Int
+	imageUrl			String
+	silhouetteUrl		String
+	introduction		String
+	explanation			String
+	brain				Int
+	speed				Int
+	power				Int
+	teq					Int
+	strength			Int
+	height				Int
+	weight				Int
+	mbti				String
+	user				User
+	collections			Collection[]
+}
+
+model MockDB {
+	mockquestionId		Int			@default(autoincrement()) @id
+	grade				Int
+	subject				String
+	questionImage		String
+	answer				String
+	explanation			String
+	privisionCheck		Boolean
+	totalNumSolved		Int
+	correctNum			Int
+	provider			Int
+	user				User		@relation(fields: [provider], references: [userId])
+	questAttempt		QuestAttempt[]
+}
+
+model OXDB {
+	oxquestionId		Int			@default(autoincrement()) @id
+	oxquestion			String
+	oxanswer			String
+	subject				String
+	grade				Int
+	range				Int
+	totalNumSolved		Int
+	correctNum			Int
+	provider			Int
+	user				User		@relation(fields: [provider], references: [userId])
+}
+
+model SketchDB {
+	sketchquestionId	Int			@default(autoincrement()) @id
+	sketchword			String
+	subject				String
+	description			String
+}
+
+model Room {
+	roomId				Int			@default(autoincrement()) @id
+	roomName			String
+	kind				Int
+	participantsNum		Int
+	secretMode			Int
+	password			String
+	subject				String
+	userId				Int
+	user				User		@relation(fields: [userId], references: [userId])
+	oxUnitRanges		OXUnitRange[]	
+}
+
+model QuestAttempt {
+	questionId			Int
+	userId				Int
+	count				Int
+	date				DateTime
+	question			MockDB		@relation(fields: [questionId], references: [mockquestionId])
+	user				User		@relation(fields: [userId], references: [userId])
+	@@id([questionId, userId])
+}
+
+model Follower {
+	fromId				Int
+	toId				Int
+	permission			Boolean
+	fromUser			User		@relation(name: "from", fields: [fromId], references: [userId])
+	toUser				User		@relation(name: "to", fields: [toId], references: [userId])
+	@@id([fromId, toId])
+}
+
+model Post {
+	postId				Int			@default(autoincrement()) @id
+	title				String
+	content				String
+	createdAt			DateTime
+	postKind			Boolean
+	anonymous			Boolean	
+	categoryId			Int
+	userId				Int
+	category			Category	@relation(fields: [categoryId], references: [categoryId])
+	user				User		@relation(fields: [userId], references: [userId])
+	postContentUrl		PostContentUrl
+	comments			Comment[]
+	report				Report
+}
+
+model PostContentUrl {
+	contentId			Int			@default(autoincrement()) @id
+	contentUrl			String
+	postId				Int
+	post				Post		@relation(fields: [postId], references: [postId])
+}
+
+model Comment {
+	commentId			Int			@default(autoincrement()) @id
+	content				String
+	createdAt			DateTime
+	commentParent		Int
+	postId				Int
+	userId				Int
+	post				Post		@relation(fields: [postId], references: [postId])
+	user				User		@relation(fields: [userId], references: [userId])
+}
+
+model OXUnitRange {
+	id					Int			@default(autoincrement()) @id
+	unit				Int
+	roomId				Int
+	room				Room		@relation(fields: [roomId], references: [roomId])
+}
+
+model Collection {
+	userId				Int
+	characterId			Int
+	user				User		@relation(fields: [userId], references: [userId])
+	character			Character	@relation(fields: [characterId], references: [characterId])
+	@@id([userId, characterId])	
+}
