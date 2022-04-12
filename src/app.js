@@ -3,6 +3,7 @@ import morgan from 'morgan';
 import helmet from 'helmet';
 
 import indexRouter from "./routes";
+import userRouter from "./routes/user";
 
 const app = express();
 
@@ -12,5 +13,6 @@ app.use(express.urlencoded({extended:false}));
 app.use(morgan("dev"));
 
 app.use('/', indexRouter);
+app.use('/user', userRouter);
 
 export default app;
