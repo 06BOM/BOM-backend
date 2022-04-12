@@ -1,12 +1,11 @@
-const http = require('http')
-const express = require('express')
-const { PrismaClient } = require('@prisma/client')
+import express from 'express';
+import { deleteUser, handleUser, getUser, signin } from "../controllers/userController";
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
-router.get("/", (req, res, next) => {
-	res.json({"hello": "hello"});
-});
+router.delete("/user/:userId", deleteUser);
+router.patch("/user/:userId", handleUser);
+router.get("/user/:userId",getUser);
+router.post("/user",signin);
 
 export default router;
