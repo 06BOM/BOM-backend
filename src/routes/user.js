@@ -1,6 +1,5 @@
 import express from 'express';
 import { deleteUser, handleUser, getUser, signin } from "../controllers/userController";
-const express = require('express');
 
 const router = express.Router();
 
