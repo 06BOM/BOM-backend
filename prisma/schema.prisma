@@ -33,20 +33,20 @@ model User {
 	character			Character		@relation(fields: [characterId], references: [characterId])
 	daily				Daily[]
 	categories			Category[]
-	receivedMessage		Message[]			@relation("receive")
-	sentMessage			Message[]			@relation("send")
-	sentReport			Report[]			@relation("report")
-	receivedReport		Report[]			@relation("reported")
-	reportLog			ReportLog[]
+	receivedMessages	Message[]			@relation("receive")
+	sentMessages		Message[]			@relation("send")
+	sentReports			Report[]			@relation("report")
+	receivedReports		Report[]			@relation("reported")
+	reportLogs			ReportLog[]
 	mockDB				MockDB[]
 	oxDB				OXDB[]
-	room 				Room[]
-	questAttempt		QuestAttempt[]
-	fromFollower		Follower[]		@relation("from")
-	toFollower			Follower[]		@relation("to")
-	post				Post[]
-	comment				Comment[]
-	collection			Collection[]
+	rooms				Room[]
+	questAttempts		QuestAttempt[]
+	fromFollowers		Follower[]			@relation("from")
+	toFollowers			Follower[]			@relation("to")
+	posts				Post[]
+	comments			Comment[]
+	collections			Collection[]
 	likes				Like[]
 	scraps				Scrap[]
 }
@@ -111,18 +111,17 @@ model Report {
 	reportedPost		Int?
 	reporter			User		@relation(name: "report", fields: [reportUser], references: [userId])
 	receiver			User		@relation(name: "reported", fields: [reportedUser], references: [userId])
-	reportLog			ReportLog[]
+	reportLog			ReportLog?
 	post				Post?		@relation(fields: [reportedPost], references: [postId])
 }
 
-//
 model ReportLog {
 	reportLogId			Int			@default(autoincrement()) @id
 	disciplinaryAction	Int			@default(0) // 징계 내용을 적어야함
 	reportId			Int
 	adminId				Int
 	user				User		@relation(fields: [adminId], references: [userId])
-	report				Report		@relation(fields: [reportId], references: [reportId])
+	report				Report?		@relation(fields: [reportId], references: [reportId])
 }
 
 model Character {
@@ -190,7 +189,7 @@ model Room {
 	subject				String		@db.VarChar(45)
 	userId				Int
 	user				User		@relation(fields: [userId], references: [userId])
-	oxUnitRanges		OXUnitRange[]	
+	oxUnitRange			OXUnitRange?
 }
 
 model QuestAttempt {
@@ -223,7 +222,7 @@ model Post {
 	userId				Int
 	category			Category	@relation(fields: [categoryId], references: [categoryId])
 	user				User		@relation(fields: [userId], references: [userId])
-	postContentUrl		PostContentUrl[]
+	postContentUrls		PostContentUrl[]
 	comments			Comment[]
 	report				Report[]
 	like				Like[]
