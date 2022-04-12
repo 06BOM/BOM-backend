@@ -6,8 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "mysql"
+  url      = "mysql://root:root@localhost:3306/damoyeo"
 }
 
 model User {
@@ -33,20 +33,22 @@ model User {
 	character			Character		@relation(fields: [characterId], references: [characterId])
 	daily				Daily[]
 	categories			Category[]
-	receivedMessage		Message			@relation("receive")
-	sentMessage			Message			@relation("send")
-	sentReport			Report			@relation("report")
-	receivedReport		Report			@relation("reported")
-	reportLog			ReportLog
+	receivedMessage		Message[]			@relation("receive")
+	sentMessage			Message[]			@relation("send")
+	sentReport			Report[]			@relation("report")
+	receivedReport		Report[]			@relation("reported")
+	reportLog			ReportLog[]
 	mockDB				MockDB[]
 	oxDB				OXDB[]
-	room 				Room
+	room 				Room[]
 	questAttempt		QuestAttempt[]
-	fromFollower		Follower		@relation("from")
-	toFollower			Follower		@relation("to")
-	post				Post
-	comment				Comment
+	fromFollower		Follower[]		@relation("from")
+	toFollower			Follower[]		@relation("to")
+	post				Post[]
+	comment				Comment[]
 	collection			Collection[]
+	likes				Like[]
+	scraps				Scrap[]
 }
 
 model Daily {
@@ -58,27 +60,27 @@ model Daily {
 	plans				Plan[]
 }
 
-model Plan {
-	planId				Int			@default(autoincrement()) @id
-	planName			String
-	time				Int			@default(0)			
-	check				Boolean		@default(false)
-	repetitionType		Int?		// 1 -> 매일 반복, 2-> 매주 반복, 2-> 매달 반복
-	dailyId				Int
-	categoryId			Int
-	daily				Daily		@relation(fields: [dailyId], references: [dailyId])
-	category			Category	@relation(fields: [categoryId], references: [categoryId])
-}
-
 model Category {
 	categoryId			Int			@default(autoincrement()) @id
 	categoryName		String
 	color				String
 	type				Boolean		@default(false)
 	userId				Int
-	plan				Plan
+	plan				Plan[]
 	user				User		@relation(fields: [userId], references: [userId])
-	post				Post
+	post				Post[]
+}
+
+model Plan {
+	planId				Int			@default(autoincrement()) @id
+	planName			String
+	time				Int			@default(0)			
+	check				Boolean		@default(false)
+	repetitionType		Int?		// 1 -> 매일 반복, 2-> 매주 반복, 3-> 매달 반복
+	dailyId				Int
+	categoryId			Int
+	daily				Daily		@relation(fields: [dailyId], references: [dailyId])
+	category			Category	@relation(fields: [categoryId], references: [categoryId])
 }
 
 model Message {
@@ -109,10 +111,11 @@ model Report {
 	reportedPost		Int?
 	reporter			User		@relation(name: "report", fields: [reportUser], references: [userId])
 	receiver			User		@relation(name: "reported", fields: [reportedUser], references: [userId])
-	reportLog			ReportLog
-	post				Post		@relation(fields: [reportedPost], references: [postId])
+	reportLog			ReportLog[]
+	post				Post?		@relation(fields: [reportedPost], references: [postId])
 }
-/////////////////////////////////////////////////////////////
+
+//
 model ReportLog {
 	reportLogId			Int			@default(autoincrement()) @id
 	disciplinaryAction	Int
@@ -138,7 +141,7 @@ model Character {
 	height				Int
 	weight				Int
 	mbti				String
-	user				User
+	user				User[]
 	collections			Collection[]
 }
 
@@ -174,7 +177,7 @@ model SketchDB {
 	sketchquestionId	Int			@default(autoincrement()) @id
 	sketchword			String
 	subject				String
-	description			String
+	description			String		@db.VarChar(255)
 }
 
 model Room {
@@ -212,7 +215,7 @@ model Follower {
 model Post {
 	postId				Int			@default(autoincrement()) @id
 	title				String
-	content				String
+	content				String		@db.VarChar(150)
 	createdAt			DateTime
 	postKind			Boolean
 	anonymous			Boolean	
@@ -220,9 +223,11 @@ model Post {
 	userId				Int
 	category			Category	@relation(fields: [categoryId], references: [categoryId])
 	user				User		@relation(fields: [userId], references: [userId])
-	postContentUrl		PostContentUrl
+	postContentUrl		PostContentUrl[]
 	comments			Comment[]
-	report				Report
+	report				Report[]
+	like				Like[]
+	scrap				Scrap[]
 }
 
 model PostContentUrl {
@@ -256,4 +261,20 @@ model Collection {
 	user				User		@relation(fields: [userId], references: [userId])
 	character			Character	@relation(fields: [characterId], references: [characterId])
 	@@id([userId, characterId])	
+}
+
+model Like {
+	communityId			Int
+	userId				Int
+	community			Post		@relation(fields: [communityId], references: [postId])
+	user				User		@relation(fields: [userId], references: [userId])
+	@@id([communityId, userId])
+}
+
+model Scrap {
+	communityId			Int
+	userId				Int
+	community			Post		@relation(fields: [communityId], references: [postId])
+	user				User		@relation(fields: [userId], references: [userId])
+	@@id([communityId, userId])
 }
