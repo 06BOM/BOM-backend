@@ -62,8 +62,8 @@ model Daily {
 
 model Category {
 	categoryId			Int			@default(autoincrement()) @id
-	categoryName		String
-	color				String
+	categoryName		String		@db.VarChar(45)
+	color				String		@db.VarChar(45)
 	type				Boolean		@default(false)
 	userId				Int
 	plan				Plan[]
@@ -73,7 +73,7 @@ model Category {
 
 model Plan {
 	planId				Int			@default(autoincrement()) @id
-	planName			String
+	planName			String		@db.VarChar(45)
 	time				Int			@default(0)			
 	check				Boolean		@default(false)
 	repetitionType		Int?		// 1 -> 매일 반복, 2-> 매주 반복, 3-> 매달 반복
@@ -86,7 +86,7 @@ model Plan {
 model Message {
 	messageId			Int			@default(autoincrement()) @id
 	sendDate			DateTime
-	contents			String
+	contents			String		@db.VarChar(45)
 	readCheck			Boolean 	@default(false)
 	recvId				Int
 	sentId				Int
@@ -118,7 +118,7 @@ model Report {
 //
 model ReportLog {
 	reportLogId			Int			@default(autoincrement()) @id
-	disciplinaryAction	Int
+	disciplinaryAction	Int			@default(0) // 징계 내용을 적어야함
 	reportId			Int
 	adminId				Int
 	user				User		@relation(fields: [adminId], references: [userId])
@@ -127,12 +127,12 @@ model ReportLog {
 
 model Character {
 	characterId			Int			@default(autoincrement()) @id
-	characterName		String
+	characterName		String		@db.VarChar(45)
 	star				Int
-	imageUrl			String
-	silhouetteUrl		String
-	introduction		String
-	explanation			String
+	imageUrl			String		@db.Text
+	silhouetteUrl		String		@db.Text
+	introduction		String		@db.Text
+	explanation			String		@db.Text
 	brain				Int
 	speed				Int
 	power				Int
@@ -140,7 +140,7 @@ model Character {
 	strength			Int
 	height				Int
 	weight				Int
-	mbti				String
+	mbti				String		@db.VarChar(45)	
 	user				User[]
 	collections			Collection[]
 }
@@ -148,13 +148,13 @@ model Character {
 model MockDB {
 	mockquestionId		Int			@default(autoincrement()) @id
 	grade				Int
-	subject				String
-	questionImage		String
-	answer				String
-	explanation			String
-	privisionCheck		Boolean
-	totalNumSolved		Int
-	correctNum			Int
+	subject				String		@db.VarChar(45)
+	questionImage		String		@db.Text
+	answer				String		@db.VarChar(45)
+	explanation			String		@db.Text
+	provisionCheck		Boolean		@default(false)
+	totalNumSolved		Int			@default(0)
+	correctNum			Int			@default(0)
 	provider			Int
 	user				User		@relation(fields: [provider], references: [userId])
 	questAttempt		QuestAttempt[]
@@ -162,32 +162,32 @@ model MockDB {
 
 model OXDB {
 	oxquestionId		Int			@default(autoincrement()) @id
-	oxquestion			String
-	oxanswer			String
-	subject				String
+	oxquestion			String		@db.VarChar(45)
+	oxanswer			String		@db.VarChar(45)
+	subject				String		@db.VarChar(45)
 	grade				Int
 	range				Int
-	totalNumSolved		Int
-	correctNum			Int
+	totalNumSolved		Int			@default(0)
+	correctNum			Int			@default(0)
 	provider			Int
 	user				User		@relation(fields: [provider], references: [userId])
 }
 
 model SketchDB {
 	sketchquestionId	Int			@default(autoincrement()) @id
-	sketchword			String
-	subject				String
+	sketchword			String		@db.VarChar(45)
+	subject				String		@db.VarChar(45)
 	description			String		@db.VarChar(255)
 }
 
 model Room {
 	roomId				Int			@default(autoincrement()) @id
-	roomName			String
-	kind				Int
+	roomName			String		@db.VarChar(45)
+	kind				Int			// 1-> ox, 2-> 캐치마인드
 	participantsNum		Int
-	secretMode			Int
-	password			String
-	subject				String
+	secretMode			Boolean		@default(false)
+	password			String?		@db.VarChar(45)
+	subject				String		@db.VarChar(45)
 	userId				Int
 	user				User		@relation(fields: [userId], references: [userId])
 	oxUnitRanges		OXUnitRange[]	
@@ -196,7 +196,7 @@ model Room {
 model QuestAttempt {
 	questionId			Int
 	userId				Int
-	count				Int
+	count				Int			@default(0)
 	date				DateTime
 	question			MockDB		@relation(fields: [questionId], references: [mockquestionId])
 	user				User		@relation(fields: [userId], references: [userId])
@@ -206,7 +206,7 @@ model QuestAttempt {
 model Follower {
 	fromId				Int
 	toId				Int
-	permission			Boolean
+	permission			Boolean		@default(false)
 	fromUser			User		@relation(name: "from", fields: [fromId], references: [userId])
 	toUser				User		@relation(name: "to", fields: [toId], references: [userId])
 	@@id([fromId, toId])
@@ -214,11 +214,11 @@ model Follower {
 
 model Post {
 	postId				Int			@default(autoincrement()) @id
-	title				String
+	title				String		@db.VarChar(45)
 	content				String		@db.VarChar(150)
-	createdAt			DateTime
-	postKind			Boolean
-	anonymous			Boolean	
+	createdAt			DateTime	@default(now())
+	postKind			Int			// 1 -> 일상, 2 -> 공부		
+	anonymous			Boolean		@default(false)
 	categoryId			Int
 	userId				Int
 	category			Category	@relation(fields: [categoryId], references: [categoryId])
@@ -232,16 +232,16 @@ model Post {
 
 model PostContentUrl {
 	contentId			Int			@default(autoincrement()) @id
-	contentUrl			String
+	contentUrl			String		@db.Text
 	postId				Int
 	post				Post		@relation(fields: [postId], references: [postId])
 }
 
 model Comment {
 	commentId			Int			@default(autoincrement()) @id
-	content				String
-	createdAt			DateTime
-	commentParent		Int
+	content				String		@db.Text
+	createdAt			DateTime	@default(now())
+	commentParent		Int?
 	postId				Int
 	userId				Int
 	post				Post		@relation(fields: [postId], references: [postId])
