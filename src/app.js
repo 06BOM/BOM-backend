@@ -5,7 +5,6 @@ import helmet from 'helmet';
 import indexRouter from "./routes";
 import userRouter from "./routes/user";
 import planRouter from "./routes/plan";
-//푸
 
 const app = express();
 
