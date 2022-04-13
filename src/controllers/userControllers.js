@@ -33,3 +33,15 @@ export const findUser = async (req, res) => {
 		console.log(error);
 	}
 };
+
+export const deleteUser = async (req, res) => {
+	let userId = req.params.userId;
+
+	try {
+		const userData = await userModel.deleteUser(Number(userId));
+		return res.sendStatus(200);
+
+	} catch(error) {
+		console.log(error);
+	}
+};
