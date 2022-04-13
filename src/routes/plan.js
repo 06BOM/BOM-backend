@@ -4,7 +4,7 @@ import { createPlan, handleStar } from "../controllers/planController";
 
 const router = express.Router();
 
-router.post("/",createPlan);
+router.post("",createPlan);
 router.delete("/:planId");
 router.patch("/:planId");
 router.patch("/check");
