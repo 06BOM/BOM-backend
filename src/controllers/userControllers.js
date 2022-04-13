@@ -38,8 +38,31 @@ export const deleteUser = async (req, res) => {
 	let userId = req.params.userId;
 
 	try {
-		const userData = await userModel.deleteUser(Number(userId));
+		await userModel.deleteUser(Number(userId));
 		return res.sendStatus(200);
+
+	} catch(error) {
+		console.log(error);
+	}
+};
+
+export const modifyUser = async (req, res) => {
+	let userInfo = {
+		nickname: req.body.nickname,
+		password: req.body.password,
+		phoneNum: req.body.phoneNum,
+		introduction: req.body.introduction,
+		star: req.body.star,
+		lock: req.body.lock,
+		lockFreeDate: req.body.lockFreeDate
+	}
+	userInfo.lockFreeDate = new Date(userInfo.lockFreeDate);
+	
+	let userId = req.params.userId;
+
+	try {
+		const userData = await userModel.updateUser(userInfo, Number(userId));
+		return res.status(200).json(userData);
 
 	} catch(error) {
 		console.log(error);

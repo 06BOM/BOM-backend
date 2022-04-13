@@ -43,8 +43,24 @@ export const deleteUser = async (userId) => {
     }
 }
 
+export const updateUser = async (userInfo, userId) => {
+    try{
+        const result = await prisma.user.update({
+            where:{
+                userId: userId
+            },
+            data: userInfo
+        });
+        return result;
+    
+    } catch(error){
+        console.log(error);
+    }
+}
+
 module.exports = {
   createUser,//회원가입
   getUser,//유저 정보 가져오기
   deleteUser,//회원정보 삭제
+  updateUser,//회원정보 수정
 }

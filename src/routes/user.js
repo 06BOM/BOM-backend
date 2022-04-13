@@ -7,4 +7,5 @@ const userController = require('../controllers/userControllers');
 router.post("/signin", userController.signin);
 router.get("/:userId", userController.findUser);
 router.delete("/:userId",userController.deleteUser);
+router.patch("/:userId",userController.modifyUser);
 export default router;
