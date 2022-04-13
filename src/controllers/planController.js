@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { insertPlan, removePlanById, updatePlan } from "../models/planModel";
+import { insertPlan, removePlanById, updatePlan, updateCheck } from "../models/planModel";
 
 const prisma = new PrismaClient();
 
@@ -28,11 +28,24 @@ export const modifyPlan = async (req, res) => {
 		dailyId: req.body.dailyId,
 		categoryId: req.body.categoryId
 	}
-	let { planId } = req.params;
+	let planId = req.params.planId;
 
 	try {
 		const resultPlan = await updatePlan(plan, Number(planId));
 		return res.status(200).json(resultPlan);
+	} catch(error) {
+		console.log(error);
+	}
+}
+
+
+export const changeCheckToTrue = async (req, res) => {
+	let planId = req.params.planId;
+
+	try {
+		const result = await updateCheck(Number(planId));
+		//return res.sensStatus(200);
+		return res.status(200).json(result);
 	} catch(error) {
 		console.log(error);
 	}

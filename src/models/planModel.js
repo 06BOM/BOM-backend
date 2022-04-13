@@ -31,6 +31,24 @@ export const updatePlan = async (plan, planId) => {
 }
 
 
+export const updateCheck = async (planId) => {
+    try {
+        const result = await prisma.plan.update({
+            where: {
+                planId: planId
+            },
+            data: {
+                check: true
+            }
+        })
+        return result;
+        
+    } catch(error) {
+        console.log(error);
+    }
+}
+
+
 export const removePlanById = async (planId) => {
     try {
         const result = await prisma.plan.delete({
