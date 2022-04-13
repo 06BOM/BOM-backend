@@ -1,11 +1,11 @@
 import express from 'express';
 import { route } from 'express/lib/application';
-import { createPlan, handleStar } from "../controllers/planController";
+import { createPlan, deletePlan, handleStar } from "../controllers/planController";
 
 const router = express.Router();
 
 router.post("",createPlan);
-router.delete("/:planId");
+router.delete("/:planId", deletePlan);
 router.patch("/:planId");
 router.patch("/check");
 router.get("/total?date=${date}&userId=${userId}");

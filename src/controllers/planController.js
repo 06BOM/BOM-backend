@@ -1,7 +1,8 @@
 import { PrismaClient } from "@prisma/client";
-import { insertPlan } from "../models/planModel";
+import { insertPlan, removePlanById } from "../models/planModel";
 
 const prisma = new PrismaClient();
+
 
 export const createPlan = async (req, res) => {
 	let plan = {
@@ -18,6 +19,20 @@ export const createPlan = async (req, res) => {
 		console.log(error);
 	}
 }
+
+
+export const deletePlan = async (req, res) => {
+	let { planId } = req.params;
+
+	try {
+		const result = await removePlanById(Number(planId));
+		return res.sendStatus(200);
+
+	} catch(error) {
+		console.log(error);
+	}
+}
+
 
 export const handleStar = async (req, res) => {
 	const userId = req.body.userId;
