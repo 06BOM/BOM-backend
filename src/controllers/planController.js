@@ -1,19 +1,18 @@
 import { PrismaClient } from "@prisma/client";
-import planModel from "../models/planModel";
+import { insertPlan } from "../models/planModel";
 
 const prisma = new PrismaClient();
 
 export const createPlan = async (req, res) => {
 	let plan = {
 		planName: req.body.planName,
-		repepitionType: req.body.repepitionType,
+		repetitionType: req.body.repetitionType,
 		dailyId: req.body.dailyId,
 		categoryId: req.body.categoryId
 	}
-
 	try {
-		const resultPlan = await planModel.createPlan(plan);
-		res.send(resultPlan);
+		const resultPlan = await insertPlan(plan);
+		return res.status(200).json(resultPlan);
 		
 	} catch(error) {
 		console.log(error);
