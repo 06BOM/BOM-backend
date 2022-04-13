@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = "mysql://root:root@localhost:3306/damoyeo"
+  url      = "mysql://root:8621@localhost:3306/hyunho"
 }
 
 model User {
@@ -16,7 +16,7 @@ model User {
 	userName			String		@db.VarChar(45)
 	password 			String		@db.VarChar(45)
 	nickname 			String		@db.VarChar(45)
-	birth 				DateTime
+	birth 				DateTime	
 	phoneNum 			String		@db.VarChar(45)
 	grade 				Int
 	star 				Int			@default(0)
@@ -28,7 +28,7 @@ model User {
 	lock				Boolean		@default(false)
 	lockFreeDate		DateTime?
 	userType			Int			@default(0)      // 0 -> user, 1 -> administrator, 2-> platform
-	characterId			Int			@default(0)
+	characterId			Int			@default(1)
 	sessions			Session[]
 	character			Character		@relation(fields: [characterId], references: [characterId])
 	daily				Daily[]
