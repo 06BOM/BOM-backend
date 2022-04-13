@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { insertPlan, removePlanById } from "../models/planModel";
+import { insertPlan, removePlanById, updatePlan } from "../models/planModel";
 
 const prisma = new PrismaClient();
 
@@ -15,6 +15,24 @@ export const createPlan = async (req, res) => {
 		const resultPlan = await insertPlan(plan);
 		return res.status(200).json(resultPlan);
 		
+	} catch(error) {
+		console.log(error);
+	}
+}
+
+
+export const modifyPlan = async (req, res) => {
+	let plan = {
+		planName: req.body.planName,
+		repetitionType: req.body.repetitionType,
+		dailyId: req.body.dailyId,
+		categoryId: req.body.categoryId
+	}
+	let { planId } = req.params;
+
+	try {
+		const resultPlan = await updatePlan(plan, Number(planId));
+		return res.status(200).json(resultPlan);
 	} catch(error) {
 		console.log(error);
 	}

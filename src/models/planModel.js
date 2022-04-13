@@ -14,6 +14,23 @@ export const insertPlan = async (plan) => {
     }
 }
 
+
+export const updatePlan = async (plan, planId) => {
+    try {
+        const result = await prisma.plan.update({
+            where: {
+                planId: planId
+            },
+            data: plan
+        })
+        return result;
+        
+    } catch(error) {
+        console.log(error);
+    }
+}
+
+
 export const removePlanById = async (planId) => {
     try {
         const result = await prisma.plan.delete({
