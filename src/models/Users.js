@@ -20,5 +20,4 @@ const findUser = (field) => {
 module.exports = {
   createUser,//회원가입
   findUser,//user 정보 가져오기
-  
 }
