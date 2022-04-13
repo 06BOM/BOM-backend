@@ -12,5 +12,8 @@ app.use(express.urlencoded({extended:false}));
 app.use(morgan("dev"));
 
 app.use('/', indexRouter);
+app.use('/user', userRouter);
+app.use('/plan', planRouter);
+
 
 export default app;
