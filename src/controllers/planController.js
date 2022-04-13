@@ -1,6 +1,24 @@
 import { PrismaClient } from "@prisma/client";
+import planModel from "../models/planModel";
 
 const prisma = new PrismaClient();
+
+export const createPlan = async (req, res) => {
+	let plan = {
+		planName: req.body.planName,
+		repepitionType: req.body.repepitionType,
+		dailyId: req.body.dailyId,
+		categoryId: req.body.categoryId
+	}
+
+	try {
+		const resultPlan = await planModel.createPlan(plan);
+		res.send(resultPlan);
+		
+	} catch(error) {
+		console.log(error);
+	}
+}
 
 export const handleStar = async (req, res) => {
 	const userId = req.body.userId;
