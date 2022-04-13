@@ -15,6 +15,21 @@ export const createUser = async (user) => {
     }
 }
 
+export const getUser = async (userId) => {
+    try{
+        const result = await prisma.user.findUnique({
+            where:{
+                userId: userId
+            },
+        });
+        return result;
+    
+    } catch(error){
+        console.log(error);
+    }
+}
+
 module.exports = {
   createUser,//회원가입
+  getUser,//유저 정보 가져오기
 }

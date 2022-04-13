@@ -22,3 +22,14 @@ export const signin = async (req, res) => {
 	}
 };
 
+export const findUser = async (req, res) => {
+	let userId = req.params.userId;
+
+	try {
+		const userData = await userModel.getUser(Number(userId));
+		return res.status(200).json(userData);
+
+	} catch(error) {
+		console.log(error);
+	}
+};
