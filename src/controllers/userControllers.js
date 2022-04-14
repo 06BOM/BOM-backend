@@ -1,6 +1,6 @@
 const userModel = require('../models/userModel');
 
-export const signin = async (req, res) => {
+export const signin = async (req, res, next) => {
 	let user = {
 		emailId: req.body.emailId,
 		userName: req.body.userName,
@@ -23,7 +23,7 @@ export const signin = async (req, res) => {
 	}
 };
 
-export const findUser = async (req, res) => {
+export const findUser = async (req, res, next) => {
 	let userId = req.params.userId;
 
 	try {
@@ -36,7 +36,7 @@ export const findUser = async (req, res) => {
 	}
 };
 
-export const deleteUser = async (req, res) => {
+export const deleteUser = async (req, res, next) => {
 	let userId = req.params.userId;
 
 	try {
@@ -49,7 +49,7 @@ export const deleteUser = async (req, res) => {
 	}
 };
 
-export const modifyUser = async (req, res) => {
+export const modifyUser = async (req, res, next) => {
 	let userInfo = {
 		nickname: req.body.nickname,
 		password: req.body.password,

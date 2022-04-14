@@ -5,7 +5,7 @@ import { OPCODE } from "../tools";
 const prisma = new PrismaClient();
 
 
-export const createPlan = async (req, res) => {
+export const createPlan = async (req, res, next) => {
 	let plan = {
 		planName: req.body.planName,
 		repetitionType: req.body.repetitionType,
@@ -23,7 +23,7 @@ export const createPlan = async (req, res) => {
 }
 
 
-export const modifyPlan = async (req, res) => {
+export const modifyPlan = async (req, res, next) => {
 	let plan = {
 		planName: req.body.planName,
 		repetitionType: req.body.repetitionType,
@@ -42,7 +42,7 @@ export const modifyPlan = async (req, res) => {
 }
 
 
-export const changeCheckToTrue = async (req, res) => {
+export const changeCheckToTrue = async (req, res, next) => {
 	let planId = req.params.planId;
 
 	try {
@@ -56,7 +56,7 @@ export const changeCheckToTrue = async (req, res) => {
 }
 
 
-export const deletePlan = async (req, res) => {
+export const deletePlan = async (req, res, next) => {
 	let { planId } = req.params;
 
 	try {
