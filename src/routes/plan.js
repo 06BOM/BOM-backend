@@ -1,12 +1,12 @@
 import express from 'express';
 import { route } from 'express/lib/application';
-import { createPlan, deletePlan, modifyPlan, handleStar, changeCheckToTrue, getDailyStar, getWeeklyStar, getMonthlyStar, getAllPlans, getCompletedPlans, getIncompletePlans } from "../controllers/planController";
+import { createPlan, deletePlan, updatePlan, handleStar, changeCheckToTrue, getDailyStar, getWeeklyStar, getMonthlyStar, getAllPlans, getCompletedPlans, getIncompletePlans } from "../controllers/planController";
 
 const router = express.Router();
 
 router.post("", createPlan);
 router.delete("/:planId", deletePlan);
-router.patch("/:planId", modifyPlan);
+router.patch("/:planId", updatePlan);
 router.patch("/:planId/check", changeCheckToTrue);
 router.get("/total?date=${date}&userId=${userId}");
 router.get("/week/average?date=${date}&userId=${userId}");
