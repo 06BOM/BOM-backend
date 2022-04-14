@@ -186,7 +186,7 @@ export const getWeeklyAverageStudyTime = async (req, res, next) => {
 }
 
 
-export const getmonthlyAverageStudyTime = async (req, res, next) => {
+export const getMonthlyAverageStudyTime = async (req, res, next) => {
 	const toDate = new Date(req.query.date);
 	const userId = parseInt(req.query.userId);
 	const fromDate = new Date(req.query.date);
