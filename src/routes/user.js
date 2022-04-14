@@ -2,10 +2,17 @@
 
 import express from 'express';
 const router = express.Router();
-const userController = require('../controllers/userControllers');
 
-router.post("/signin", userController.signin);
-router.get("/:userId", userController.findUser);
-router.delete("/:userId",userController.deleteUser);
-router.patch("/:userId",userController.modifyUser);
+import { signin,
+         getUser, 
+         deleteUser, 
+         modifyUser 
+    } from '../controllers/userControllers';
+
+
+
+router.post("/signin", signin);
+router.get("/:userId", getUser);
+router.delete("/:userId",deleteUser);
+router.patch("/:userId",modifyUser);
 export default router;
