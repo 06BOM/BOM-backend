@@ -1,6 +1,6 @@
 import express from 'express';
 import { route } from 'express/lib/application';
-import { createPlan, deletePlan, updatePlan, handleStar, changeCheckToTrue, getDailyStudyTime, getWeeklyAverageStudyTime, getDailyStar, getWeeklyStar, getMonthlyStar, getAllPlans, getCompletedPlans, getIncompletePlans } from "../controllers/planController";
+import { createPlan, deletePlan, updatePlan, handleStar, changeCheckToTrue, getDailyStudyTime, getWeeklyAverageStudyTime, getmonthlyAverageStudyTime, getDailyStar, getWeeklyStar, getMonthlyStar, getAllPlans, getCompletedPlans, getIncompletePlans } from "../controllers/planController";
 
 const router = express.Router();
 
@@ -10,7 +10,7 @@ router.patch("/:planId", updatePlan);
 router.patch("/:planId/check", changeCheckToTrue);
 router.get("/total", getDailyStudyTime);
 router.get("/week/average", getWeeklyAverageStudyTime);
-router.get("/month/average");
+router.get("/month/average", getmonthlyAverageStudyTime);
 router.get("/plan/statistic?date=${date}&userId=${userId}");
 router.get("/plan/week/total?date=${date}&userId=${userId}");
 router.get("/plan/month/total?date=${date}&userId=${userId}")
