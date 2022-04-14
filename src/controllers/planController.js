@@ -93,6 +93,145 @@ export const deletePlan = async (req, res, next) => {
 }
 
 
+export const getDailyStudyTime = async (req, res, next) => {
+	const date = new Date(req.query.date);
+	const userId = parseInt(req.query.userId);
+	let totalTime = 0;
+
+	try {
+		const { dailyId } = await prisma.daily.findFirst({
+			where: { 
+				AND: [
+					{ date: date },
+					{ userId: userId }
+				]
+			}
+		});
+
+		const planTimes = await prisma.plan.findMany({ 
+			where: { dailyId: dailyId },
+			select: { time: true }
+		});
+
+		planTimes.map(time => {
+			totalTime += time.time;
+		});
+
+		return res.status(200).json({ totalTime: totalTime });
+
+	} catch(error) {
+		console.log(error);
+		next(error);
+	}
+}
+
+
+export const getWeeklyAverageStudyTime = async (req, res, next) => {
+	const toDate = new Date(req.query.date);
+	const userId = parseInt(req.query.userId);
+	const day = toDate.getDay();	// [0:SUN, 1:MON, 2:TUS, 3:WED, 4:THU, 5:FRI, 6: SAT]
+	let fromDate = new Date(req.query.date);
+	let i, weeklyDailyIds, totalTime = 0, weeklyPlanTimes, averageTime;
+
+	try {
+		if(day === 0) {
+			fromDate.setDate(fromDate.getDate() - 6);
+			console.log("fromDate1: ", fromDate);
+			weeklyDailyIds = await prisma.daily.findMany({
+				where: {
+					AND: [
+						{ date: {
+							lte: toDate,
+							gte: fromDate
+						}},
+						{ userId }
+				]},
+				select: { dailyId: true }
+			});
+
+		} else {
+			fromDate.setDate(fromDate.getDate() - (day - 1));
+			console.log("fromDate2: ", fromDate);
+			weeklyDailyIds = await prisma.daily.findMany({
+				where: {
+					AND: [
+						{ date: {
+							lte: toDate,
+							gte: fromDate
+						}},
+						{ userId }
+				]},
+				select: { dailyId: true }
+			});
+		}
+
+		for(i = 0; i < weeklyDailyIds.length; i++){
+			weeklyPlanTimes = await prisma.plan.findMany({
+				where: { dailyId: weeklyDailyIds[i].dailyId },
+				select: { time: true }
+			})
+
+			weeklyPlanTimes.map(time => {
+				totalTime += time.time;
+			})
+		}
+
+		averageTime = parseInt(totalTime / 7);
+		return res.json({ opcode: OPCODE.SUCCESS, averageTime: averageTime });
+
+	} catch(error) {
+		console.log(error);
+		next(error);
+	}
+}
+
+
+export const getMonthlyAverageStudyTime = async (req, res, next) => {
+	const toDate = new Date(req.query.date);
+	const userId = parseInt(req.query.userId);
+	const fromDate = new Date(req.query.date);
+	let i, totalTime = 0, monthlyDailyIds, monthlyPlanTimes, averageTime;
+
+	const year = toDate.getFullYear();
+	const month = toDate.getMonth();
+	const numDays = new Date(year, month + 1, 0).getDate();
+
+	try { 
+		fromDate.setDate(1);
+		monthlyDailyIds = await prisma.daily.findMany({
+			where: {
+				AND: [
+					{ date: {
+						lte: toDate,
+						gte: fromDate
+					}},
+					{ userId }
+			]},
+			select: { dailyId: true }
+		});
+
+		for(i = 0; i < monthlyDailyIds.length; i++){
+			monthlyPlanTimes = await prisma.plan.findMany({
+				where: { dailyId: monthlyDailyIds[i].dailyId },
+				select: { time: true }
+			})
+
+			monthlyPlanTimes.map(time => {
+				totalTime += time.time;
+			})
+		}
+		
+		averageTime = parseInt(totalTime / numDays);
+		return res.json({ opcode: OPCODE.SUCCESS, averageTime: averageTime });
+	
+
+	} catch(error) {
+		console.log(error);
+		next(error);
+	}
+}
+
+
 export const handleStar = async (req, res, next) => {
 	const userId = req.body.userId;
 	const dailyId = req.body.dailyId;
