@@ -220,7 +220,7 @@ export const getmonthlyAverageStudyTime = async (req, res, next) => {
 				totalTime += time.time;
 			})
 		}
-		console.log("totalTime: ", totalTime);
+		
 		averageTime = parseInt(totalTime / numDays);
 		return res.json({ opcode: OPCODE.SUCCESS, averageTime: averageTime });
 	
