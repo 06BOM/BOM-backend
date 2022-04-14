@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { insertPlan, removePlanById, updatePlan, updateCheck } from "../models/planModel";
+import { OPCODE } from "../tools";
 
 const prisma = new PrismaClient();
 
@@ -17,6 +18,7 @@ export const createPlan = async (req, res) => {
 		
 	} catch(error) {
 		console.log(error);
+		next(error);
 	}
 }
 
@@ -35,6 +37,7 @@ export const modifyPlan = async (req, res) => {
 		return res.status(200).json(resultPlan);
 	} catch(error) {
 		console.log(error);
+		next(error);
 	}
 }
 
@@ -48,6 +51,7 @@ export const changeCheckToTrue = async (req, res) => {
 		return res.status(200).json(result);
 	} catch(error) {
 		console.log(error);
+		next(error);
 	}
 }
 
@@ -61,11 +65,12 @@ export const deletePlan = async (req, res) => {
 
 	} catch(error) {
 		console.log(error);
+		next(error);
 	}
 }
 
 
-export const handleStar = async (req, res) => {
+export const handleStar = async (req, res, next) => {
 	const userId = req.body.userId;
 	const dailyId = req.body.dailyId;
 
@@ -94,10 +99,11 @@ export const handleStar = async (req, res) => {
 		return res.sendStatus(200);
 	} catch(error) {
 		console.log(error);
+		next(error);
 	}
 };
 
-export const getDailyStar = async (req, res) => {
+export const getDailyStar = async (req, res, next) => {
 	const date = req.query.date;
 	const userId = req.query.userId;
 
@@ -111,13 +117,14 @@ export const getDailyStar = async (req, res) => {
 			}
 		});
 
-		return res.json({ star: obtainedStar });
+		return res.json({ opcode: OPCODE.SUCCESS, star: obtainedStar });
 	} catch(error) {
 		console.log(error);
+		next(error);
 	}
 }
 
-export const getWeeklyStar = async (req, res) => {
+export const getWeeklyStar = async (req, res, next) => {
 	const date = new Date(req.query.date);
 	const userId = parseInt(req.query.userId);
 	const flag = date.getDay();
@@ -167,13 +174,14 @@ export const getWeeklyStar = async (req, res) => {
 		days.map(day => {
 			sum += day.obtainedStar;
 		});
-		return res.json({ stars: sum });
+		return res.json({ opcode: OPCODE.SUCCESS, stars: sum });
 	} catch(error) {
 		console.log(error);
+		next(error);
 	}
 }
 
-export const getMonthlyStar = async (req, res) => {
+export const getMonthlyStar = async (req, res, next) => {
 	const date = new Date(req.query.date);
 	const userId = parseInt(req.query.userId);
 
@@ -202,13 +210,14 @@ export const getMonthlyStar = async (req, res) => {
 		days.map(day => {
 			sum += day.obtainedStar;
 		});
-		return res.json({ stars: sum });
+		return res.json({ opcode: OPCODE.SUCCESS, stars: sum });
 	} catch(error) {
 		console.log(error);
+		next(error);
 	}
 }
 
-export const getAllPlans = async (req, res) => {
+export const getAllPlans = async (req, res, next) => {
 	const date = new Date(req.query.date);
 	const userId = parseInt(req.query.userId);	
 	
@@ -226,13 +235,14 @@ export const getAllPlans = async (req, res) => {
 				dailyId				
 			}
 		});	
-		return res.json(plans);
+		return res.json({opcode: OPCODE.SUCCESS, plans});
 	} catch(error) {
 		console.log(error);
+		next(error);
 	}	
 }
 
-export const getCompletedPlans = async (req, res) => {
+export const getCompletedPlans = async (req, res, next) => {
 	const date = new Date(req.query.date);
 	const userId = parseInt(req.query.userId);
 	
@@ -253,13 +263,14 @@ export const getCompletedPlans = async (req, res) => {
 				]				
 			}
 		});	
-		return res.json(plans);
+		return res.json({opcode: OPCODE.SUCCESS, plans});
 	} catch(error) {
 		console.log(error);
+		next(error);
 	}		
 }
 
-export const getIncompletePlans = async (req, res) => {
+export const getIncompletePlans = async (req, res, next) => {
 	const date = new Date(req.query.date);
 	const userId = parseInt(req.query.userId);	
 
@@ -280,8 +291,9 @@ export const getIncompletePlans = async (req, res) => {
 				]				
 			}
 		});	
-		return res.json(plans);
+		return res.json({opcode: OPCODE.SUCCESS, plans});
 	} catch(error) {
 		console.log(error);
+		next(error);
 	}
 }

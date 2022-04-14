@@ -19,6 +19,7 @@ export const signin = async (req, res) => {
 
 	} catch(error) {
 		console.log(error);
+		next(error);
 	}
 };
 
@@ -31,6 +32,7 @@ export const findUser = async (req, res) => {
 
 	} catch(error) {
 		console.log(error);
+		next(error);
 	}
 };
 
@@ -43,6 +45,7 @@ export const deleteUser = async (req, res) => {
 
 	} catch(error) {
 		console.log(error);
+		next(error);
 	}
 };
 
@@ -66,5 +69,6 @@ export const modifyUser = async (req, res) => {
 
 	} catch(error) {
 		console.log(error);
+		next(error);
 	}
 };

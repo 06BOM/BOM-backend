@@ -11,7 +11,8 @@ export const insertPlan = async (plan) => {
 
     } catch(error) {
         console.log(error);
-    }
+		next(error);
+	}
 }
 
 
@@ -27,7 +28,8 @@ export const updatePlan = async (plan, planId) => {
         
     } catch(error) {
         console.log(error);
-    }
+		next(error);
+	}
 }
 
 
@@ -45,9 +47,9 @@ export const updateCheck = async (planId) => {
         
     } catch(error) {
         console.log(error);
-    }
+		next(error);
+	}
 }
-
 
 export const removePlanById = async (planId) => {
     try {
@@ -60,5 +62,6 @@ export const removePlanById = async (planId) => {
 
     } catch(error) {
         console.log(error);
-    }
+		next(error);
+	}
 }

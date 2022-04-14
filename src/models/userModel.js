@@ -12,6 +12,7 @@ export const createUser = async (user) => {
     
     } catch(error){
         console.log(error);
+		next(error);
     }
 }
 
@@ -26,7 +27,8 @@ export const getUser = async (userId) => {
     
     } catch(error){
         console.log(error);
-    }
+		next(error);
+	}
 }
 
 export const deleteUser = async (userId) => {
@@ -40,7 +42,8 @@ export const deleteUser = async (userId) => {
     
     } catch(error){
         console.log(error);
-    }
+		next(error);
+	}
 }
 
 export const updateUser = async (userInfo, userId) => {
@@ -55,7 +58,8 @@ export const updateUser = async (userInfo, userId) => {
     
     } catch(error){
         console.log(error);
-    }
+		next(error);
+	}
 }
 
 module.exports = {
