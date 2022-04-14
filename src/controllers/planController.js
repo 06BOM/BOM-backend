@@ -93,6 +93,39 @@ export const deletePlan = async (req, res, next) => {
 }
 
 
+export const getDailyStudyTime = async (req, res, next) => {
+	const date = new Date(req.query.date);
+	const userId = parseInt(req.query.userId);
+	let totalTime = 0;
+
+	try {
+		const { dailyId } = await prisma.daily.findFirst({
+			where: { 
+				AND: [
+					{ date: date },
+					{ userId: userId }
+				]
+			}
+		});
+
+		const planTimes = await prisma.plan.findMany({ 
+			where: { dailyId: dailyId },
+			select: { time: true }
+		});
+
+		planTimes.map(time => {
+			totalTime += time.time;
+		});
+
+		return res.status(200).json({ totalTime: totalTime });
+
+	} catch(error) {
+		console.log(error);
+		next(error);
+	}
+}
+
+
 export const handleStar = async (req, res, next) => {
 	const userId = req.body.userId;
 	const dailyId = req.body.dailyId;
