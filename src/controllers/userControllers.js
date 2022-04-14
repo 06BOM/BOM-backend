@@ -1,4 +1,7 @@
-const userModel = require('../models/userModel');
+//const userModel = require('../models/userModel');
+import { PrismaClient } from "@prisma/client";
+import { OPCODE } from "../tools";
+const prisma = new PrismaClient();
 
 export const signin = async (req, res, next) => {
 	let user = {
@@ -13,9 +16,10 @@ export const signin = async (req, res, next) => {
 	user.birth = new Date(user.birth);
 
 	try {
-		const newUser = await userModel.createUser(user);
-		console.log(user);
-		return res.status(200).json(newUser);
+		const createUserResult = await prisma.user.create({
+			data: user
+		});
+		return res.json({opcode:OPCODE.SUCCESS, createUserResult});
 
 	} catch(error) {
 		console.log(error);
@@ -23,12 +27,15 @@ export const signin = async (req, res, next) => {
 	}
 };
 
-export const findUser = async (req, res, next) => {
-	let userId = req.params.userId;
-
+export const getUser = async (req, res, next) => {
+	let userId = Number(req.params.userId);
 	try {
-		const userData = await userModel.getUser(Number(userId));
-		return res.status(200).json(userData);
+		const getUserResult = await prisma.user.findUnique({
+            where:{
+                userId: userId
+            },
+        });
+		return res.json({opcode:OPCODE.SUCCESS, getUserResult});
 
 	} catch(error) {
 		console.log(error);
@@ -37,11 +44,15 @@ export const findUser = async (req, res, next) => {
 };
 
 export const deleteUser = async (req, res, next) => {
-	let userId = req.params.userId;
+	let userId = Number(req.params.userId);
 
 	try {
-		await userModel.deleteUser(Number(userId));
-		return res.sendStatus(200);
+		await prisma.user.delete({
+            where:{
+				userId: userId
+            },
+        });
+		return res.json({opcode:OPCODE.SUCCESS});
 
 	} catch(error) {
 		console.log(error);
@@ -49,23 +60,26 @@ export const deleteUser = async (req, res, next) => {
 	}
 };
 
+
 export const modifyUser = async (req, res, next) => {
 	let userInfo = {
 		nickname: req.body.nickname,
-		password: req.body.password,
 		phoneNum: req.body.phoneNum,
 		introduction: req.body.introduction,
-		star: req.body.star,
-		lock: req.body.lock,
-		lockFreeDate: req.body.lockFreeDate
+		grade: req.body.grade
 	}
-	userInfo.lockFreeDate = new Date(userInfo.lockFreeDate);
-	
-	let userId = req.params.userId;
+
+	let userId = Number(req.params.userId);
 
 	try {
-		const userData = await userModel.updateUser(userInfo, Number(userId));
-		return res.status(200).json(userData);
+		const modifyUserResult = await prisma.user.update({
+            where:{
+                userId: userId
+            },
+            data: userInfo
+        });
+		
+		return res.json({opcode:OPCODE.SUCCESS, modifyUserResult});
 
 	} catch(error) {
 		console.log(error);
