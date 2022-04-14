@@ -154,7 +154,7 @@ export const getWeeklyStar = async (req, res, next) => {
 	// const WEEKDAY = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']; // [0, 1, 2, 3, 4, 5, 6]
 
 	let date2 = new Date(req.query.date);
-	let sum = 0;
+
 	let days;
 
 	try {
@@ -176,7 +176,7 @@ export const getWeeklyStar = async (req, res, next) => {
 				}
 			});
 		} else {
-			date2.setDate(date2.getDate() - ( flag - 1));
+			date2.setDate(date2.getDate() - (flag - 1));
 			days = await prisma.daily.findMany({
 				where: {
 					AND: [
@@ -203,6 +203,90 @@ export const getWeeklyStar = async (req, res, next) => {
 		next(error);
 	}
 }
+
+export const getWeeklyTime = async (req, res, next) => {
+	const date = new Date(req.query.date);
+	const userId = Number(req.query.userId);
+	const flag = date.getDay();
+
+	let date2 = new Date(req.query.date);
+	let weekPlanDailyId, weekPlanTime, i, j;
+	let timeSum = new Array(weekPlanDailyId);
+
+	try {
+		if(flag === 0) { // sunday
+			date2.setDate(date2.getDate() - 6);
+			weekPlanDailyId = await prisma.daily.findMany({
+				where: {
+					AND: [
+						{
+							date: {
+							lte: date,
+							gte: date2
+							} 
+						},
+						{
+							userId
+						}
+					]
+				},
+				select:{
+					date: true,
+					dailyId: true
+				}
+			});
+		} else {
+			date2.setDate(date2.getDate() - (flag - 1));
+			weekPlanDailyId = await prisma.daily.findMany({
+				where: {
+					AND: [
+						{
+							date: {
+							lte: date,
+							gte: date2
+							}
+						},
+						{
+							userId
+						}
+					]	
+				},
+				select:{
+					date: true,
+					dailyId: true
+				}
+			});
+		}
+
+		for(j=0; j<7; j++){
+			timeSum[j]=0;
+		}
+
+		for(i=0; i < weekPlanDailyId.length; i++){
+			weekPlanTime = await prisma.plan.findMany({
+				where: {
+					dailyId: weekPlanDailyId[i].dailyId
+				},
+				select: {
+					time: true
+				}
+			});
+			
+			weekPlanTime.map(time=>{
+				timeSum[weekPlanDailyId[i].date.getDay()] += time.time;
+			})
+			
+			console.log(weekPlanTime);
+		}
+		console.log(timeSum);
+		return res.json({opcode: OPCODE.SUCCESS, });
+
+	} catch(error) {
+		console.log(error);
+		next(error);
+	}
+}
+
 
 export const getMonthlyStar = async (req, res, next) => {
 	const date = new Date(req.query.date);
