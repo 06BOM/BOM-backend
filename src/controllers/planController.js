@@ -293,7 +293,7 @@ export const getWeeklyStar = async (req, res, next) => {
 	// const WEEKDAY = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']; // [0, 1, 2, 3, 4, 5, 6]
 
 	let date2 = new Date(req.query.date);
-
+	let sum = 0;
 	let days;
 
 	try {
