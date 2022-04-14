@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-import { insertPlan, removePlanById, updatePlan, updateCheck } from "../models/planModel";
 import { OPCODE } from "../tools";
 
 const prisma = new PrismaClient();
@@ -13,7 +12,10 @@ export const createPlan = async (req, res, next) => {
 		categoryId: req.body.categoryId
 	}
 	try {
-		const resultPlan = await insertPlan(plan);
+		const resultPlan = await prisma.plan.create({
+            data: plan
+        });
+
 		return res.status(200).json(resultPlan);
 		
 	} catch(error) {
@@ -23,18 +25,25 @@ export const createPlan = async (req, res, next) => {
 }
 
 
-export const modifyPlan = async (req, res, next) => {
+export const updatePlan = async (req, res, next) => {
 	let plan = {
 		planName: req.body.planName,
 		repetitionType: req.body.repetitionType,
 		dailyId: req.body.dailyId,
 		categoryId: req.body.categoryId
 	}
-	let planId = req.params.planId;
+	let planId = parseInt(req.params.planId);
 
 	try {
-		const resultPlan = await updatePlan(plan, Number(planId));
+		const resultPlan = await prisma.plan.update({
+            where: {
+                planId: planId
+            },
+            data: plan
+        })
+
 		return res.status(200).json(resultPlan);
+
 	} catch(error) {
 		console.log(error);
 		next(error);
@@ -43,12 +52,21 @@ export const modifyPlan = async (req, res, next) => {
 
 
 export const changeCheckToTrue = async (req, res, next) => {
-	let planId = req.params.planId;
+	let planId = parseInt(req.params.planId);
 
 	try {
-		const result = await updateCheck(Number(planId));
-		//return res.sensStatus(200);
-		return res.status(200).json(result);
+		const result = await prisma.plan.update({
+            where: {
+                planId: planId
+            },
+            data: {
+                check: true
+            }
+        })
+
+		return res.sendStatus(200);
+		//return res.status(200).json(result);
+
 	} catch(error) {
 		console.log(error);
 		next(error);
@@ -57,10 +75,15 @@ export const changeCheckToTrue = async (req, res, next) => {
 
 
 export const deletePlan = async (req, res, next) => {
-	let { planId } = req.params;
+	let planId = parseInt(req.params.planId);
 
 	try {
-		const result = await removePlanById(Number(planId));
+		const result =  await prisma.plan.delete({
+            where: {
+                planId: planId,
+            }
+        });
+
 		return res.sendStatus(200);
 
 	} catch(error) {
