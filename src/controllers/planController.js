@@ -418,9 +418,10 @@ export const getWeeklyTime = async (req, res, next) => {
 			console.log(weekPlanTime);
 		}
 		console.log(timeSum);
-		return res.json({opcode: OPCODE.SUCCESS, });
+		return res.json({opcode: OPCODE.SUCCESS, timeSum});
 
-	} catch(error) {
+	} 
+		catch(error) {
 		console.log(error);
 		next(error);
 	}
@@ -458,6 +459,69 @@ export const getMonthlyStar = async (req, res, next) => {
 		});
 		return res.json({ opcode: OPCODE.SUCCESS, stars: sum });
 	} catch(error) {
+		console.log(error);
+		next(error);
+	}
+}
+
+export const getMonthlyTime = async (req, res, next) => {
+	const toDate = new Date(req.query.date);
+	const fromDate = new Date(req.query.date);
+	const userId = parseInt(req.query.userId);
+
+	let monthPlanDailyId, monthPlanTime, j, i;
+	let timeSum = new Array(monthPlanDailyId);
+
+	const year = toDate.getFullYear();
+	const month = toDate.getMonth();
+	const numDays = new Date(year, month + 1, 0).getDate();
+
+	try { 
+		fromDate.setDate(1);
+		monthPlanDailyId = await prisma.daily.findMany({
+			where: {
+				AND: [
+					{
+						date: {
+							lte: toDate,
+							gte: fromDate
+						} 
+					},
+					{
+						userId
+					}
+				]
+			},
+			select:{
+				date: true,
+				dailyId: true
+			}
+		});
+
+		console.log(monthPlanDailyId);
+
+		for(j=0;j<numDays;j++){
+			timeSum[j]=0;
+		}
+
+
+		for(i=0; i < monthPlanDailyId.length; i++){
+			monthPlanTime = await prisma.plan.findMany({
+				where: {
+					dailyId: monthPlanDailyId[i].dailyId
+				},
+				select: {
+					time: true
+				}
+			});	
+
+			monthPlanTime.map(time=>{
+				timeSum[monthPlanDailyId[i].date.getDate()-1] += time.time;
+			})
+		}
+		return res.json({ opcode: OPCODE.SUCCESS, timeSum });
+	} 
+		catch(error) {
 		console.log(error);
 		next(error);
 	}
