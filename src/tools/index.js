@@ -1,2 +1,2 @@
 export * from './opcode';
-export * from './damoyeoError';
+export * from './DamoyeoError';
