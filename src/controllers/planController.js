@@ -24,7 +24,6 @@ export const createPlan = async (req, res, next) => {
 	}
 }
 
-
 export const updatePlan = async (req, res, next) => {
 	let plan = {
 		planName: req.body.planName,
@@ -50,7 +49,6 @@ export const updatePlan = async (req, res, next) => {
 	}
 }
 
-
 export const changeCheckToTrue = async (req, res, next) => {
 	let planId = parseInt(req.params.planId);
 
@@ -73,7 +71,6 @@ export const changeCheckToTrue = async (req, res, next) => {
 	}
 }
 
-
 export const deletePlan = async (req, res, next) => {
 	let planId = parseInt(req.params.planId);
 
@@ -91,7 +88,6 @@ export const deletePlan = async (req, res, next) => {
 		next(error);
 	}
 }
-
 
 export const getDailyStudyTime = async (req, res, next) => {
 	const date = new Date(req.query.date);
@@ -125,6 +121,61 @@ export const getDailyStudyTime = async (req, res, next) => {
 	}
 }
 
+export const getStatistic = async (req, res, next) => {
+	const date = new Date(req.query.date);
+	const userId = parseInt(req.query.userId);
+
+	let statistic, dailyPlanTimes, totalTime = 0;
+	
+	try {
+		const dateDailyId = await prisma.daily.findFirst({
+			where: { 
+				AND: [
+					{ date: date },
+					{ userId: userId }
+				]
+			}
+		});
+		
+		dailyPlanTimes = await prisma.plan.groupBy({
+			by: ['categoryId'], 
+			where: {
+				dailyId: dateDailyId.dailyId
+			},
+			_sum: {
+				time: true
+			},
+			orderBy:{
+				categoryId: 'asc' 
+			}
+		});
+
+		console.log(dailyPlanTimes);
+		
+		const planTimes = await prisma.plan.findMany({ 
+			where: {
+				dailyId: dateDailyId.dailyId
+			},
+			select: { time: true }
+		});
+
+		planTimes.map(time => {
+			totalTime += time.time;
+		});
+
+		dailyPlanTimes.map(cnt => {
+			cnt._sum.time /= totalTime;
+		})
+		
+		console.log(dailyPlanTimes);
+
+		return res.json({ opcode: OPCODE.SUCCESS, dailyPlanTimes});
+	}
+		catch(error) {
+		console.log(error);
+		next(error);
+	}
+}
 
 export const getWeeklyAverageStudyTime = async (req, res, next) => {
 	const toDate = new Date(req.query.date);
@@ -185,7 +236,6 @@ export const getWeeklyAverageStudyTime = async (req, res, next) => {
 	}
 }
 
-
 export const getMonthlyAverageStudyTime = async (req, res, next) => {
 	const toDate = new Date(req.query.date);
 	const userId = parseInt(req.query.userId);
@@ -230,7 +280,6 @@ export const getMonthlyAverageStudyTime = async (req, res, next) => {
 		next(error);
 	}
 }
-
 
 export const handleStar = async (req, res, next) => {
 	const userId = req.body.userId;
@@ -426,7 +475,6 @@ export const getWeeklyTime = async (req, res, next) => {
 		next(error);
 	}
 }
-
 
 export const getMonthlyStar = async (req, res, next) => {
 	const date = new Date(req.query.date);
