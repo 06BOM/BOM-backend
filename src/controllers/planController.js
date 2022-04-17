@@ -16,7 +16,7 @@ export const createPlan = async (req, res, next) => {
             data: plan
         });
 
-		return res.status(200).json(resultPlan);
+		return res.json({ opcode: OPCODE.SUCCESS, resultPlan });
 		
 	} catch(error) {
 		console.log(error);
@@ -41,7 +41,7 @@ export const updatePlan = async (req, res, next) => {
             data: plan
         })
 
-		return res.status(200).json(resultPlan);
+		return res.json({ opcode: OPCODE.SUCCESS, resultPlan });
 
 	} catch(error) {
 		console.log(error);
@@ -53,7 +53,7 @@ export const changeCheckToTrue = async (req, res, next) => {
 	let planId = parseInt(req.params.planId);
 
 	try {
-		const result = await prisma.plan.update({
+		await prisma.plan.update({
             where: {
                 planId: planId
             },
@@ -62,9 +62,8 @@ export const changeCheckToTrue = async (req, res, next) => {
             }
         })
 
-		return res.sendStatus(200);
-		//return res.status(200).json(result);
-
+		return res.json({ opcode: OPCODE.SUCCESS });
+		
 	} catch(error) {
 		console.log(error);
 		next(error);
@@ -81,7 +80,7 @@ export const deletePlan = async (req, res, next) => {
             }
         });
 
-		return res.sendStatus(200);
+		return res.json({ opcode: OPCODE.SUCCESS });
 
 	} catch(error) {
 		console.log(error);
@@ -113,7 +112,7 @@ export const getDailyStudyTime = async (req, res, next) => {
 			totalTime += time.time;
 		});
 
-		return res.status(200).json({ totalTime: totalTime });
+		return res.json({ opcode: OPCODE.SUCCESS, totalTime: totalTime });
 
 	} catch(error) {
 		console.log(error);
@@ -125,7 +124,9 @@ export const getStatistic = async (req, res, next) => {
 	const date = new Date(req.query.date);
 	const userId = parseInt(req.query.userId);
 
-	let statistic, dailyPlanTimes, totalTime = 0;
+	console.log(date);
+
+	let dailyPlanTimes, totalTime = 0;
 	
 	try {
 		const dateDailyId = await prisma.daily.findFirst({
@@ -137,6 +138,8 @@ export const getStatistic = async (req, res, next) => {
 			}
 		});
 		
+		console.log(dateDailyId);
+
 		dailyPlanTimes = await prisma.plan.groupBy({
 			by: ['categoryId'], 
 			where: {
@@ -149,9 +152,7 @@ export const getStatistic = async (req, res, next) => {
 				categoryId: 'asc' 
 			}
 		});
-
-		console.log(dailyPlanTimes);
-		
+	
 		const planTimes = await prisma.plan.findMany({ 
 			where: {
 				dailyId: dateDailyId.dailyId
@@ -166,10 +167,8 @@ export const getStatistic = async (req, res, next) => {
 		dailyPlanTimes.map(cnt => {
 			cnt._sum.time /= totalTime;
 		})
-		
-		console.log(dailyPlanTimes);
 
-		return res.json({ opcode: OPCODE.SUCCESS, dailyPlanTimes});
+		return res.json({ opcode: OPCODE.SUCCESS, dailyPlanTimes });
 	}
 		catch(error) {
 		console.log(error);
@@ -273,7 +272,6 @@ export const getMonthlyAverageStudyTime = async (req, res, next) => {
 		
 		averageTime = parseInt(totalTime / numDays);
 		return res.json({ opcode: OPCODE.SUCCESS, averageTime: averageTime });
-	
 
 	} catch(error) {
 		console.log(error);
@@ -307,7 +305,8 @@ export const handleStar = async (req, res, next) => {
 			}
 		});
 
-		return res.sendStatus(200);
+		return res.json({ opcode: OPCODE.SUCCESS });
+
 	} catch(error) {
 		console.log(error);
 		next(error);
@@ -385,7 +384,9 @@ export const getWeeklyStar = async (req, res, next) => {
 		days.map(day => {
 			sum += day.obtainedStar;
 		});
+
 		return res.json({ opcode: OPCODE.SUCCESS, stars: sum });
+
 	} catch(error) {
 		console.log(error);
 		next(error);
@@ -467,7 +468,7 @@ export const getWeeklyTime = async (req, res, next) => {
 			console.log(weekPlanTime);
 		}
 		console.log(timeSum);
-		return res.json({opcode: OPCODE.SUCCESS, timeSum});
+		return res.json({ opcode: OPCODE.SUCCESS, timeSum });
 
 	} 
 		catch(error) {
@@ -593,7 +594,7 @@ export const getAllPlans = async (req, res, next) => {
 				dailyId				
 			}
 		});	
-		return res.json({opcode: OPCODE.SUCCESS, plans});
+		return res.json({ opcode: OPCODE.SUCCESS, plans });
 	} catch(error) {
 		console.log(error);
 		next(error);
@@ -621,7 +622,7 @@ export const getCompletedPlans = async (req, res, next) => {
 				]				
 			}
 		});	
-		return res.json({opcode: OPCODE.SUCCESS, plans});
+		return res.json({ opcode: OPCODE.SUCCESS, plans });
 	} catch(error) {
 		console.log(error);
 		next(error);
@@ -649,7 +650,7 @@ export const getIncompletePlans = async (req, res, next) => {
 				]				
 			}
 		});	
-		return res.json({opcode: OPCODE.SUCCESS, plans});
+		return res.json({ opcode: OPCODE.SUCCESS, plans });
 	} catch(error) {
 		console.log(error);
 		next(error);

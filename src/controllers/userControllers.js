@@ -1,4 +1,3 @@
-//const userModel = require('../models/userModel');
 import { PrismaClient } from "@prisma/client";
 import { OPCODE } from "../tools";
 const prisma = new PrismaClient();
@@ -19,7 +18,7 @@ export const signin = async (req, res, next) => {
 		const createUserResult = await prisma.user.create({
 			data: user
 		});
-		return res.json({opcode:OPCODE.SUCCESS, createUserResult});
+		return res.json({ opcode:OPCODE.SUCCESS, createUserResult });
 
 	} catch(error) {
 		console.log(error);
@@ -35,7 +34,7 @@ export const getUser = async (req, res, next) => {
                 userId: userId
             },
         });
-		return res.json({opcode:OPCODE.SUCCESS, getUserResult});
+		return res.json({ opcode:OPCODE.SUCCESS, getUserResult });
 
 	} catch(error) {
 		console.log(error);
@@ -52,7 +51,7 @@ export const deleteUser = async (req, res, next) => {
 				userId: userId
             },
         });
-		return res.json({opcode:OPCODE.SUCCESS});
+		return res.json({ opcode:OPCODE.SUCCESS });
 
 	} catch(error) {
 		console.log(error);
@@ -79,7 +78,7 @@ export const modifyUser = async (req, res, next) => {
             data: userInfo
         });
 		
-		return res.json({opcode:OPCODE.SUCCESS, modifyUserResult});
+		return res.json({ opcode:OPCODE.SUCCESS, modifyUserResult });
 
 	} catch(error) {
 		console.log(error);

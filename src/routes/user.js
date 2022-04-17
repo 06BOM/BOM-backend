@@ -1,7 +1,6 @@
 //참고 https://codingcoding.tistory.com/1308
 
 import express from 'express';
-const router = express.Router();
 
 import { signin,
          getUser, 
@@ -9,10 +8,9 @@ import { signin,
          modifyUser 
     } from '../controllers/userControllers';
 
+const router = express.Router();
 
 
 router.post("/signin", signin);
-router.get("/:userId", getUser);
-router.delete("/:userId",deleteUser);
-router.patch("/:userId",modifyUser);
+router.route("/:userId").get(getUser).delete(deleteUser).patch(modifyUser);
 export default router;
