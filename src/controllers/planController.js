@@ -314,15 +314,15 @@ export const handleStar = async (req, res, next) => {
 };
 
 export const getDailyStar = async (req, res, next) => {
-	const date = req.query.date;
-	const userId = req.query.userId;
+	const date = new Date(req.query.date);
+	const userId = parseInt(req.query.userId);
 
 	try {
 		const { obtainedStar } = await prisma.daily.findFirst({
 			where: {
 				AND: [
 					{ date },
-					{ userId: parseInt(userId) }
+					{ userId: userId }
 				]
 			}
 		});
@@ -585,7 +585,7 @@ export const getAllPlans = async (req, res, next) => {
 			where: { 
 				AND: [
 					{ date },
-					{ userId: parseInt(userId) }
+					{ userId: userId }
 				]
 			}
 		});	
@@ -610,7 +610,7 @@ export const getCompletedPlans = async (req, res, next) => {
 			where: { 
 				AND: [
 					{ date },
-					{ userId: parseInt(userId) }
+					{ userId: userId }
 				]
 			}
 		});	
@@ -638,7 +638,7 @@ export const getIncompletePlans = async (req, res, next) => {
 			where: { 
 				AND: [
 					{ date },
-					{ userId: parseInt(userId) }
+					{ userId: userId }
 				]
 			}
 		});	
