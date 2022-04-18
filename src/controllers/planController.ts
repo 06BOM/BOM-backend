@@ -1,15 +1,16 @@
 import { PrismaClient } from "@prisma/client";
 import { OPCODE } from "../tools";
+import { NextFunction, Request, Response } from 'express';
 
 const prisma = new PrismaClient();
 
 
-export const createPlan = async (req, res, next) => {
+export const createPlan = async (req: Request, res: Response, next: NextFunction) => {
 	let plan = {
-		planName: req.body.planName,
-		repetitionType: req.body.repetitionType,
-		dailyId: req.body.dailyId,
-		categoryId: req.body.categoryId
+		planName: String(req.body.planName),
+		repetitionType: parseInt(String(req.body.repetitionType)),
+		dailyId: parseInt(String(req.body.dailyId)),
+		categoryId: parseInt(String(req.body.categoryId))
 	}
 	try {
 		const resultPlan = await prisma.plan.create({
@@ -25,7 +26,7 @@ export const createPlan = async (req, res, next) => {
 }
 
 
-export const updatePlan = async (req, res, next) => {
+export const updatePlan = async (req: Request, res: Response, next: NextFunction) => {
 	let plan = {
 		planName: req.body.planName,
 		repetitionType: req.body.repetitionType,
@@ -51,7 +52,7 @@ export const updatePlan = async (req, res, next) => {
 }
 
 
-export const changeCheckToTrue = async (req, res, next) => {
+export const changeCheckToTrue = async (req: Request, res: Response, next: NextFunction) => {
 	let planId = parseInt(req.params.planId);
 
 	try {
@@ -74,7 +75,7 @@ export const changeCheckToTrue = async (req, res, next) => {
 }
 
 
-export const deletePlan = async (req, res, next) => {
+export const deletePlan = async (req: Request, res: Response, next: NextFunction) => {
 	let planId = parseInt(req.params.planId);
 
 	try {
@@ -93,9 +94,9 @@ export const deletePlan = async (req, res, next) => {
 }
 
 
-export const getDailyStudyTime = async (req, res, next) => {
-	const date = new Date(req.query.date);
-	const userId = parseInt(req.query.userId);
+export const getDailyStudyTime = async (req: Request, res: Response, next: NextFunction) => {
+	const date = new Date(String(req.query.date));
+	const userId = parseInt(String(req.query.userId));
 	let totalTime = 0;
 
 	try {
@@ -126,11 +127,11 @@ export const getDailyStudyTime = async (req, res, next) => {
 }
 
 
-export const getWeeklyAverageStudyTime = async (req, res, next) => {
-	const toDate = new Date(req.query.date);
-	const userId = parseInt(req.query.userId);
+export const getWeeklyAverageStudyTime = async (req: Request, res: Response, next: NextFunction) => {
+	const toDate = new Date(String(req.query.date));
+	const userId = parseInt(String(req.query.userId));
 	const day = toDate.getDay();	// [0:SUN, 1:MON, 2:TUS, 3:WED, 4:THU, 5:FRI, 6: SAT]
-	let fromDate = new Date(req.query.date);
+	let fromDate = new Date(String(req.query.date));
 	let i, weeklyDailyIds, totalTime = 0, weeklyPlanTimes, averageTime;
 
 	try {
@@ -176,7 +177,7 @@ export const getWeeklyAverageStudyTime = async (req, res, next) => {
 			})
 		}
 
-		averageTime = parseInt(totalTime / 7);
+		averageTime = totalTime / 7;
 		return res.json({ opcode: OPCODE.SUCCESS, averageTime: averageTime });
 
 	} catch(error) {
@@ -186,15 +187,15 @@ export const getWeeklyAverageStudyTime = async (req, res, next) => {
 }
 
 
-export const getMonthlyAverageStudyTime = async (req, res, next) => {
-	const toDate = new Date(req.query.date);
-	const userId = parseInt(req.query.userId);
-	const fromDate = new Date(req.query.date);
-	let i, totalTime = 0, monthlyDailyIds, monthlyPlanTimes, averageTime;
+export const getMonthlyAverageStudyTime = async (req: Request, res: Response, next: NextFunction) => {
+	const toDate = new Date(String(req.query.date));
+	const userId = parseInt(String(req.query.userId));
+	const fromDate = new Date(String(req.query.date));
+	let i, totalTime: number = 0, monthlyDailyIds, monthlyPlanTimes, averageTime;
 
 	const year = toDate.getFullYear();
 	const month = toDate.getMonth();
-	const numDays = new Date(year, month + 1, 0).getDate();
+	const numDays: number = new Date(year, month + 1, 0).getDate();
 
 	try { 
 		fromDate.setDate(1);
@@ -221,7 +222,7 @@ export const getMonthlyAverageStudyTime = async (req, res, next) => {
 			})
 		}
 		
-		averageTime = parseInt(totalTime / numDays);
+		averageTime = totalTime / numDays;
 		return res.json({ opcode: OPCODE.SUCCESS, averageTime: averageTime });
 	
 
@@ -232,7 +233,7 @@ export const getMonthlyAverageStudyTime = async (req, res, next) => {
 }
 
 
-export const handleStar = async (req, res, next) => {
+export const handleStar = async (req: Request, res: Response, next: NextFunction) => {
 	const userId = req.body.userId;
 	const dailyId = req.body.dailyId;
 
@@ -265,16 +266,16 @@ export const handleStar = async (req, res, next) => {
 	}
 };
 
-export const getDailyStar = async (req, res, next) => {
-	const date = req.query.date;
-	const userId = req.query.userId;
+export const getDailyStar = async (req: Request, res: Response, next: NextFunction) => {
+	const date = new Date(String(req.query.date));
+	const userId = parseInt(String(req.query.userId));
 
 	try {
 		const { obtainedStar } = await prisma.daily.findFirst({
 			where: {
 				AND: [
 					{ date },
-					{ userId: parseInt(userId) }
+					{ userId: userId }
 				]
 			}
 		});
@@ -286,13 +287,13 @@ export const getDailyStar = async (req, res, next) => {
 	}
 }
 
-export const getWeeklyStar = async (req, res, next) => {
-	const date = new Date(req.query.date);
-	const userId = parseInt(req.query.userId);
+export const getWeeklyStar = async (req: Request, res: Response, next: NextFunction) => {
+	const date = new Date(String(req.query.date));
+	const userId = parseInt(String(req.query.userId));
 	const flag = date.getDay();
 	// const WEEKDAY = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']; // [0, 1, 2, 3, 4, 5, 6]
 
-	let date2 = new Date(req.query.date);
+	let date2 = new Date(String(req.query.date));
 	let sum = 0;
 	let days;
 
@@ -343,12 +344,12 @@ export const getWeeklyStar = async (req, res, next) => {
 	}
 }
 
-export const getWeeklyTime = async (req, res, next) => {
-	const date = new Date(req.query.date);
-	const userId = Number(req.query.userId);
+export const getWeeklyTime = async (req: Request, res: Response, next: NextFunction) => {
+	const date = new Date(String(req.query.date));
+	const userId = parseInt(String(req.query.userId));
 	const flag = date.getDay();
 
-	let date2 = new Date(req.query.date);
+	let date2 = new Date(String(req.query.date));
 	let weekPlanDailyId, weekPlanTime, i, j;
 	let timeSum = new Array(weekPlanDailyId);
 
@@ -427,11 +428,11 @@ export const getWeeklyTime = async (req, res, next) => {
 }
 
 
-export const getMonthlyStar = async (req, res, next) => {
-	const date = new Date(req.query.date);
-	const userId = parseInt(req.query.userId);
+export const getMonthlyStar = async (req: Request, res: Response, next: NextFunction) => {
+	const date = new Date(String(req.query.date));
+	const userId = parseInt(String(req.query.userId));
 
-	let date2 = new Date(req.query.date);
+	let date2 = new Date(String(req.query.date));
 	let sum = 0;
 	let days;
 
@@ -463,16 +464,16 @@ export const getMonthlyStar = async (req, res, next) => {
 	}
 }
 
-export const getAllPlans = async (req, res, next) => {
-	const date = new Date(req.query.date);
-	const userId = parseInt(req.query.userId);	
+export const getAllPlans = async (req: Request, res: Response, next: NextFunction) => {
+	const date = new Date(String(req.query.date));
+	const userId = parseInt(String(req.query.userId));	
 	
 	try {
 		const { dailyId } = await prisma.daily.findFirst({
 			where: { 
 				AND: [
 					{ date },
-					{ userId: parseInt(userId) }
+					{ userId: userId }
 				]
 			}
 		});	
@@ -488,16 +489,16 @@ export const getAllPlans = async (req, res, next) => {
 	}	
 }
 
-export const getCompletedPlans = async (req, res, next) => {
-	const date = new Date(req.query.date);
-	const userId = parseInt(req.query.userId);
+export const getCompletedPlans = async (req: Request, res: Response, next: NextFunction) => {
+	const date = new Date(String(req.query.date));
+	const userId = parseInt(String(req.query.userId));
 	
 	try {
 		const { dailyId } = await prisma.daily.findFirst({
 			where: { 
 				AND: [
 					{ date },
-					{ userId: parseInt(userId) }
+					{ userId: userId }
 				]
 			}
 		});	
@@ -516,16 +517,16 @@ export const getCompletedPlans = async (req, res, next) => {
 	}		
 }
 
-export const getIncompletePlans = async (req, res, next) => {
-	const date = new Date(req.query.date);
-	const userId = parseInt(req.query.userId);	
+export const getIncompletePlans = async (req: Request, res: Response, next: NextFunction) => {
+	const date = new Date(String(req.query.date));
+	const userId = parseInt(String(req.query.userId));	
 
 	try {
 		const { dailyId } = await prisma.daily.findFirst({
 			where: { 
 				AND: [
 					{ date },
-					{ userId: parseInt(userId) }
+					{ userId: userId }
 				]
 			}
 		});	

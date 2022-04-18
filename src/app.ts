@@ -19,8 +19,7 @@ app.use('/user', userRouter);
 app.use('/plan', planRouter);
 
 app.use((req, _, next) => {
-	const error = new Error(`${req.method} ${req.url} 라우터가 없습니다.`);
-	error.status = 404;
+	const error = new DamoyeoError(`${req.method} ${req.url} 라우터가 없습니다.`, 404);
 	next(error);
 });
 

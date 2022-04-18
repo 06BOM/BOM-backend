@@ -1,4 +1,4 @@
 {
 	"ignore": [],
-	"exec": "babel-node src/index"
+	"exec": "node index.js"
 }
