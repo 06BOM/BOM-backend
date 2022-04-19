@@ -1,8 +1,9 @@
 import { PrismaClient } from "@prisma/client";
 import { OPCODE } from "../tools";
+import { NextFunction, Request, Response } from 'express';
 const prisma = new PrismaClient();
 
-export const signin = async (req, res, next) => {
+export const signin = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	let user = {
 		emailId: req.body.emailId,
 		userName: req.body.userName,
@@ -26,7 +27,7 @@ export const signin = async (req, res, next) => {
 	}
 };
 
-export const getUser = async (req, res, next) => {
+export const getUser = async (req: Request, res: Response, next: NextFunction) => {
 	let userId = Number(req.params.userId);
 	try {
 		const getUserResult = await prisma.user.findUnique({
@@ -42,7 +43,7 @@ export const getUser = async (req, res, next) => {
 	}
 };
 
-export const deleteUser = async (req, res, next) => {
+export const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
 	let userId = Number(req.params.userId);
 
 	try {
@@ -60,7 +61,7 @@ export const deleteUser = async (req, res, next) => {
 };
 
 
-export const modifyUser = async (req, res, next) => {
+export const modifyUser = async (req: Request, res: Response, next: NextFunction) => {
 	let userInfo = {
 		nickname: req.body.nickname,
 		phoneNum: req.body.phoneNum,
