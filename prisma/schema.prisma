@@ -74,7 +74,7 @@ model Category {
 model Plan {
 	planId				Int			@default(autoincrement()) @id
 	planName			String		@db.VarChar(45)
-	time				Int
+	time				Int			@default(0)
 	check				Boolean		@default(false)
 	repetitionType		Int?		// 1 -> 매일 반복, 2-> 매주 반복, 3-> 매달 반복
 	dailyId				Int

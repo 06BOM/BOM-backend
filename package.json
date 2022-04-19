@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start2": "tsc-watch --onSuccess \"node dist/index2.js\" ",
-    "start": "nodemon",
-    "prestart": "tsc",
+    "start": "tsc-watch --onSuccess \"node dist/index.js\" ",
     "migrate": "npx prisma migrate dev",
     "studio": "npx prisma studio"
   },

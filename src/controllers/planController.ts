@@ -10,7 +10,8 @@ export const createPlan = async (req: Request, res: Response, next: NextFunction
 		planName: String(req.body.planName),
 		repetitionType: parseInt(String(req.body.repetitionType)),
 		dailyId: parseInt(String(req.body.dailyId)),
-		categoryId: parseInt(String(req.body.categoryId))
+		categoryId: parseInt(String(req.body.categoryId)),
+		time: parseInt(String(req.body.time))
 	}
 	try {
 		const resultPlan = await prisma.plan.create({
