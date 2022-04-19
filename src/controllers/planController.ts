@@ -4,8 +4,7 @@ import { NextFunction, Request, Response } from 'express';
 
 const prisma = new PrismaClient();
 
-
-export const createPlan = async (req: Request, res: Response, next: NextFunction) => {
+export const createPlan = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	let plan = {
 		planName: String(req.body.planName),
 		repetitionType: parseInt(String(req.body.repetitionType)),
@@ -26,7 +25,7 @@ export const createPlan = async (req: Request, res: Response, next: NextFunction
 	}
 }
 
-export const updatePlan = async (req: Request, res: Response, next: NextFunction) => {
+export const updatePlan = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	let plan = {
 		planName: req.body.planName,
 		repetitionType: req.body.repetitionType,
@@ -51,7 +50,7 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 	}
 }
 
-export const changeCheckToTrue = async (req: Request, res: Response, next: NextFunction) => {
+export const changeCheckToTrue = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	let planId = parseInt(req.params.planId);
 
 	try {
@@ -72,7 +71,7 @@ export const changeCheckToTrue = async (req: Request, res: Response, next: NextF
 	}
 }
 
-export const deletePlan = async (req: Request, res: Response, next: NextFunction) => {
+export const deletePlan = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	let planId = parseInt(req.params.planId);
 
 	try {
@@ -90,7 +89,7 @@ export const deletePlan = async (req: Request, res: Response, next: NextFunction
 	}
 }
 
-export const getDailyStudyTime = async (req: Request, res: Response, next: NextFunction) => {
+export const getDailyStudyTime = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	const date = new Date(String(req.query.date));
 	const userId = parseInt(String(req.query.userId));
 	let totalTime = 0;
@@ -122,9 +121,9 @@ export const getDailyStudyTime = async (req: Request, res: Response, next: NextF
 	}
 }
 
-export const getStatistic = async (req, res, next) => {
-	const date = new Date(req.query.date);
-	const userId = parseInt(req.query.userId);
+export const getStatistic = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+	const date = new Date(String(req.query.date));
+	const userId = parseInt(String(req.query.userId));
 
 	console.log(date);
 
@@ -178,12 +177,12 @@ export const getStatistic = async (req, res, next) => {
 	}
 }
 
-export const getWeeklyAverageStudyTime = async (req: Request, res: Response, next: NextFunction) => {
+export const getWeeklyAverageStudyTime = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	const toDate = new Date(String(req.query.date));
 	const userId = parseInt(String(req.query.userId));
 	const day = toDate.getDay();	// [0:SUN, 1:MON, 2:TUS, 3:WED, 4:THU, 5:FRI, 6: SAT]
 	let fromDate = new Date(String(req.query.date));
-	let i, weeklyDailyIds, totalTime = 0, weeklyPlanTimes, averageTime;
+	let i: number, weeklyDailyIds, totalTime = 0, weeklyPlanTimes, averageTime: number;
 
 	try {
 		if(day === 0) {
@@ -237,15 +236,15 @@ export const getWeeklyAverageStudyTime = async (req: Request, res: Response, nex
 	}
 }
 
-export const getMonthlyAverageStudyTime = async (req: Request, res: Response, next: NextFunction) => {
+export const getMonthlyAverageStudyTime = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	const toDate = new Date(String(req.query.date));
 	const userId = parseInt(String(req.query.userId));
 	const fromDate = new Date(String(req.query.date));
-	let i, totalTime: number = 0, monthlyDailyIds, monthlyPlanTimes, averageTime;
+	let i: number, totalTime: number = 0, monthlyDailyIds, monthlyPlanTimes, averageTime;
 
 	const year = toDate.getFullYear();
 	const month = toDate.getMonth();
-	const numDays: number = new Date(year, month + 1, 0).getDate();
+	const numDays = new Date(year, month + 1, 0).getDate();
 
 	try { 
 		fromDate.setDate(1);
@@ -281,7 +280,7 @@ export const getMonthlyAverageStudyTime = async (req: Request, res: Response, ne
 	}
 }
 
-export const handleStar = async (req: Request, res: Response, next: NextFunction) => {
+export const handleStar = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	const userId = req.body.userId;
 	const dailyId = req.body.dailyId;
 
@@ -315,7 +314,7 @@ export const handleStar = async (req: Request, res: Response, next: NextFunction
 	}
 };
 
-export const getDailyStar = async (req: Request, res: Response, next: NextFunction) => {
+export const getDailyStar = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	const date = new Date(String(req.query.date));
 	const userId = parseInt(String(req.query.userId));
 
@@ -336,7 +335,7 @@ export const getDailyStar = async (req: Request, res: Response, next: NextFuncti
 	}
 }
 
-export const getWeeklyStar = async (req: Request, res: Response, next: NextFunction) => {
+export const getWeeklyStar = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	const date = new Date(String(req.query.date));
 	const userId = parseInt(String(req.query.userId));
 	const flag = date.getDay();
@@ -395,7 +394,7 @@ export const getWeeklyStar = async (req: Request, res: Response, next: NextFunct
 	}
 }
 
-export const getWeeklyTime = async (req: Request, res: Response, next: NextFunction) => {
+export const getWeeklyTime = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	const date = new Date(String(req.query.date));
 	const userId = parseInt(String(req.query.userId));
 	const flag = date.getDay();
@@ -479,7 +478,7 @@ export const getWeeklyTime = async (req: Request, res: Response, next: NextFunct
 	}
 }
 
-export const getMonthlyStar = async (req: Request, res: Response, next: NextFunction) => {
+export const getMonthlyStar = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	const date = new Date(String(req.query.date));
 	const userId = parseInt(String(req.query.userId));
 
@@ -515,7 +514,7 @@ export const getMonthlyStar = async (req: Request, res: Response, next: NextFunc
 	}
 }
 
-export const getMonthlyTime = async (req: Request, res: Response, next: NextFunction) => {
+export const getMonthlyTime = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	const toDate = new Date(String(req.query.date));
 	const fromDate = new Date(String(req.query.date));
 	const userId = parseInt(String(req.query.userId));
@@ -578,7 +577,7 @@ export const getMonthlyTime = async (req: Request, res: Response, next: NextFunc
 	}
 }
 
-export const getAllPlans = async (req: Request, res: Response, next: NextFunction) => {
+export const getAllPlans = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	const date = new Date(String(req.query.date));
 	const userId = parseInt(String(req.query.userId));	
 	
@@ -603,7 +602,7 @@ export const getAllPlans = async (req: Request, res: Response, next: NextFunctio
 	}	
 }
 
-export const getCompletedPlans = async (req: Request, res: Response, next: NextFunction) => {
+export const getCompletedPlans = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	const date = new Date(String(req.query.date));
 	const userId = parseInt(String(req.query.userId));
 	
@@ -631,7 +630,7 @@ export const getCompletedPlans = async (req: Request, res: Response, next: NextF
 	}		
 }
 
-export const getIncompletePlans = async (req: Request, res: Response, next: NextFunction) => {
+export const getIncompletePlans = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	const date = new Date(String(req.query.date));
 	const userId = parseInt(String(req.query.userId));	
 

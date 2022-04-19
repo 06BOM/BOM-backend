@@ -27,7 +27,7 @@ export const signin = async (req: Request, res: Response, next: NextFunction): P
 	}
 };
 
-export const getUser = async (req: Request, res: Response, next: NextFunction) => {
+export const getUser = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	let userId = Number(req.params.userId);
 	try {
 		const getUserResult = await prisma.user.findUnique({
@@ -43,7 +43,7 @@ export const getUser = async (req: Request, res: Response, next: NextFunction) =
 	}
 };
 
-export const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
+export const deleteUser = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	let userId = Number(req.params.userId);
 
 	try {
@@ -61,7 +61,7 @@ export const deleteUser = async (req: Request, res: Response, next: NextFunction
 };
 
 
-export const modifyUser = async (req: Request, res: Response, next: NextFunction) => {
+export const modifyUser = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	let userInfo = {
 		nickname: req.body.nickname,
 		phoneNum: req.body.phoneNum,
