@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 export const createPlan = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	let plan = {
 		planName: String(req.body.planName),
-		repetitionType: parseInt(String(req.body.repetitionType? null : 0)),
+		repetitionType: req.body.repetitionType? parseInt(String(req.body.repetitionType)) : 0,
 		dailyId: parseInt(String(req.body.dailyId)),
 		categoryId: parseInt(String(req.body.categoryId))
 	}
