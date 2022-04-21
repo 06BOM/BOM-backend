@@ -1,5 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
+// mysql://root:ajouuniversity@bom-backend.c5e6sfujwd1g.ap-northeast-2.rds.amazonaws.com:3306/damoyeo
 
 generator client {
   provider = "prisma-client-js"
@@ -7,7 +8,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = "mysql://root:ajouuniversity@bom-backend.c5e6sfujwd1g.ap-northeast-2.rds.amazonaws.com:3306/damoyeo"
+  url      = "mysql://root:root@localhost:3306/damoyeo2"
 }
 
 model User {
@@ -56,7 +57,7 @@ model Daily {
 	date				DateTime
 	obtainedStar		Int			@default(0)
 	userId				Int
-	user				User		@relation(fields: [userId], references: [userId])
+	user				User		@relation(fields: [userId], references: [userId], onDelete: Cascade)
 	plans				Plan[]
 }
 
@@ -65,9 +66,9 @@ model Category {
 	categoryName		String		@db.VarChar(45)
 	color				String		@db.VarChar(45)
 	type				Boolean		@default(false)
-	userId				Int
+	userId				Int?
 	plan				Plan[]
-	user				User		@relation(fields: [userId], references: [userId])
+	user				User?		@relation(fields: [userId], references: [userId], onDelete: Cascade)
 	post				Post[]
 }
 
@@ -97,7 +98,7 @@ model Message {
 model Session {
 	sessionId			Int			@default(autoincrement()) @id
 	createdAt			DateTime	@default(now())
-	user				User		@relation(fields: [userId], references: [userId])
+	user				User		@relation(fields: [userId], references: [userId], onDelete: Cascade)
 	userId				Int
 }
 
@@ -198,7 +199,7 @@ model QuestAttempt {
 	count				Int			@default(0)
 	date				DateTime
 	question			MockDB		@relation(fields: [questionId], references: [mockquestionId])
-	user				User		@relation(fields: [userId], references: [userId])
+	user				User		@relation(fields: [userId], references: [userId], onDelete: Cascade)
 	@@id([questionId, userId])
 }
 
@@ -206,8 +207,8 @@ model Follower {
 	fromId				Int
 	toId				Int
 	permission			Boolean		@default(false)
-	fromUser			User		@relation(name: "from", fields: [fromId], references: [userId])
-	toUser				User		@relation(name: "to", fields: [toId], references: [userId])
+	fromUser			User		@relation(name: "from", fields: [fromId], references: [userId], onDelete: Cascade)
+	toUser				User		@relation(name: "to", fields: [toId], references: [userId], onDelete: Cascade)
 	@@id([fromId, toId])
 }
 
@@ -233,7 +234,7 @@ model PostContentUrl {
 	contentId			Int			@default(autoincrement()) @id
 	contentUrl			String		@db.Text
 	postId				Int
-	post				Post		@relation(fields: [postId], references: [postId])
+	post				Post		@relation(fields: [postId], references: [postId], onDelete: Cascade)
 }
 
 model Comment {
@@ -243,7 +244,7 @@ model Comment {
 	commentParent		Int?
 	postId				Int
 	userId				Int
-	post				Post		@relation(fields: [postId], references: [postId])
+	post				Post		@relation(fields: [postId], references: [postId], onDelete: Cascade)
 	user				User		@relation(fields: [userId], references: [userId])
 }
 
@@ -257,23 +258,23 @@ model OXUnitRange {
 model Collection {
 	userId				Int
 	characterId			Int
-	user				User		@relation(fields: [userId], references: [userId])
+	user				User		@relation(fields: [userId], references: [userId], onDelete: Cascade)
 	character			Character	@relation(fields: [characterId], references: [characterId])
 	@@id([userId, characterId])	
 }
 
 model Like {
-	communityId			Int
+	postId				Int
 	userId				Int
-	community			Post		@relation(fields: [communityId], references: [postId])
-	user				User		@relation(fields: [userId], references: [userId])
-	@@id([communityId, userId])
+	post				Post		@relation(fields: [postId], references: [postId], onDelete: Cascade)
+	user				User		@relation(fields: [userId], references: [userId], onDelete: Cascade)
+	@@id([postId, userId])
 }
 
 model Scrap {
-	communityId			Int
+	postId				Int
 	userId				Int
-	community			Post		@relation(fields: [communityId], references: [postId])
-	user				User		@relation(fields: [userId], references: [userId])
-	@@id([communityId, userId])
+	post				Post		@relation(fields: [postId], references: [postId], onDelete: Cascade)
+	user				User		@relation(fields: [userId], references: [userId], onDelete: Cascade)
+	@@id([postId, userId])
 }
