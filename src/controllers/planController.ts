@@ -4,6 +4,38 @@ import { NextFunction, Request, Response } from 'express';
 
 const prisma = new PrismaClient();
 
+export const getUserId = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+	
+	let planId = Number(req.params.planId);
+		
+	try {
+		const getDailyId = await prisma.plan.findUnique({
+			where: { 
+				planId: planId	
+			},
+			select:{
+				dailyId: true
+			}
+		});
+
+		const getUser = await prisma.daily.findUnique({
+			where: {
+				dailyId: getDailyId.dailyId
+			},
+			select:{
+				userId: true
+			}
+		});
+
+
+		return res.json({ opcode: OPCODE.SUCCESS, userId : getUser.userId });
+		
+	} catch(error) {
+		console.log(error);
+		next(error);
+	}
+}
+
 export const createPlan = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	let plan = {
 		planName: String(req.body.planName),
