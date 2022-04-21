@@ -70,6 +70,23 @@ export const changeCheckToTrue = async (req: Request, res: Response, next: NextF
 	}
 }
 
+export const getPlanTime = async(req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+	let planId = parseInt(req.params.planId);
+
+	try {
+		const time = await prisma.plan.findUnique({
+			where: { planId: planId },
+			select: { time: true }
+		})
+
+		return res.json({ opcode: OPCODE.SUCCESS, time: time.time })
+
+	} catch(error) {
+		console.log(error);
+		next(error);
+	}
+}
+
 export const deletePlan = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	let planId = parseInt(req.params.planId);
 
