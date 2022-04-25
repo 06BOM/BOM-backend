@@ -81,20 +81,22 @@ export const updatePost = async (req: Request, res: Response, next: NextFunction
 }
 
 export const getPostByTitle = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
-	const search = req.query.search;
-	
+	const search = req.body.search;
 	console.log(search);
 
 	try {
-		const posts = await prisma.post.findUnique({
+		const posts = await prisma.post.findMany({
 			where: {
+				title: {
+					contains: `${search}`
+				}
 			}
 		});
-		
-		console.log("posts", posts);
-		return res.json({ opcode: OPCODE.SUCCESS });
+
+		return res.json({ opcode: OPCODE.SUCCESS, posts });
+
 	} catch(error) {
 		console.log(error);
 		next(error);
-	}	
+	}
 }

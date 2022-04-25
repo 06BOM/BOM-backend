@@ -51,3 +51,29 @@ export const getCommentWithoutReply = async (req: Request, res: Response, next: 
         next(error);
     }
 }
+
+export const createReply = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+	try {
+		const commentId = parseInt(String(req.query.id));
+		const comment = await prisma.comment.findUnique({ 
+			where: { commentId }
+		});
+		if (!comment) {
+			return res.status(200).send('no comment');
+		}
+
+		const reply = await prisma.comment.create({
+			data: {
+				postId: req.body.postId,
+				userId: req.body.userId,
+				content: req.body.content,
+				commentParent: commentId
+			}
+		});
+
+		return res.json({ opcode: OPCODE.SUCCESS, reply });
+	} catch(error) {
+		console.log(error);
+		next(error);
+	}
+}
