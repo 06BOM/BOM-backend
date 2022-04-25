@@ -26,3 +26,28 @@ export const createComment = async (req: Request, res: Response, next: NextFunct
         next(error);
     }
 }
+
+export const getCommentWithoutReply = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+    const postId = req.query.postId;
+    const lastComment = req.query.lastComment;
+    const size = req.query.size;
+
+    try {
+        const resultComments = await prisma.comment.findMany({
+            where: { 
+                AND: [
+					{ commentParent: 0 },
+					{ postId: Number(postId) },
+                    { commentId: { gte: Number(lastComment) }}
+				] },
+            take: Number(size),
+
+        })
+
+        return res.json({ opcode: OPCODE.SUCCESS, resultComments });
+
+    } catch(error) {
+        console.log(error);
+        next(error);
+    }
+}

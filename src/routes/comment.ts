@@ -1,9 +1,10 @@
 import express from 'express';
-import { createComment } from "../controllers/commentController";
+import { createComment, getCommentWithoutReply } from "../controllers/commentController";
 
 const router = express.Router();
 
 router.post('', createComment);
+router.get('', getCommentWithoutReply);
 
 
 export default router;
