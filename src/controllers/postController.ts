@@ -1,6 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import { OPCODE } from "../tools";
 import { NextFunction, Request, Response } from 'express';
+import { ServerStreamFileResponseOptionsWithError } from "http2";
+import { NetConnectOpts } from "net";
 
 const prisma = new PrismaClient();
 
@@ -30,6 +32,22 @@ export const soltingPostByCategory = async (req: Request, res: Response, next: N
         })
 
         return res.json({ opcode: OPCODE.SUCCESS, resultPosts });
+        
+    } catch(error) {
+        console.log(error);
+        next(error);
+    }
+}
+
+export const getPostbyPostId = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+    const postId = parseInt(req.params.postId);
+
+    try {
+        const resultPost = await prisma.post.findUnique({
+            where: { postId }
+        })
+
+        return res.json({ opcode: OPCODE.SUCCESS, resultPost });
         
     } catch(error) {
         console.log(error);
