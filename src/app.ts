@@ -6,6 +6,7 @@ import indexRouter from "./routes";
 import userRouter from "./routes/user";
 import planRouter from "./routes/plan";
 import postRouter from "./routes/post";
+import commentRouter from "./routes/comment";
 import { OPCODE, DamoyeoError } from './tools';
 import { NextFunction, Request, Response } from 'express';
 
@@ -20,6 +21,7 @@ app.use('/', indexRouter);
 app.use('/user', userRouter);
 app.use('/plan', planRouter);
 app.use('/post', postRouter);
+app.use('/comment', commentRouter);
 
 app.use((req: Request, res: Response, next: NextFunction) => {
 	const error = new DamoyeoError(`${req.method} ${req.url} 라우터가 없습니다.`, 404);
