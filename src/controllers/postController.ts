@@ -79,3 +79,22 @@ export const updatePost = async (req: Request, res: Response, next: NextFunction
 		next(error);
 	}
 }
+
+export const getPostByTitle = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+	const search = req.query.search;
+	
+	console.log(search);
+
+	try {
+		const posts = await prisma.post.findUnique({
+			where: {
+			}
+		});
+		
+		console.log("posts", posts);
+		return res.json({ opcode: OPCODE.SUCCESS });
+	} catch(error) {
+		console.log(error);
+		next(error);
+	}	
+}
