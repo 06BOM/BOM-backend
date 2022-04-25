@@ -56,39 +56,22 @@ export const getPostbyPostId = async (req: Request, res: Response, next: NextFun
 }
 
 export const updatePost = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
-	// const postId = parseInt(String(req.body.postId));
-	const title = req.body.title;
-	const content = req.body.content;
-	const postKind = parseInt(String(req.body.postKind));
-	const anonymous = Boolean(req.body.anonymous);
+	let post = {
+		title: req.body.title,
+		content: req.body.content,
+		postKind: req.body.postKind,
+		anonymous: req.body.anonymous
+	}
+	let postId = parseInt(req.params.postId);
 
-	const postId2 = req.query.postId;
-
-	console.log("postId", postId2);
-	const postId = Number(postId2);
-	console.log("postId", postId);
-	console.log("title", title);
-	console.log("content", content);
-	console.log("postKind", postKind);
-	console.log("anonymous", anonymous);
 	try {
-		const postData = await prisma.post.findUnique({
+		const postData = await prisma.post.update({
 			where: {
 				postId
-			}
+			},
+			data: post
 		});
-		/*
-		const post = await prisma.post.update({
-			where: {
-				postId
-			},
-			data: {
-				title,
-				content,
-				postKind,
-				anonymous
-			},
-		});*/
+		
 		console.log("post", postData);
 		return res.json({ opcode: OPCODE.SUCCESS, postData });
 	} catch(error) {

@@ -6,7 +6,7 @@ const router = express.Router();
 router.delete("/delete", deletePost);
 router.get("/category", soltingPostByCategory);
 router.get("/:postId", getPostbyPostId);
-router.patch("/", updatePost);
+router.patch("/:postId", updatePost);
 
 
 export default router;
