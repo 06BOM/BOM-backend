@@ -17,7 +17,8 @@ import { createPlan,
          getAllPlans, 
          getCompletedPlans, 
          getIncompletePlans,
-         getUserId 
+         getUserId,
+         getPlanData 
     } from "../controllers/planController";
 
 const router = express.Router();
@@ -26,6 +27,7 @@ router.post("", createPlan);
 router.route("/:planId").delete(deletePlan).patch(updatePlan).get(getUserId);
 router.patch("/:planId/check", changeCheckToTrue);
 router.get("/:planId/time", getPlanTime);
+router.get("/:planId/data",getPlanData);
 router.get("/total", getDailyStudyTime);
 router.get("/week/average", getWeeklyAverageStudyTime);
 router.get("/month/average", getMonthlyAverageStudyTime);

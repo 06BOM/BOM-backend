@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { OPCODE } from "../tools";
 import { NextFunction, Request, Response } from 'express';
+import { time } from "console";
 
 const prisma = new PrismaClient();
 
@@ -29,6 +30,30 @@ export const getUserId = async (req: Request, res: Response, next: NextFunction)
 
 
 		return res.json({ opcode: OPCODE.SUCCESS, userId : getUser.userId });
+		
+	} catch(error) {
+		console.log(error);
+		next(error);
+	}
+}
+
+export const getPlanData = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+	
+	let planId = Number(req.params.planId);
+		
+	try {
+		const result = await prisma.plan.findUnique({
+			where: { 
+				planId: planId	
+			},
+			select:{
+				planName: true,
+				time: true,
+				check: true,
+				category: true
+			}
+		});
+		return res.json({ opcode: OPCODE.SUCCESS, result });
 		
 	} catch(error) {
 		console.log(error);
