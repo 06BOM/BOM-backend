@@ -62,17 +62,15 @@ export const updatePost = async (req: Request, res: Response, next: NextFunction
 		postKind: req.body.postKind,
 		anonymous: req.body.anonymous
 	}
-	let postId = parseInt(req.params.postId);
 
 	try {
 		const postData = await prisma.post.update({
 			where: {
-				postId
+				postId: Number(req.body.postId)
 			},
 			data: post
 		});
 		
-		console.log("post", postData);
 		return res.json({ opcode: OPCODE.SUCCESS, postData });
 	} catch(error) {
 		console.log(error);
@@ -82,7 +80,6 @@ export const updatePost = async (req: Request, res: Response, next: NextFunction
 
 export const getPostByTitle = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	const search = req.body.search;
-	console.log(search);
 
 	try {
 		const posts = await prisma.post.findMany({

@@ -7,6 +7,6 @@ router.delete("/delete", deletePost);
 router.get("/category", soltingPostByCategory);
 router.get("/title", getPostByTitle);
 router.get("/:postId", getPostbyPostId);
-router.patch("/:postId", updatePost);
+router.patch("/", updatePost);
 
 export default router;
