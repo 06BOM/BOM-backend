@@ -3,7 +3,6 @@ import { createPlan,
          deletePlan, 
          updatePlan, 
          handleStar, 
-         changeCheckToTrue,
          getPlanTime, 
          getDailyStudyTime, 
          getWeeklyAverageStudyTime, 
@@ -25,7 +24,6 @@ const router = express.Router();
 
 router.post("", createPlan);
 router.route("/:planId").delete(deletePlan).patch(updatePlan).get(getUserId);
-router.patch("/:planId/check", changeCheckToTrue);
 router.get("/:planId/time", getPlanTime);
 router.get("/:planId/data",getPlanData);
 router.get("/total", getDailyStudyTime);

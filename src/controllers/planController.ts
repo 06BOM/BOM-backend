@@ -106,26 +106,6 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 	}
 }
 
-export const changeCheckToTrue = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
-	let planId = parseInt(req.params.planId);
-
-	try {
-		await prisma.plan.update({
-            where: {
-                planId: planId
-            },
-            data: {
-                check: true
-            }
-        })
-
-		return res.json({ opcode: OPCODE.SUCCESS });
-		
-	} catch(error) {
-		console.log(error);
-		next(error);
-	}
-}
 
 export const getPlanTime = async(req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	let planId = parseInt(req.params.planId);
