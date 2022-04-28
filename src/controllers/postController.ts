@@ -22,7 +22,7 @@ export const deletePost = async (req: Request, res: Response, next: NextFunction
     }
 }
 
-export const soltingPostByCategory = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+export const sortingPostByCategory = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
     const categoryId = parseInt(String(req.query.categoryId));
 
     try {
