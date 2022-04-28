@@ -50,6 +50,7 @@ model User {
 	collections			Collection[]
 	likes				Like[]
 	scraps				Scrap[]
+	planDays			PlanDay[]
 }
 
 model Daily {
@@ -82,6 +83,7 @@ model Plan {
 	categoryId			Int
 	daily				Daily		@relation(fields: [dailyId], references: [dailyId])
 	category			Category	@relation(fields: [categoryId], references: [categoryId])
+	planDays			PlanDay[]
 }
 
 model Message {
@@ -277,4 +279,13 @@ model Scrap {
 	post				Post		@relation(fields: [postId], references: [postId], onDelete: Cascade)
 	user				User		@relation(fields: [userId], references: [userId], onDelete: Cascade)
 	@@id([postId, userId])
+}
+
+model PlanDay {
+	planId				Int
+	day					Int			@default(0)
+	userId				Int
+	user				User		@relation(fields: [userId], references: [userId])
+	plan				Plan		@relation(fields: [planId], references: [planId])	
+	@@id([planId, day])
 }
