@@ -24,10 +24,6 @@ import { createPlan,
 const router = express.Router();
 
 router.post("", createPlan);
-router.route("/:planId").delete(deletePlan).patch(updatePlan).get(getUserId);
-router.patch("/:planId/check", changeCheckToTrue);
-router.get("/:planId/time", getPlanTime);
-router.get("/:planId/data",getPlanData);
 router.get("/total", getDailyStudyTime);
 router.get("/week/average", getWeeklyAverageStudyTime);
 router.get("/month/average", getMonthlyAverageStudyTime);
@@ -40,5 +36,9 @@ router.get("/month/star", getMonthlyStar);
 router.get("/all", getAllPlans);
 router.get("/completed", getCompletedPlans);
 router.get("/incomplete", getIncompletePlans);
+router.route("/:planId").delete(deletePlan).patch(updatePlan).get(getUserId);
+router.patch("/:planId/check", changeCheckToTrue);
+router.get("/:planId/time", getPlanTime);
+router.get("/:planId/data",getPlanData);
 
 export default router;
