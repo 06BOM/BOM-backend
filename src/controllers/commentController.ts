@@ -54,26 +54,44 @@ export const getCommentWithoutReply = async (req: Request, res: Response, next: 
 
 export const createReply = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	try {
-		const commentId = parseInt(String(req.query.id));
-		const comment = await prisma.comment.findUnique({ 
-			where: { commentId }
-		});
-		if (!comment) {
-			return res.status(200).send('no comment');
-		}
-
 		const reply = await prisma.comment.create({
 			data: {
 				postId: req.body.postId,
 				userId: req.body.userId,
 				content: req.body.content,
-				commentParent: commentId
+				commentParent: req.body.parentId
 			}
 		});
 
-		return res.json({ opcode: OPCODE.SUCCESS, reply });
+		return res.status(201).json({ opcode: OPCODE.SUCCESS, reply });
+	
 	} catch(error) {
 		console.log(error);
 		next(error);
 	}
-}
+};
+
+export const getCommentWithReply = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+	const commentId = Number(req.query.commentId);
+
+	try {
+		const comment = await prisma.comment.findUnique({
+			where: {
+				commentId
+			}
+		});
+		if (!comment) {
+			return res.status(200).json({ opcode: OPCODE.SUCCESS, msg: "no comment" });
+		}	
+
+		const reply = await prisma.comment.findMany({
+			where: { commentParent: commentId },
+			orderBy: { createdAt: 'desc' }
+		});
+
+		return res.status(201).json({ opcode: OPCODE.SUCCESS, reply });
+	} catch(error) {
+		console.log(error);
+		next(error);
+	}
+};

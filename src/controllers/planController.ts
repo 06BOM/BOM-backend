@@ -62,13 +62,40 @@ export const getPlanData = async (req: Request, res: Response, next: NextFunctio
 }
 
 export const createPlan = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+
+	const userId = Number(req.body.userId);
+	const date = new Date((req.body.date));
+	// repitition table 생기면 요일 받아서 코드 추가하기
+
 	let plan = {
 		planName: String(req.body.planName),
 		repetitionType: req.body.repetitionType? parseInt(String(req.body.repetitionType)) : 0,
-		dailyId: parseInt(String(req.body.dailyId)),
+		dailyId: 0,
 		categoryId: parseInt(String(req.body.categoryId))
 	}
+
 	try {
+		const getDaily = await prisma.daily.findFirst({
+			where: {
+				AND: [
+					{ date: date },
+					{ userId: userId }
+				]
+			},
+			select:{ dailyId: true }
+		});
+
+		if( getDaily === null) {
+			const createDaily = await prisma.daily.create({
+				data: { date: date, userId: userId }
+			});
+
+			plan.dailyId = createDaily.dailyId;
+
+		} else {
+			plan.dailyId = getDaily.dailyId;
+		}
+
 		const resultPlan = await prisma.plan.create({
             data: plan
         });
@@ -106,26 +133,6 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 	}
 }
 
-export const changeCheckToTrue = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
-	let planId = parseInt(req.params.planId);
-
-	try {
-		await prisma.plan.update({
-            where: {
-                planId: planId
-            },
-            data: {
-                check: true
-            }
-        })
-
-		return res.json({ opcode: OPCODE.SUCCESS });
-		
-	} catch(error) {
-		console.log(error);
-		next(error);
-	}
-}
 
 export const getPlanTime = async(req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	let planId = parseInt(req.params.planId);
