@@ -5,11 +5,29 @@ import { time } from "console";
 
 const prisma = new PrismaClient();
 
+const deleteRepitition = async (deletePlanName: string, dUserId: Number, deleteDay: Number) => {
+	const planName = deletePlanName;
+	const userId = dUserId;
+	const day = deleteDay;
+	let curr = new Date();
+	console.log(curr);
+	curr.setHours(0, 0, 0); 
+	console.log(curr);
+
+	try {
+
+	} catch (error) {
+		console.log(error);
+	}
+}
+
 export const getUserId = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	
 	let planId = Number(req.params.planId);
 		
 	try {
+		deleteRepitition("aaa", 1, 1);
+
 		const getDailyId = await prisma.plan.findUnique({
 			where: { 
 				planId: planId	
