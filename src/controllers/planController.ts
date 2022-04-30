@@ -62,10 +62,21 @@ export const getPlanData = async (req: Request, res: Response, next: NextFunctio
 }
 
 export const createPlan = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+	//const today = new Date();
+	//let currentDay = new Date();
 
 	const userId = Number(req.body.userId);
 	const date = new Date((req.body.date));
+
+	//const year = Number(req.body.year);
+	//const month = Number(req.body.month);
+	//const day = Number(req.body.day);
+	//const days = req.body.days;
 	// repitition table 생기면 요일 받아서 코드 추가하기
+
+	//currentDay.setFullYear(currentDay.getFullYear() + year);
+	//currentDay.setMonth(currentDay.getMonth() + month);
+	//currentDay.setDate(currentDay.getDate() + day);
 
 	let plan = {
 		planName: String(req.body.planName),
@@ -74,38 +85,78 @@ export const createPlan = async (req: Request, res: Response, next: NextFunction
 		categoryId: parseInt(String(req.body.categoryId))
 	}
 
-	try {
-		const getDaily = await prisma.daily.findFirst({
-			where: {
-				AND: [
-					{ date: date },
-					{ userId: userId }
-				]
-			},
-			select:{ dailyId: true }
-		});
+	//let resultPlan;
 
-		if( getDaily === null) {
-			const createDaily = await prisma.daily.create({
-				data: { date: date, userId: userId }
+	try {
+		//if (plan.repetitionType === 0) {
+			const getDaily = await prisma.daily.findFirst({
+				where: {
+					AND: [
+						{ date: date },
+						{ userId: userId }
+					]
+				},
+				select:{ dailyId: true }
 			});
 
-			plan.dailyId = createDaily.dailyId;
+			console.log(getDaily);
+	
+			/*
+			if(getDaily === null) {
+				const createDaily = await prisma.daily.create({
+					data: { date: date, userId: userId }
+				});
 
-		} else {
-			plan.dailyId = getDaily.dailyId;
-		}
+				plan.dailyId = createDaily.dailyId;
 
-		const resultPlan = await prisma.plan.create({
-            data: plan
-        });
+			} else {
+				plan.dailyId = getDaily.dailyId;
+			}
 
-		return res.json({ opcode: OPCODE.SUCCESS, resultPlan });
+			resultPlan = await prisma.plan.create({
+				data: plan
+			});*/
+
+		//} else if (req.body.repetitionType === 1) { // 매일 반복
+			/*while (1) {
+				currentDay.setDate(currentDay.getDate() + 1); // 하루 증가
+				
+				if (Number(today) === Number(currentDay)) {
+					break;	
+				}
+
+				for (let i = 0; i < days.length; i++) {
+					if (days[currentDay.getDay()]) {
+						resultPlan = await prisma.plan.create({
+							data: plan
+						});	
+					}
+				}
+			}*/
+		//} else {
+			/*while (1) {
+				currentDay.setDate(currentDay.getDate() + 1); // 하루 증가
+				
+				if (Number(today) === Number(currentDay)) {
+					break;	
+				}
+
+				for (let i = 0; i < days.length; i++) {
+					if (days[currentDay.getDay()]) {
+						resultPlan = await prisma.plan.create({
+							data: plan
+						});	
+					}
+				}
+			}*/
+		//}
+
+		return res.json({ opcode: OPCODE.SUCCESS });
 		
 	} catch(error) {
 		console.log(error);
 		next(error);
-	}
+	} 
 }
 
 export const updatePlan = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {

@@ -2,14 +2,19 @@
 const dateMover = (year: number, month: number, day: number, ...days: number[]) => {
 	let currentDay = new Date();
 
-	let currentYear = currentDay.getFullYear();
-	let currentMonth = currentDay.getMonth() + 1;
-	let currentDate = currentDay.getDate();
+	//let currentYear = currentDay.getFullYear();
+	//let currentMonth = currentDay.getMonth() + 1;
+	//let currentDate = currentDay.getDate();
 
 	// 월요일 = 1, 화요일 = 2, 수요일 = 3
 	while (1) {
-		//currentDay.setDate(currentDay.getDate() + 1);
-		//if (currentDay.getDay() )
+		currentDay.setDate(currentDay.getDate() + 1);
+		for (let i = 0; i < days.length; i++) {
+			if (currentDay.getDay() === days[i])
+			{
+				
+			}
+		}
 	}
 }
 
