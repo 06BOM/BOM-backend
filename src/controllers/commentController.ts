@@ -97,6 +97,24 @@ export const updateComment = async (req: Request, res: Response, next: NextFunct
 	}
 }
 
+export const deleteComment = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+	
+	let commentId = parseInt(req.params.commentId);
+
+	try {
+		const resultComment = await prisma.comment.delete({
+            where: {
+                commentId: commentId
+            }
+        })
+
+		return res.json({ opcode: OPCODE.SUCCESS });
+
+	} catch(error) {
+		console.log(error);
+		next(error);
+	}
+}
 
 export const getCommentWithReply = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	const commentId = Number(req.query.commentId);
