@@ -29,17 +29,58 @@ export const createPost = async (req: Request, res: Response, next: NextFunction
     }
 }
 
+export const getMostLikePost = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+    let today = new Date();
+    let yesterday = new Date();
+    yesterday.setDate(today.getDate()-1);
+
+    today.setUTCHours(0,0,0.0);
+    yesterday.setUTCHours(0,0,0.0);
+
+    try {
+        //어제 올라온 모든 post 호출
+        const getYesterdayPost = await prisma.post.findFirst({
+            where:{
+                createdAt:{
+                    lte: today,
+                    gte: yesterday
+                }
+            },
+            orderBy:{
+                like:{
+                    _count: 'desc'
+                }
+            }
+        })
+
+        //const getMostLikePost = await prisma.like
+        //가장 많은 like를 얻은 postId return
+        console.log(getYesterdayPost);
+        return res.json({ opcode: OPCODE.SUCCESS, getYesterdayPost });
+
+    }   catch(error) {
+        console.log(error);
+        next(error);
+    }
+}
+
 export const sortingPostByCategory = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
     const categoryId = parseInt(String(req.query.categoryId));
 
     try {
         const resultPosts = await prisma.post.findMany({
-            where: { categoryId },
-            orderBy: { createdAt: 'desc' }
-        })
+            where: { 
+                categoryId 
+            },
+
+            orderBy: { 
+                createdAt: 'desc' 
+            }
+        });
 
         return res.json({ opcode: OPCODE.SUCCESS, resultPosts });
-	} catch(error){
+
+	}   catch(error){
 		console.log(error);
 		next(error);
 	}
@@ -48,10 +89,14 @@ export const sortingPostByCategory = async (req: Request, res: Response, next: N
 export const deletePost = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	const postId = parseInt(String(req.query.postId));
     console.log("postId: ", postId);
+
 	try {
+		const result = await prisma.post.delete({
+            where: { postId }
+        })
         return res.json({ opcode: OPCODE.SUCCESS });
 
-    } catch(error) {
+    }   catch(error) {
         console.log(error);
         next(error);
     }
@@ -68,7 +113,7 @@ export const getPostbyPostId = async (req: Request, res: Response, next: NextFun
 
         return res.json({ opcode: OPCODE.SUCCESS, resultPost });
         
-    } catch(error) {
+    }   catch(error) {
         console.log(error);
         next(error);
     }
@@ -91,7 +136,7 @@ export const updatePost = async (req: Request, res: Response, next: NextFunction
 		});
 		
 		return res.json({ opcode: OPCODE.SUCCESS, postData });
-	} catch(error) {
+	}   catch(error) {
 		console.log(error);
 		next(error);
 	}
@@ -111,7 +156,7 @@ export const getPostByTitle = async (req: Request, res: Response, next: NextFunc
 
 		return res.json({ opcode: OPCODE.SUCCESS, posts });
 
-	} catch(error) {
+	}   catch(error) {
 		console.log(error);
 		next(error);
 	}
