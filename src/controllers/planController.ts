@@ -5,16 +5,42 @@ import { time } from "console";
 
 const prisma = new PrismaClient();
 
-const deleteRepitition = async (deletePlanName: string, dUserId: Number, deleteDay: Number) => {
+const deleteRepitition = async (deletePlanName, dUserId, deleteDay) => {
 	const planName = deletePlanName;
 	const userId = dUserId;
 	const day = deleteDay;
 	let curr = new Date();
-	console.log(curr);
-	curr.setHours(0, 0, 0); 
-	console.log(curr);
+	curr.setUTCHours(0, 0, 0); 
+	curr.setDate( curr.getDate() + 1);
 
 	try {
+
+		const deleteRepititionPlans = await prisma.plan.deleteMany({
+			where: {
+				AND: [
+					{ planName: planName },
+					{ daily: {		
+						date: { gte: curr }
+						}
+					},
+					{ daily: {
+						userId: userId
+					}}
+				]
+			}
+		})
+
+		const deletePlanDay = await prisma.planDay.deleteMany({
+			where: {
+				AND: [
+					{ day: day },
+					{ planName: planName },
+					{ userId: userId }
+				]
+			}
+		})
+
+		return 0;
 
 	} catch (error) {
 		console.log(error);
@@ -26,7 +52,7 @@ export const getUserId = async (req: Request, res: Response, next: NextFunction)
 	let planId = Number(req.params.planId);
 		
 	try {
-		deleteRepitition("aaa", 1, 1);
+		//const r = deleteRepitition("아아아", 1, 2);
 
 		const getDailyId = await prisma.plan.findUnique({
 			where: { 
