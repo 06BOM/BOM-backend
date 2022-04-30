@@ -8,7 +8,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = "mysql://root:ajouuniversity@bom-backend.c5e6sfujwd1g.ap-northeast-2.rds.amazonaws.com:3306/damoyeo"
+  url      = "mysql://root:root@bom-backend.c5e6sfujwd1g.ap-northeast-2.rds.amazonaws.com:3306/damoyeo"
 }
 
 model User {
@@ -283,6 +283,7 @@ model Scrap {
 
 model PlanDay {
 	planId				Int
+	planName			String		@db.VarChar(45)
 	day					Int			@default(0)
 	userId				Int
 	user				User		@relation(fields: [userId], references: [userId])
