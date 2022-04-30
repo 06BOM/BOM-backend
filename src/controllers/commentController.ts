@@ -71,6 +71,33 @@ export const createReply = async (req: Request, res: Response, next: NextFunctio
 	}
 };
 
+export const updateComment = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+	let comment = {
+		content: req.body.content,
+		commentParent: req.body.commentParent,
+		createdAt: new Date(),
+		postId: req.body.postId,
+		userId: req.body.userId
+	}
+	let commentId = parseInt(req.params.commentId);
+
+	try {
+		const resultComment = await prisma.comment.update({
+            where: {
+                commentId: commentId
+            },
+            data: comment
+        })
+
+		return res.json({ opcode: OPCODE.SUCCESS, resultComment });
+
+	} catch(error) {
+		console.log(error);
+		next(error);
+	}
+}
+
+
 export const getCommentWithReply = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	const commentId = Number(req.query.commentId);
 
