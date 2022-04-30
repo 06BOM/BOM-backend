@@ -39,7 +39,7 @@ CREATE TABLE `Category` (
     `categoryName` VARCHAR(45) NOT NULL,
     `color` VARCHAR(45) NOT NULL,
     `type` BOOLEAN NOT NULL DEFAULT false,
-    `userId` INTEGER NOT NULL,
+    `userId` INTEGER NULL,
 
     PRIMARY KEY (`categoryId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -48,7 +48,7 @@ CREATE TABLE `Category` (
 CREATE TABLE `Plan` (
     `planId` INTEGER NOT NULL AUTO_INCREMENT,
     `planName` VARCHAR(45) NOT NULL,
-    `time` INTEGER NOT NULL,
+    `time` INTEGER NOT NULL DEFAULT 0,
     `check` BOOLEAN NOT NULL DEFAULT false,
     `repetitionType` INTEGER NULL,
     `dailyId` INTEGER NOT NULL,
@@ -252,28 +252,38 @@ CREATE TABLE `Collection` (
 
 -- CreateTable
 CREATE TABLE `Like` (
-    `communityId` INTEGER NOT NULL,
+    `postId` INTEGER NOT NULL,
     `userId` INTEGER NOT NULL,
 
-    PRIMARY KEY (`communityId`, `userId`)
+    PRIMARY KEY (`postId`, `userId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `Scrap` (
-    `communityId` INTEGER NOT NULL,
+    `postId` INTEGER NOT NULL,
     `userId` INTEGER NOT NULL,
 
-    PRIMARY KEY (`communityId`, `userId`)
+    PRIMARY KEY (`postId`, `userId`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `PlanDay` (
+    `planId` INTEGER NOT NULL,
+    `planName` VARCHAR(45) NOT NULL,
+    `day` INTEGER NOT NULL DEFAULT 0,
+    `userId` INTEGER NOT NULL,
+
+    PRIMARY KEY (`planId`, `day`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
 ALTER TABLE `User` ADD CONSTRAINT `User_characterId_fkey` FOREIGN KEY (`characterId`) REFERENCES `Character`(`characterId`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Daily` ADD CONSTRAINT `Daily_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`userId`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Daily` ADD CONSTRAINT `Daily_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`userId`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Category` ADD CONSTRAINT `Category_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`userId`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Category` ADD CONSTRAINT `Category_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`userId`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Plan` ADD CONSTRAINT `Plan_dailyId_fkey` FOREIGN KEY (`dailyId`) REFERENCES `Daily`(`dailyId`) ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -288,7 +298,7 @@ ALTER TABLE `Message` ADD CONSTRAINT `Message_recvId_fkey` FOREIGN KEY (`recvId`
 ALTER TABLE `Message` ADD CONSTRAINT `Message_sentId_fkey` FOREIGN KEY (`sentId`) REFERENCES `User`(`userId`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Session` ADD CONSTRAINT `Session_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`userId`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Session` ADD CONSTRAINT `Session_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`userId`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Report` ADD CONSTRAINT `Report_reportUser_fkey` FOREIGN KEY (`reportUser`) REFERENCES `User`(`userId`) ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -315,16 +325,16 @@ ALTER TABLE `OXDB` ADD CONSTRAINT `OXDB_provider_fkey` FOREIGN KEY (`provider`) 
 ALTER TABLE `Room` ADD CONSTRAINT `Room_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`userId`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `QuestAttempt` ADD CONSTRAINT `QuestAttempt_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`userId`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `QuestAttempt` ADD CONSTRAINT `QuestAttempt_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`userId`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `QuestAttempt` ADD CONSTRAINT `QuestAttempt_questionId_fkey` FOREIGN KEY (`questionId`) REFERENCES `MockDB`(`mockquestionId`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Follower` ADD CONSTRAINT `Follower_fromId_fkey` FOREIGN KEY (`fromId`) REFERENCES `User`(`userId`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Follower` ADD CONSTRAINT `Follower_fromId_fkey` FOREIGN KEY (`fromId`) REFERENCES `User`(`userId`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Follower` ADD CONSTRAINT `Follower_toId_fkey` FOREIGN KEY (`toId`) REFERENCES `User`(`userId`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Follower` ADD CONSTRAINT `Follower_toId_fkey` FOREIGN KEY (`toId`) REFERENCES `User`(`userId`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Post` ADD CONSTRAINT `Post_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`userId`) ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -333,31 +343,37 @@ ALTER TABLE `Post` ADD CONSTRAINT `Post_userId_fkey` FOREIGN KEY (`userId`) REFE
 ALTER TABLE `Post` ADD CONSTRAINT `Post_categoryId_fkey` FOREIGN KEY (`categoryId`) REFERENCES `Category`(`categoryId`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `PostContentUrl` ADD CONSTRAINT `PostContentUrl_postId_fkey` FOREIGN KEY (`postId`) REFERENCES `Post`(`postId`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `PostContentUrl` ADD CONSTRAINT `PostContentUrl_postId_fkey` FOREIGN KEY (`postId`) REFERENCES `Post`(`postId`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Comment` ADD CONSTRAINT `Comment_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`userId`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Comment` ADD CONSTRAINT `Comment_postId_fkey` FOREIGN KEY (`postId`) REFERENCES `Post`(`postId`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Comment` ADD CONSTRAINT `Comment_postId_fkey` FOREIGN KEY (`postId`) REFERENCES `Post`(`postId`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `OXUnitRange` ADD CONSTRAINT `OXUnitRange_roomId_fkey` FOREIGN KEY (`roomId`) REFERENCES `Room`(`roomId`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Collection` ADD CONSTRAINT `Collection_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`userId`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Collection` ADD CONSTRAINT `Collection_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`userId`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Collection` ADD CONSTRAINT `Collection_characterId_fkey` FOREIGN KEY (`characterId`) REFERENCES `Character`(`characterId`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Like` ADD CONSTRAINT `Like_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`userId`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Like` ADD CONSTRAINT `Like_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`userId`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Like` ADD CONSTRAINT `Like_communityId_fkey` FOREIGN KEY (`communityId`) REFERENCES `Post`(`postId`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Like` ADD CONSTRAINT `Like_postId_fkey` FOREIGN KEY (`postId`) REFERENCES `Post`(`postId`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Scrap` ADD CONSTRAINT `Scrap_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`userId`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Scrap` ADD CONSTRAINT `Scrap_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`userId`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Scrap` ADD CONSTRAINT `Scrap_communityId_fkey` FOREIGN KEY (`communityId`) REFERENCES `Post`(`postId`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Scrap` ADD CONSTRAINT `Scrap_postId_fkey` FOREIGN KEY (`postId`) REFERENCES `Post`(`postId`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `PlanDay` ADD CONSTRAINT `PlanDay_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`userId`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `PlanDay` ADD CONSTRAINT `PlanDay_planId_fkey` FOREIGN KEY (`planId`) REFERENCES `Plan`(`planId`) ON DELETE RESTRICT ON UPDATE CASCADE;
