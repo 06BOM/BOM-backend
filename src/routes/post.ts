@@ -6,19 +6,22 @@ import { deletePost,
          sortingPostByCategory,
          getPostbyPostId,
          getPostByTitle,
-         getMostLikePost
+         getMostLikePost,
+         sortingByKind
 } from "../controllers/postController";
 
 
 const router = express.Router();
 
 router.post("/",createPost);
+router.patch("/", updatePost);
 router.delete("/delete", deletePost);
 router.get("/category", sortingPostByCategory);
+router.get("/kind", sortingByKind);
 router.get("/title", getPostByTitle);
 router.get("/popular", getMostLikePost);
 router.get("/:postId", getPostbyPostId);
-router.patch("/", updatePost);
+
 
 
 

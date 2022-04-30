@@ -86,6 +86,29 @@ export const sortingPostByCategory = async (req: Request, res: Response, next: N
 	}
 }
 
+
+export const sortingByKind = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+    const postKind = parseInt(String(req.query.postKind));
+
+    try {
+        const resultPosts = await prisma.post.findMany({
+            where: { 
+                postKind: postKind 
+            },
+
+            orderBy: { 
+                createdAt: 'desc' 
+            }
+        });
+
+        return res.json({ opcode: OPCODE.SUCCESS, resultPosts });
+
+	}   catch(error){
+		console.log(error);
+		next(error);
+	}
+}
+
 export const deletePost = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	const postId = parseInt(String(req.query.postId));
     console.log("postId: ", postId);
