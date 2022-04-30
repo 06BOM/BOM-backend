@@ -8,7 +8,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = "mysql://root:root@bom-backend.c5e6sfujwd1g.ap-northeast-2.rds.amazonaws.com:3306/damoyeo"
+  url      = "mysql://root:ajouuniversity@bom-backend.c5e6sfujwd1g.ap-northeast-2.rds.amazonaws.com:3306/damoyeo"
 }
 
 model User {
