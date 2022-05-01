@@ -5,7 +5,7 @@ import { Console, time } from "console";
 
 const prisma = new PrismaClient();
 
-const deleteRepitition = async (dPlanId, dUserId, deleteDay) => {	//함수 쓰다가 이해안가는거 언제든 물으세용 1: 월
+const deleteRepitition = async (dPlanId, dUserId, deleteDay) => {
 	const planId = dPlanId;
 	const userId = dUserId;
 	const day = deleteDay;
