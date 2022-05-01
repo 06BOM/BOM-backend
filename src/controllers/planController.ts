@@ -5,22 +5,31 @@ import { Console, time } from "console";
 
 const prisma = new PrismaClient();
 
-const deleteRepitition = async (deletePlanName, dUserId, deleteDay) => {
-	const planName = deletePlanName;
+const deleteRepitition = async (dPlanId, dUserId, deleteDay) => {	//함수 쓰다가 이해안가는거 언제든 물으세용
+	const planId = dPlanId;
 	const userId = dUserId;
 	const day = deleteDay;
-	let curr = new Date();
-	curr.setUTCHours(0, 0, 0); 
-	curr.setDate( curr.getDate() + 1);
+	let date;
 
 	try {
+		const getPlanInfo = await prisma.plan.findFirst({
+			where: { planId: planId },
+			select: {
+				planName: true,
+				daily: true
+			}
+		})
+		
+		date = new Date(getPlanInfo.daily.date);
+		date.setUTCHours(0, 0, 0); 
+		date.setDate( date.getDate() + 1);
 
 		const deleteRepititionPlans = await prisma.plan.deleteMany({
 			where: {
 				AND: [
-					{ planName: planName },
+					{ planName: getPlanInfo.planName },
 					{ daily: {		
-						date: { gte: curr }
+						date: { gte: date }
 						}
 					},
 					{ daily: {
@@ -34,7 +43,7 @@ const deleteRepitition = async (deletePlanName, dUserId, deleteDay) => {
 			where: {
 				AND: [
 					{ day: day },
-					{ planName: planName },
+					{ planName: getPlanInfo.planName },
 					{ userId: userId }
 				]
 			}
@@ -52,7 +61,7 @@ export const getUserId = async (req: Request, res: Response, next: NextFunction)
 	let planId = Number(req.params.planId);
 		
 	try {
-		//const r = deleteRepitition("아아아", 1, 2);
+		//const r = deleteRepitition(9, 1, 5);	//test
 
 		const getDailyId = await prisma.plan.findUnique({
 			where: { 
