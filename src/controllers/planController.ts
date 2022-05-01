@@ -56,6 +56,7 @@ const deleteRepitition = async (dPlanId, dUserId, deleteDay) => {
 			}
 		}
 
+		/*
 		const deletePlanDay = await prisma.planDay.deleteMany({
 			where: {
 				AND: [
@@ -64,7 +65,7 @@ const deleteRepitition = async (dPlanId, dUserId, deleteDay) => {
 					{ userId: userId }
 				]
 			}
-		})
+		})*/
 
 		return 0;
 
@@ -253,10 +254,38 @@ export const createPlan = async (req: Request, res: Response, next: NextFunction
 					resultPlan = await prisma.plan.create({
 						data: plan
 					});
+
+					for (let i = 0; i < days.length; i++)
+					{
+						if (days[i]) {
+							await prisma.planDay.create({
+								data: {
+									planId: resultPlan.planId,
+									planName: resultPlan.planName,
+									day: i,
+									userId: userId
+								}
+							});		
+						}
+					}
 				} else if (days[today.getDay()]) {
-					await prisma.plan.create({
+					const result = await prisma.plan.create({
 						data: plan
 					});
+
+					for (let i = 0; i < days.length; i++)
+					{
+						if (days[i]) {
+							await prisma.planDay.create({
+								data: {
+									planId: result.planId,
+									planName: result.planName,
+									day: i,
+									userId: userId
+								}
+							});		
+						}
+					}
 				}
 
 				today.setUTCDate(today.getDate() + 1);
