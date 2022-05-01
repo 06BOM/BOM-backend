@@ -251,9 +251,7 @@ export const createPlan = async (req: Request, res: Response, next: NextFunction
 				}
 				
 				if (Number(todayy) === Number(today)) {
-					resultPlan = await prisma.plan.create({
-						data: plan
-					});
+					
 
 					for (let i = 0; i < days.length; i++)
 					{
@@ -304,24 +302,283 @@ export const createPlan = async (req: Request, res: Response, next: NextFunction
 }
 
 export const updatePlan = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
-	let plan = {
-		planName: req.body.planName,
-		repetitionType: req.body.repetitionType,
-		dailyId: req.body.dailyId,
-		categoryId: req.body.categoryId
-	}
+	
 	let planId = parseInt(req.params.planId);
 
+	const getData = await prisma.plan.findUnique({
+		where: { 
+			planId: planId	
+		},
+		select:{
+			dailyId: true,
+			categoryId: true,
+			planName: true
+		}
+	});
+
+	let plan = {
+		planName: req.body.planName? String(req.body.planName): getData.planName,
+		dailyId: req.body.categoryId? Number(req.body.dailyId): getData.dailyId,
+		categoryId: req.body.categoryId? parseInt(String(req.body.categoryId)): getData.categoryId,
+		repetitionType: req.body.repetitionType
+	}
+		
+	const getDate = await prisma.daily.findUnique({
+		where:{
+			dailyId: getData.dailyId
+		},
+		select: {
+			date: true
+		}
+	});
+
+    const getUser = await prisma.daily.findUnique({
+		where: {
+			dailyId: getData.dailyId
+		},
+		select:{
+			userId: true
+		}
+	});
+
+
+	let today = new Date(JSON.parse(JSON.stringify(getDate.date)));
+	let currentDay = new Date(JSON.parse(JSON.stringify(getDate.date)));
+	today.setUTCHours(0, 0, 0);
+	currentDay.setUTCHours(0, 0, 0);
+	const todayy = new Date(JSON.parse(JSON.stringify(today)));
+
+	const year = req.body.year? Number(req.body.year): 1;
+	const month = req.body.month? Number(req.body.month): 0;
+	const day = req.body.day? Number(req.body.day): 0;
+	const days = req.body.days;
+
+	currentDay.setFullYear(currentDay.getFullYear() + year);
+	currentDay.setMonth(currentDay.getMonth() + month);
+	currentDay.setDate(currentDay.getDate() + day);
+
+	
+	const originRepititionType = await prisma.plan.findUnique({
+		where:{
+			planId: planId
+		},
+		select:{
+			repetitionType:true
+		}
+	})
+
+	let resultPlan;
+
 	try {
-		const resultPlan = await prisma.plan.update({
-            where: {
-                planId: planId
-            },
-            data: plan
-        })
+		/*
+        RepititionType을 수정하려고 할 때 
+		0->1 반복x => 매일 반복 (O)
+		-> 기간 내의 모든 plan 생성
+		0->2 반복x => 주간 반복
+		-> 기간 내의 설정한 day에 모든 plan 생성
+		1->0 매일 반복 => 반복x
+		-> 선택한 plan 이후의 같은 이름을 가진 모든 plan 삭제
+		1->2 매일 반복 => 주간 반복
+		-> 선택한 날짜를 제외한 모든 plan을 삭제
+		2->0 주간 반복 => 반복x
+		-> 선택한 plan 이후의 같은 이름과  가진 모든 plan 삭제
+		2->1 주간 반복 => 매일 반복
+		-> 설정되어 있는 day를 제외한 모든 날에 create plan
+		2->2 주간 반복 => 주간 반복(날짜 변경)
+		-> 현 시간 이후로 원래있던 요일의 모든 plan을 삭제하고 새로 설정된 요일에 plan 생성
+		*/
+		console.log(originRepititionType.repetitionType);
+		console.log("input repetitionType Data : "+plan.repetitionType);
 
-		return res.json({ opcode: OPCODE.SUCCESS, resultPlan });
+		const PlanData = await prisma.plan.update({
+			where: {
+				planId: planId
+			},
+			data: plan
+		})
 
+		if(plan.repetitionType===0||plan.repetitionType===1||plan.repetitionType===2){
+			switch(originRepititionType.repetitionType){
+				case 0 :
+					{
+						if(plan.repetitionType===1){//0->1
+							console.log("0->1 default to daily repeat");
+							while (1) {	
+								const getDaily = await prisma.daily.findFirst({
+									where: {
+										AND: [
+											{ date: today },
+											{ userId: getUser.userId }
+										]
+									},
+									select:{ dailyId: true }
+								})
+								
+								if (getDaily === null) {
+									const createDaily = await prisma.daily.create({
+										data: { date: today, userId: getUser.userId }
+									});
+									plan.dailyId = createDaily.dailyId;	
+
+								} else {
+									plan.dailyId = getDaily.dailyId;
+								}
+								
+								if (Number(todayy) === Number(today)) {
+									resultPlan = await prisma.plan.create({
+										data: plan
+									});
+
+								} else {
+									await prisma.plan.create({
+										data: plan
+									});
+								}
+								today.setUTCDate(today.getDate() + 1);
+								if (Number(today) === Number(currentDay)) {
+									break;	
+								}
+							}
+							break;
+						}
+						else if(plan.repetitionType===2){//0->2
+							console.log("0->2 default to weekly repeat");
+							while (1) {
+								const getDaily = await prisma.daily.findFirst({
+									where: {
+										AND: [
+											{ date: today },
+											{ userId: getUser.userId }
+										]
+									},
+									select:{ dailyId: true }
+								});
+							
+								if (Number(todayy) === Number(today)) {//??
+									resultPlan = await prisma.plan.create({
+										data: plan
+									});
+									for (let i = 0; i < days.length; i++)
+									{
+										if (days[i]) {
+											await prisma.planDay.create({
+												data: {
+													planId: resultPlan.planId,
+													planName: resultPlan.planName,
+													day: i,
+													userId: getUser.userId
+												}
+											});		
+										}
+									}
+								} else {
+									for(let i =0; i< days.length; i++){
+										if(days[i] === today.getDay()){
+											if (getDaily === null) {
+												const createDaily = await prisma.daily.create({
+													data: { date: today, userId: getUser.userId }
+												});
+												plan.dailyId = createDaily.dailyId;	
+											} else {
+												plan.dailyId = getDaily.dailyId;
+											}
+											const result = await prisma.plan.create({
+												data: plan
+											});
+
+											if (days[i]) {
+												await prisma.planDay.create({
+													data: {
+														planId: result.planId,
+														planName: result.planName,
+														day: days[i],
+														userId: getUser.userId
+													}
+												});		
+											}
+
+										}
+									}
+								}
+				
+								today.setUTCDate(today.getDate() + 1);
+								
+								if (Number(today) === Number(currentDay)) {
+									break;	
+								}
+							}
+							break;
+						}
+						else{//0->0
+							console.log("0->0 nothing happened");
+							break;
+						}
+					}
+	
+				case 1 :
+					{
+						if(plan.repetitionType===1){//1->1
+							console.log("1->1 nothing happened");
+							break;
+						}
+						else if(plan.repetitionType===2){//1->2
+							console.log("1->2");
+
+							break;
+						}
+						else{//1->0
+							console.log("1->0");
+							for(let i=-0; i<7; i++){
+								deleteRepitition(planId, getUser.userId, i);
+							}
+
+							const getUpdateDailyId = await prisma.daily.findMany({
+								where: {
+									date:{
+										lte: getDate.date
+									}
+								},
+								select:{
+									dailyId: true
+								}
+							}) 
+							
+							for(let i=0; i<getUpdateDailyId.length;i++){
+								await prisma.plan.updateMany({
+									where:{
+										AND:[
+											{dailyId: getUpdateDailyId[i].dailyId},
+											{planName: getData.planName}
+										]
+									},
+									data:{
+										repetitionType: plan.repetitionType
+									}
+								})
+							}
+							break;
+						}
+					}	
+	
+				case 2 :
+					{
+						if(plan.repetitionType===1){//2->1
+							console.log("2->1");
+							break;
+						}
+						else if(plan.repetitionType===2){//2->2
+							console.log("2->2");
+							break;
+						}
+						else{//2->0
+							console.log("2->0");
+							break;
+						}
+					}
+			}
+		}
+		return res.json({ opcode: OPCODE.SUCCESS });
+	
 	} catch(error) {
 		console.log(error);
 		next(error);
