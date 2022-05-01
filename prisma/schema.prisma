@@ -286,7 +286,7 @@ model PlanDay {
 	planName			String		@db.VarChar(45)
 	day					Int			@default(0)
 	userId				Int
-	user				User		@relation(fields: [userId], references: [userId])
-	plan				Plan		@relation(fields: [planId], references: [planId])	
+	user				User		@relation(fields: [userId], references: [userId], onDelete: Cascade)
+	plan				Plan		@relation(fields: [planId], references: [planId], onDelete: Cascade)	
 	@@id([planId, day])
 }
