@@ -10,7 +10,6 @@ const deleteRepitition = async (dPlanId, dUserId, deleteDay) => {	//함수 쓰�
 	const userId = dUserId;
 	const day = deleteDay;
 	let date, i, date2;
-	//const day = toDate.getDay();
 
 	try {
 		const getPlanInfo = await prisma.plan.findFirst({
