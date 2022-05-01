@@ -74,9 +74,9 @@ export const createPlan = async (req: Request, res: Response, next: NextFunction
 
 	// repitition table 생기면 요일 받아서 코드 추가하기
 
-	const year = Number(req.body.year);
-	const month = Number(req.body.month);
-	const day = Number(req.body.day);
+	const year = req.body.year? Number(req.body.year): 1;
+	const month = req.body.month? Number(req.body.month): 0;
+	const day = req.body.day? Number(req.body.day): 0;
 	const days = req.body.days;
 
 	currentDay.setFullYear(currentDay.getFullYear() + year);
