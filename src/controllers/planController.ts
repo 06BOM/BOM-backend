@@ -5,11 +5,12 @@ import { Console, time } from "console";
 
 const prisma = new PrismaClient();
 
-const deleteRepitition = async (dPlanId, dUserId, deleteDay) => {	//함수 쓰다가 이해안가는거 언제든 물으세용
+const deleteRepitition = async (dPlanId, dUserId, deleteDay) => {	//함수 쓰다가 이해안가는거 언제든 물으세용 1: 월
 	const planId = dPlanId;
 	const userId = dUserId;
 	const day = deleteDay;
-	let date;
+	let date, i, date2;
+	//const day = toDate.getDay();
 
 	try {
 		const getPlanInfo = await prisma.plan.findFirst({
@@ -24,20 +25,37 @@ const deleteRepitition = async (dPlanId, dUserId, deleteDay) => {	//함수 쓰�
 		date.setUTCHours(0, 0, 0); 
 		date.setDate( date.getDate() + 1);
 
-		const deleteRepititionPlans = await prisma.plan.deleteMany({
+		const getDates = await prisma.daily.findMany({
 			where: {
 				AND: [
-					{ planName: getPlanInfo.planName },
-					{ daily: {		
-						date: { gte: date }
-						}
-					},
-					{ daily: {
-						userId: userId
-					}}
+					{ userId: userId },
+					{ date: { gte: date } }
 				]
-			}
+			},
+			select: { date: true }
 		})
+
+		for (i = 0 ; i < getDates.length ; i++) {
+			date2 = new Date(getDates[i].date);
+
+			if( day === date2.getDay()) {
+
+				const deleteRepititionPlans = await prisma.plan.deleteMany({
+					where: {
+						AND: [
+							{ planName: getPlanInfo.planName },
+							{ daily: {		
+								date: date2
+								}
+							},
+							{ daily: {
+								userId: userId
+							}}
+						]
+					}
+				})
+			}
+		}
 
 		const deletePlanDay = await prisma.planDay.deleteMany({
 			where: {
@@ -61,7 +79,7 @@ export const getUserId = async (req: Request, res: Response, next: NextFunction)
 	let planId = Number(req.params.planId);
 		
 	try {
-		//const r = deleteRepitition(9, 1, 5);	//test
+		//const r = deleteRepitition(9, 1, 0);	//test
 
 		const getDailyId = await prisma.plan.findUnique({
 			where: { 
