@@ -17,7 +17,8 @@ import { createPlan,
          getCompletedPlans, 
          getIncompletePlans,
          getUserId,
-         getPlanData 
+         getPlanData,
+		 getAllMonthlyStars 
     } from "../controllers/planController";
 
 const router = express.Router();
@@ -35,6 +36,7 @@ router.get("/month/star", getMonthlyStar);
 router.get("/all", getAllPlans);
 router.get("/completed", getCompletedPlans);
 router.get("/incomplete", getIncompletePlans);
+router.get("/month/all/star", getAllMonthlyStars);
 router.route("/:planId").delete(deletePlan).patch(updatePlan).get(getUserId);
 router.get("/:planId/time", getPlanTime);
 router.get("/:planId/data",getPlanData);

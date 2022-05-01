@@ -886,3 +886,39 @@ export const getIncompletePlans = async (req: Request, res: Response, next: Next
 		next(error);
 	}
 }
+
+export const getAllMonthlyStars = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+	try {
+		let date = new Date(String(req.query.date));
+		const userId = parseInt(String(req.query.userId));
+		date.setDate(1);
+		let targetDate = new Date(JSON.parse(JSON.stringify(date)));
+
+		targetDate.setMonth(targetDate.getMonth() + 1);
+
+		const allMonthlyStars = await prisma.daily.findMany({
+			where: {
+				AND: [
+					{
+						date: {
+							lt: targetDate,
+							gte: date
+						}
+					},
+					{
+						userId
+					}
+				]
+			},
+			select: {
+				obtainedStar: true,
+				date: true
+			}
+		});
+
+		return res.json({ opcode: OPCODE.SUCCESS, allMonthlyStars });
+	} catch(error) {
+		console.log(error);
+		next(error);
+	}
+}
