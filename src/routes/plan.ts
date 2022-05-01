@@ -22,7 +22,7 @@ import { createPlan,
 
 const router = express.Router();
 
-router.post("", createPlan);
+router.post("/", createPlan);
 router.get("/total", getDailyStudyTime);
 router.get("/week/average", getWeeklyAverageStudyTime);
 router.get("/month/average", getMonthlyAverageStudyTime);

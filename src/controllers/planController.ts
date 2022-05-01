@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { OPCODE } from "../tools";
 import { NextFunction, Request, Response } from 'express';
-import { time } from "console";
+import { Console, time } from "console";
 
 const prisma = new PrismaClient();
 
@@ -109,7 +109,23 @@ export const createPlan = async (req: Request, res: Response, next: NextFunction
 
 	const userId = Number(req.body.userId);
 	const date = new Date((req.body.date));
+	let today = new Date(JSON.parse(JSON.stringify(date)));
+	let currentDay = new Date(JSON.parse(JSON.stringify(date)));
+
+	today.setUTCHours(0, 0, 0);
+	currentDay.setUTCHours(0, 0, 0);
+	const todayy = new Date(JSON.parse(JSON.stringify(today)));
+
 	// repitition table 생기면 요일 받아서 코드 추가하기
+
+	const year = Number(req.body.year);
+	const month = Number(req.body.month);
+	const day = Number(req.body.day);
+	const days = req.body.days;
+
+	currentDay.setFullYear(currentDay.getFullYear() + year);
+	currentDay.setMonth(currentDay.getMonth() + month);
+	currentDay.setDate(currentDay.getDate() + day);
 
 	let plan = {
 		planName: String(req.body.planName),
@@ -118,34 +134,114 @@ export const createPlan = async (req: Request, res: Response, next: NextFunction
 		categoryId: parseInt(String(req.body.categoryId))
 	}
 
-	try {
-		const getDaily = await prisma.daily.findFirst({
-			where: {
-				AND: [
-					{ date: date },
-					{ userId: userId }
-				]
-			},
-			select:{ dailyId: true }
-		});
+	let resultPlan;
 
-		if( getDaily === null) {
-			const createDaily = await prisma.daily.create({
-				data: { date: date, userId: userId }
+	try {
+		if (plan.repetitionType === 0) {
+			const getDaily = await prisma.daily.findFirst({
+				where: {
+					AND: [
+						{ date: date },
+						{ userId: userId }
+					]
+				},
+				select:{ dailyId: true }
+			});
+		
+			if(getDaily === null) {
+				const createDaily = await prisma.daily.create({
+					data: { date: date, userId: userId }
+				});
+
+				plan.dailyId = createDaily.dailyId;
+
+			} else {
+				plan.dailyId = getDaily.dailyId;
+			}
+
+			resultPlan = await prisma.plan.create({
+				data: plan
 			});
 
-			plan.dailyId = createDaily.dailyId;
+		} else if(plan.repetitionType === 1) { // 매일 반복
+			while (1) {
+				
+				const getDaily = await prisma.daily.findFirst({
+					where: {
+						AND: [
+							{ date: today },
+							{ userId: userId }
+						]
+					},
+					select:{ dailyId: true }
+				});
+			
+				if (getDaily === null) {
+					const createDaily = await prisma.daily.create({
+						data: { date: today, userId: userId }
+					});
+	
+					plan.dailyId = createDaily.dailyId;	
+				} else {
+					plan.dailyId = getDaily.dailyId;
+				}
+				
+				if (Number(todayy) === Number(today)) {
+					resultPlan = await prisma.plan.create({
+						data: plan
+					});
+				} else {
+					await prisma.plan.create({
+						data: plan
+					});
+				}
 
-		} else {
-			plan.dailyId = getDaily.dailyId;
+				today.setUTCDate(today.getDate() + 1);
+				if (Number(today) === Number(currentDay)) {
+					break;	
+				}
+			}
+		} else {  // 매주 반복
+			while (1) {
+				const getDaily = await prisma.daily.findFirst({
+					where: {
+						AND: [
+							{ date: today },
+							{ userId: userId }
+						]
+					},
+					select:{ dailyId: true }
+				});
+			
+				if (getDaily === null) {
+					const createDaily = await prisma.daily.create({
+						data: { date: today, userId: userId }
+					});
+	
+					plan.dailyId = createDaily.dailyId;	
+				} else {
+					plan.dailyId = getDaily.dailyId;
+				}
+				
+				if (Number(todayy) === Number(today)) {
+					resultPlan = await prisma.plan.create({
+						data: plan
+					});
+				} else if (days[today.getDay()]) {
+					await prisma.plan.create({
+						data: plan
+					});
+				}
+
+				today.setUTCDate(today.getDate() + 1);
+				if (Number(today) === Number(currentDay)) {
+					break;	
+				}
+			}
 		}
 
-		const resultPlan = await prisma.plan.create({
-            data: plan
-        });
-
 		return res.json({ opcode: OPCODE.SUCCESS, resultPlan });
-		
+
 	} catch(error) {
 		console.log(error);
 		next(error);
