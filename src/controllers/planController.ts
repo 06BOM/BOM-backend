@@ -56,7 +56,7 @@ const deleteRepitition = async (dPlanId, dUserId, deleteDay) => {
 			}
 		}
 
-		/*
+		
 		const deletePlanDay = await prisma.planDay.deleteMany({
 			where: {
 				AND: [
@@ -65,7 +65,7 @@ const deleteRepitition = async (dPlanId, dUserId, deleteDay) => {
 					{ userId: userId }
 				]
 			}
-		})*/
+		})
 
 		return 0;
 
