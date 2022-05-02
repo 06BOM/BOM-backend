@@ -148,7 +148,7 @@ export const createPlan = async (req: Request, res: Response, next: NextFunction
 	const year = req.body.year? Number(req.body.year): 1;
 	const month = req.body.month? Number(req.body.month): 0;
 	const day = req.body.day? Number(req.body.day): 0;
-	const days = req.body.days;
+	const days = req.body.days; // 배열 [0, 0, 0, 0, 0, 0, 0] 요일을 의미함
 
 	currentDay.setFullYear(currentDay.getFullYear() + year);
 	currentDay.setMonth(currentDay.getMonth() + month);
