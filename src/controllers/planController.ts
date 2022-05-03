@@ -308,11 +308,6 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 	const getData = await prisma.plan.findUnique({
 		where: { 
 			planId: planId	
-		},
-		select:{
-			dailyId: true,
-			categoryId: true,
-			planName: true
 		}
 	});
 
@@ -320,7 +315,8 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 		planName: req.body.planName? String(req.body.planName): getData.planName,
 		dailyId: req.body.categoryId? Number(req.body.dailyId): getData.dailyId,
 		categoryId: req.body.categoryId? parseInt(String(req.body.categoryId)): getData.categoryId,
-		repetitionType: req.body.repetitionType
+		repetitionType: req.body.repetitionType,
+		time: getData.time
 	}
 		
 	const getDate = await prisma.daily.findUnique({
@@ -454,10 +450,37 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 									select:{ dailyId: true }
 								});
 							
-								if (Number(todayy) === Number(today)) {//??
+								if (Number(todayy) === Number(today)) {
+									
+									for (let i = 0; i < days.length; i++)
+									{
+										if (days[i]) {
+											await prisma.planDay.create({
+												data: {
+													planId: PlanData.planId,
+													planName: PlanData.planName,
+													day: i,
+													userId: getUser.userId
+												}
+											});		
+										}
+									}
+								} else if (days[today.getDay()]) {
+									
+									if (getDaily === null) {
+										const createDaily = await prisma.daily.create({
+											data: { date: today, userId: getUser.userId }
+										});
+										plan.dailyId = createDaily.dailyId;	
+									} else {
+										plan.dailyId = getDaily.dailyId;
+									}
+									plan.time = 0;
+									
 									resultPlan = await prisma.plan.create({
 										data: plan
 									});
+
 									for (let i = 0; i < days.length; i++)
 									{
 										if (days[i]) {
@@ -469,34 +492,6 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 													userId: getUser.userId
 												}
 											});		
-										}
-									}
-								} else {
-									for(let i =0; i< days.length; i++){
-										if(days[i] === today.getDay()){
-											if (getDaily === null) {
-												const createDaily = await prisma.daily.create({
-													data: { date: today, userId: getUser.userId }
-												});
-												plan.dailyId = createDaily.dailyId;	
-											} else {
-												plan.dailyId = getDaily.dailyId;
-											}
-											const result = await prisma.plan.create({
-												data: plan
-											});
-
-											if (days[i]) {
-												await prisma.planDay.create({
-													data: {
-														planId: result.planId,
-														planName: result.planName,
-														day: days[i],
-														userId: getUser.userId
-													}
-												});		
-											}
-
 										}
 									}
 								}
