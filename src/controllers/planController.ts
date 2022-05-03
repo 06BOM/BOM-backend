@@ -476,7 +476,7 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 										plan.dailyId = getDaily.dailyId;
 									}
 									plan.time = 0;
-									
+
 									resultPlan = await prisma.plan.create({
 										data: plan
 									});
@@ -566,7 +566,36 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 							break;
 						}
 						else{//2->0
-							console.log("2->0");
+							console.log("2->0 weekly repeat to default");
+							
+							for(let i=-0; i<7; i++){
+								deleteRepitition(planId, getUser.userId, i);
+							}
+
+							const getUpdateDailyId = await prisma.daily.findMany({
+								where: {
+									date:{
+										lte: getDate.date
+									}
+								},
+								select:{
+									dailyId: true
+								}
+							}) 
+							
+							for(let i=0; i<getUpdateDailyId.length;i++){
+								await prisma.plan.updateMany({
+									where:{
+										AND:[
+											{dailyId: getUpdateDailyId[i].dailyId},
+											{planName: getData.planName}
+										]
+									},
+									data:{
+										repetitionType: plan.repetitionType
+									}
+								})
+							}
 							break;
 						}
 					}
