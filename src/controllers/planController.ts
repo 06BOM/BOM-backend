@@ -1419,8 +1419,21 @@ export const getAllPlans = async (req: Request, res: Response, next: NextFunctio
 			where: {
 				dailyId				
 			}
-		});	
-		return res.json({ opcode: OPCODE.SUCCESS, plans });
+		});
+		
+		const result = await Promise.all(
+				plans.map(async plan => {
+				const category = await prisma.category.findUnique({
+					where: {
+						categoryId: plan.categoryId
+					}
+				});
+
+				Object.assign(plan, category);
+				return plan;
+		}));
+
+		return res.json({ opcode: OPCODE.SUCCESS, result });
 	} catch(error) {
 		console.log(error);
 		next(error);
