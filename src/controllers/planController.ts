@@ -735,7 +735,103 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 						}
 						else if(plan.repetitionType===2){//2->2
 							console.log("2->2 change date");
+							//원래 있던 day의 정보를 모두 삭제하고
+							for(let i=-0; i<7; i++){
+								deleteRepitition(planId, getUser.userId, i);
+							}
 
+							const getUpdateDailyId = await prisma.daily.findMany({
+								where: {
+									date:{
+										lte: getDate.date
+									}
+								},
+								select:{
+									dailyId: true
+								}
+							}) 
+							
+							for(let i=0; i<getUpdateDailyId.length;i++){
+								await prisma.plan.updateMany({
+									where:{
+										AND:[
+											{dailyId: getUpdateDailyId[i].dailyId},
+											{planName: getData.planName}
+										]
+									},
+									data:{
+										repetitionType: plan.repetitionType
+									}
+								})
+							}
+							//새로 들어온 day에 해당하는 주간 반복 데이터 생성
+							while (1) {
+								const getDaily = await prisma.daily.findFirst({
+									where: {
+										AND: [
+											{ date: today },
+											{ userId: getUser.userId }
+										]
+									},
+									select:{ dailyId: true }
+								});
+							
+								if (Number(todayy) === Number(today)) {
+									const PlanData = await prisma.plan.update({
+										where: {
+											planId: planId
+										},
+										data: plan
+									})
+									for (let i = 0; i < days.length; i++)
+									{
+										if (days[i]) {
+											await prisma.planDay.create({
+												data: {
+													planId: PlanData.planId,
+													planName: PlanData.planName,
+													day: i,
+													userId: getUser.userId
+												}
+											});		
+										}
+									}
+								} else if (days[today.getDay()]) {
+									if (getDaily === null) {
+										const createDaily = await prisma.daily.create({
+											data: { date: today, userId: getUser.userId }
+										});
+										plan.dailyId = createDaily.dailyId;	
+									} else {
+										plan.dailyId = getDaily.dailyId;
+									}
+									plan.time = 0;
+
+									resultPlan = await prisma.plan.create({
+										data: plan
+									});
+
+									for (let i = 0; i < days.length; i++)
+									{
+										if (days[i]) {
+											await prisma.planDay.create({
+												data: {
+													planId: resultPlan.planId,
+													planName: resultPlan.planName,
+													day: i,
+													userId: getUser.userId
+												}
+											});		
+										}
+									}
+								}
+				
+								today.setUTCDate(today.getDate() + 1);
+								
+								if (Number(today) === Number(currentDay)) {
+									break;	
+								}
+							}
 							break;
 						}
 						else{//2->0
