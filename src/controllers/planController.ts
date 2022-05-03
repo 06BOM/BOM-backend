@@ -386,12 +386,7 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 		console.log(originRepititionType.repetitionType);
 		console.log("input repetitionType Data : "+plan.repetitionType);
 
-		const PlanData = await prisma.plan.update({
-			where: {
-				planId: planId
-			},
-			data: plan
-		})
+		
 
 		if(plan.repetitionType===0||plan.repetitionType===1||plan.repetitionType===2){
 			switch(originRepititionType.repetitionType){
@@ -420,12 +415,8 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 									plan.dailyId = getDaily.dailyId;
 								}
 								
-								if (Number(todayy) === Number(today)) {
-									resultPlan = await prisma.plan.create({
-										data: plan
-									});
-
-								} else {
+								if (Number(todayy) !== Number(today)) {
+									plan.time=0;
 									await prisma.plan.create({
 										data: plan
 									});
@@ -451,7 +442,12 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 								});
 							
 								if (Number(todayy) === Number(today)) {
-									
+									const PlanData = await prisma.plan.update({
+										where: {
+											planId: planId
+										},
+										data: plan
+									})
 									for (let i = 0; i < days.length; i++)
 									{
 										if (days[i]) {
@@ -517,10 +513,108 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 							break;
 						}
 						else if(plan.repetitionType===2){//1->2
-							console.log("1->2");
+							console.log("1->2 daily to weekly");
+							//매일 반복되는 계획을 먼저 다 지워줌
+							for(let i=-0; i<7; i++){
+								deleteRepitition(planId, getUser.userId, i);
+							}
 
-							break;
+							const getUpdateDailyId = await prisma.daily.findMany({
+								where: {
+									date:{
+										lte: getDate.date
+									}
+								},
+								select:{
+									dailyId: true
+								}
+							}) 
+							
+							for(let i=0; i<getUpdateDailyId.length;i++){
+								await prisma.plan.updateMany({
+									where:{
+										AND:[
+											{dailyId: getUpdateDailyId[i].dailyId},
+											{planName: getData.planName}
+										]
+									},
+									data:{
+										repetitionType: plan.repetitionType
+									}
+								})
+							}
+							//들어온 day에 해당하는 계획 생성
+							while (1) {
+								const getDaily = await prisma.daily.findFirst({
+									where: {
+										AND: [
+											{ date: today },
+											{ userId: getUser.userId }
+										]
+									},
+									select:{ dailyId: true }
+								});
+							
+								if (Number(todayy) === Number(today)) {
+									const PlanData = await prisma.plan.update({
+										where: {
+											planId: planId
+										},
+										data: plan
+									})
+									for (let i = 0; i < days.length; i++)
+									{
+										if (days[i]) {
+											await prisma.planDay.create({
+												data: {
+													planId: PlanData.planId,
+													planName: PlanData.planName,
+													day: i,
+													userId: getUser.userId
+												}
+											});		
+										}
+									}
+								} else if (days[today.getDay()]) {
+									
+									if (getDaily === null) {
+										const createDaily = await prisma.daily.create({
+											data: { date: today, userId: getUser.userId }
+										});
+										plan.dailyId = createDaily.dailyId;	
+									} else {
+										plan.dailyId = getDaily.dailyId;
+									}
+									plan.time = 0;
+
+									resultPlan = await prisma.plan.create({
+										data: plan
+									});
+
+									for (let i = 0; i < days.length; i++)
+									{
+										if (days[i]) {
+											await prisma.planDay.create({
+												data: {
+													planId: resultPlan.planId,
+													planName: resultPlan.planName,
+													day: i,
+													userId: getUser.userId
+												}
+											});		
+										}
+									}
+								}
+				
+								today.setUTCDate(today.getDate() + 1);
+								
+								if (Number(today) === Number(currentDay)) {
+									break;	
+								}
+								break;
+							}
 						}
+
 						else{//1->0
 							console.log("1->0");
 							for(let i=-0; i<7; i++){
@@ -562,12 +656,13 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 							break;
 						}
 						else if(plan.repetitionType===2){//2->2
-							console.log("2->2");
+							console.log("2->2 change date");
+
 							break;
 						}
 						else{//2->0
 							console.log("2->0 weekly repeat to default");
-							
+
 							for(let i=-0; i<7; i++){
 								deleteRepitition(planId, getUser.userId, i);
 							}
