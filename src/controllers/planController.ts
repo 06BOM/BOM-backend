@@ -415,7 +415,15 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 									plan.dailyId = getDaily.dailyId;
 								}
 								
-								if (Number(todayy) !== Number(today)) {
+								if (Number(todayy) === Number(today)) {
+									await prisma.plan.update({
+										where: {
+											planId: planId
+										},
+										data: plan
+									})
+								}
+								else {
 									plan.time=0;
 									await prisma.plan.create({
 										data: plan
