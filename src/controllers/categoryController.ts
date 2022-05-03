@@ -19,6 +19,8 @@ export const createCategory = async (req: Request, res: Response, next: NextFunc
         return res.json({ opcode: OPCODE.SUCCESS, resultCategory });
 
     } catch (error) {
-
+        console.log(error);
+        next(error);
     }
 }
+
