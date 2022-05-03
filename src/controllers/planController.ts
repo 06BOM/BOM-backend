@@ -661,6 +661,76 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 					{
 						if(plan.repetitionType===1){//2->1
 							console.log("2->1");
+							//weeklydata를 전부 지워주고
+							for(let i=-0; i<7; i++){
+								deleteRepitition(planId, getUser.userId, i);
+							}
+
+							const getUpdateDailyId = await prisma.daily.findMany({
+								where: {
+									date:{
+										lte: getDate.date
+									}
+								},
+								select:{
+									dailyId: true
+								}
+							}) 
+							
+							for(let i=0; i<getUpdateDailyId.length;i++){
+								await prisma.plan.updateMany({
+									where:{
+										AND:[
+											{dailyId: getUpdateDailyId[i].dailyId},
+											{planName: getData.planName}
+										]
+									},
+									data:{
+										repetitionType: plan.repetitionType
+									}
+								})
+							}
+							//daily repeat에 해당하는 데이터 생성
+							while (1) {	
+								const getDaily = await prisma.daily.findFirst({
+									where: {
+										AND: [
+											{ date: today },
+											{ userId: getUser.userId }
+										]
+									},
+									select:{ dailyId: true }
+								})
+								
+								if (getDaily === null) {
+									const createDaily = await prisma.daily.create({
+										data: { date: today, userId: getUser.userId }
+									});
+									plan.dailyId = createDaily.dailyId;	
+
+								} else {
+									plan.dailyId = getDaily.dailyId;
+								}
+								
+								if (Number(todayy) === Number(today)) {
+									await prisma.plan.update({
+										where: {
+											planId: planId
+										},
+										data: plan
+									})
+								}
+								else {
+									plan.time=0;
+									await prisma.plan.create({
+										data: plan
+									});
+								}
+								today.setUTCDate(today.getDate() + 1);
+								if (Number(today) === Number(currentDay)) {
+									break;	
+								}
+							}
 							break;
 						}
 						else if(plan.repetitionType===2){//2->2
