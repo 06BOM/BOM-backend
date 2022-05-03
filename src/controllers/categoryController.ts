@@ -24,3 +24,21 @@ export const createCategory = async (req: Request, res: Response, next: NextFunc
     }
 }
 
+export const deleteCategory = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+
+    let categoryId = parseInt(req.params.categoryId);
+    
+    try {
+        await prisma.category.delete({
+            where:{
+                categoryId: categoryId
+            }
+        })
+
+        return res.json({ opcode: OPCODE.SUCCESS });
+
+    } catch (error) {
+        console.log(error);
+        next(error);
+    }
+}
