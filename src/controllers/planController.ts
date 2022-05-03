@@ -619,8 +619,8 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 								if (Number(today) === Number(currentDay)) {
 									break;	
 								}
-								break;
 							}
+							break;
 						}
 
 						else{//1->0
