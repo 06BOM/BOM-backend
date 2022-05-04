@@ -438,6 +438,7 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 						}
 						else if(plan.repetitionType===2){//0->2
 							console.log("0->2 default to weekly repeat");
+
 							while (1) {
 								const getDaily = await prisma.daily.findFirst({
 									where: {
@@ -739,31 +740,6 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 							for(let i=-0; i<7; i++){
 								deleteRepitition(planId, getUser.userId, i);
 							}
-
-							const getUpdateDailyId = await prisma.daily.findMany({
-								where: {
-									date:{
-										lte: getDate.date
-									}
-								},
-								select:{
-									dailyId: true
-								}
-							}) 
-							
-							for(let i=0; i<getUpdateDailyId.length;i++){
-								await prisma.plan.updateMany({
-									where:{
-										AND:[
-											{dailyId: getUpdateDailyId[i].dailyId},
-											{planName: getData.planName}
-										]
-									},
-									data:{
-										repetitionType: plan.repetitionType
-									}
-								})
-							}
 							//새로 들어온 day에 해당하는 주간 반복 데이터 생성
 							while (1) {
 								const getDaily = await prisma.daily.findFirst({
@@ -797,6 +773,7 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 										}
 									}
 								} else if (days[today.getDay()]) {
+									
 									if (getDaily === null) {
 										const createDaily = await prisma.daily.create({
 											data: { date: today, userId: getUser.userId }
