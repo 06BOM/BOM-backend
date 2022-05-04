@@ -310,12 +310,13 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 			planId: planId	
 		}
 	});
-
+	
 	let plan = {
 		planName: req.body.planName? String(req.body.planName): getData.planName,
 		dailyId: req.body.categoryId? Number(req.body.dailyId): getData.dailyId,
 		categoryId: req.body.categoryId? parseInt(String(req.body.categoryId)): getData.categoryId,
 		repetitionType: req.body.repetitionType,
+		check:req.body.check,
 		time: getData.time
 	}
 		
@@ -388,11 +389,11 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 
 		
 
-		if(plan.repetitionType===0||plan.repetitionType===1||plan.repetitionType===2){
+		if(plan.repetitionType===0||plan.repetitionType===1||plan.repetitionType===2){//repititionType의 변경이 있을 때
 			switch(originRepititionType.repetitionType){
 				case 0 :
 					{
-						if(plan.repetitionType===1){//0->1
+						if(plan.repetitionType===1){//0->1 default to daily repeat
 							console.log("0->1 default to daily repeat");
 							while (1) {	
 								const getDaily = await prisma.daily.findFirst({
@@ -436,7 +437,7 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 							}
 							break;
 						}
-						else if(plan.repetitionType===2){//0->2
+						else if(plan.repetitionType===2){//0->2 default to weekly repeat
 							console.log("0->2 default to weekly repeat");
 
 							while (1) {
@@ -509,7 +510,7 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 							}
 							break;
 						}
-						else{//0->0
+						else{//0->0 nothing happened
 							console.log("0->0 nothing happened");
 							break;
 						}
@@ -517,11 +518,11 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 	
 				case 1 :
 					{
-						if(plan.repetitionType===1){//1->1
+						if(plan.repetitionType===1){//1->1 nothing happened
 							console.log("1->1 nothing happened");
 							break;
 						}
-						else if(plan.repetitionType===2){//1->2
+						else if(plan.repetitionType===2){//1->2 daily to weekly
 							console.log("1->2 daily to weekly");
 							//매일 반복되는 계획을 먼저 다 지워줌
 							for(let i=-0; i<7; i++){
@@ -624,8 +625,8 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 							break;
 						}
 
-						else{//1->0
-							console.log("1->0");
+						else{//1->0 daily to default
+							console.log("1->0 daily to default");
 							for(let i=-0; i<7; i++){
 								deleteRepitition(planId, getUser.userId, i);
 							}
@@ -660,8 +661,8 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 	
 				case 2 :
 					{
-						if(plan.repetitionType===1){//2->1
-							console.log("2->1");
+						if(plan.repetitionType===1){//2->1 weekly to daily
+							console.log("2->1 weekly to daily");
 							//weeklydata를 전부 지워주고
 							for(let i=-0; i<7; i++){
 								deleteRepitition(planId, getUser.userId, i);
@@ -734,7 +735,7 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 							}
 							break;
 						}
-						else if(plan.repetitionType===2){//2->2
+						else if(plan.repetitionType===2){//2->2 change date
 							console.log("2->2 change date");
 							//원래 있던 day의 정보를 모두 삭제하고
 							for(let i=-0; i<7; i++){
@@ -811,7 +812,7 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 							}
 							break;
 						}
-						else{//2->0
+						else{//2->0 weekly repeat to default
 							console.log("2->0 weekly repeat to default");
 
 							for(let i=-0; i<7; i++){
@@ -847,7 +848,17 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 					}
 			}
 		}
-		return res.json({ opcode: OPCODE.SUCCESS });
+
+		else{//그냥 update
+			resultPlan = await prisma.plan.update({
+				where: {
+					planId: planId
+				},
+				data: plan
+			})
+		}
+
+		return res.json({ opcode: OPCODE.SUCCESS , resultPlan});
 	
 	} catch(error) {
 		console.log(error);
