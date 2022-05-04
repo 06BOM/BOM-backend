@@ -42,3 +42,18 @@ export const deleteCategory = async (req: Request, res: Response, next: NextFunc
         next(error);
     }
 }
+
+export const getCategory = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+	const userId = parseInt(String(req.query.userId));
+
+	try {
+		const category = await prisma.category.findMany({
+			where: { userId }
+		});
+
+		return res.json({ opcode: OPCODE.SUCCESS, category });
+	} catch(error) {
+		console.log(error);
+		next(error);
+	}
+}
