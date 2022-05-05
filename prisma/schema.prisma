@@ -8,7 +8,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = "mysql://root:root@localhost:3306/damoyeo2"
+  url      = "mysql://root:ajouuniversity@bom-backend.c5e6sfujwd1g.ap-northeast-2.rds.amazonaws.com:3306/damoyeo"
 }
 
 model User {
@@ -291,5 +291,5 @@ model PlanDay {
 	userId				Int
 	user				User		@relation(fields: [userId], references: [userId], onDelete: Cascade)
 	plan				Plan		@relation(fields: [planId], references: [planId], onDelete: Cascade)	
-	@@id([planId, day])
+	@@id([planId, dayId])
 }

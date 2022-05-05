@@ -138,6 +138,7 @@ export const createPlan = async (req: Request, res: Response, next: NextFunction
 	const date = new Date((req.body.date));
 	let today = new Date(JSON.parse(JSON.stringify(date)));
 	let currentDay = new Date(JSON.parse(JSON.stringify(date)));
+	let year = 0, month = 0, day  = 0;
 
 	today.setUTCHours(0, 0, 0);
 	currentDay.setUTCHours(0, 0, 0);
@@ -146,9 +147,9 @@ export const createPlan = async (req: Request, res: Response, next: NextFunction
 	// repitition table 생기면 요일 받아서 코드 추가하기
 
 	if (req.body.year && req.body.month && req.body.day) {
-		const year = req.body.year;
-		const month = req.body.month - 1;
-		const day = req.body.day + 1;
+		year = parseInt(String(req.body.year));
+		month = parseInt(String(req.body.month - 1));
+		day = parseInt(String(req.body.day + 1));
 
 		currentDay.setFullYear(year);
 		currentDay.setMonth(month);
@@ -267,12 +268,16 @@ export const createPlan = async (req: Request, res: Response, next: NextFunction
 								data: {
 									planId: resultPlan.planId,
 									planName: resultPlan.planName,
-									day: i,
+									year: year,
+									month: month,
+									day: day,
+									dayId: i,
 									userId: userId
 								}
 							});		
 						}
 					}
+
 				} else if (days[today.getDay()]) {
 					const result = await prisma.plan.create({
 						data: plan
@@ -285,7 +290,10 @@ export const createPlan = async (req: Request, res: Response, next: NextFunction
 								data: {
 									planId: result.planId,
 									planName: result.planName,
-									day: i,
+									year: year,
+									month: month,
+									day: day,
+									dayId: i,
 									userId: userId
 								}
 							});		
