@@ -73,12 +73,56 @@ const deleteRepitition = async (dPlanId, dUserId, deleteDayId) => {
 	}
 }
 
+export const getRepititionValidity = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+	
+	let planId = Number(req.params.planId);
+	let date, day;
+	console.log(planId)
+
+	try {
+		const getPlanInfo = await prisma.plan.findUnique({
+			where: { planId: planId },
+			select: { 
+				planName: true,
+				dailyId: true }
+		});
+
+		const getDailyInfo = await prisma.daily.findUnique({
+			where: { dailyId: getPlanInfo.dailyId }
+		})
+
+		date = new Date(getDailyInfo.date);
+		day = date.getDay();
+		
+		const getValidity = await prisma.planDay.findMany({
+			where: {
+				AND: [
+					{ dayId: day },
+					{ planName: getPlanInfo.planName },
+					{ userId: getDailyInfo.userId }
+				]
+			},
+			select: {
+				year: true,
+				month: true,
+				day: true
+			}
+		})
+		
+		return res.json({ opcode: OPCODE.SUCCESS, getValidity });
+
+	} catch (error) {
+		console.log(error);
+		next(error);
+	}
+}
+
 export const getUserId = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	
 	let planId = Number(req.params.planId);
 		
 	try {
-		const r = deleteRepitition(1, 1, 1);	//test
+		//const r = deleteRepitition(1, 1, 1);	//test
 
 		const getDailyId = await prisma.plan.findUnique({
 			where: { 
