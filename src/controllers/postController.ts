@@ -111,7 +111,6 @@ export const sortingByKind = async (req: Request, res: Response, next: NextFunct
 
 export const deletePost = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	const postId = parseInt(String(req.query.postId));
-    console.log("postId: ", postId);
 
 	try {
 		const result = await prisma.post.delete({
