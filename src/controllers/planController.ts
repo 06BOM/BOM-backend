@@ -77,7 +77,6 @@ export const getRepititionValidity = async (req: Request, res: Response, next: N
 	
 	let planId = Number(req.params.planId);
 	let date, day;
-	console.log(planId)
 
 	try {
 		const getPlanInfo = await prisma.plan.findUnique({
