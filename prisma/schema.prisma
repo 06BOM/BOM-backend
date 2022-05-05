@@ -62,7 +62,7 @@ model Daily {
 	plans				Plan[]
 }
 
-model Category {
+model Category { //
 	categoryId			Int			@default(autoincrement()) @id
 	categoryName		String		@db.VarChar(45)
 	color				String		@db.VarChar(45)
