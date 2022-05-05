@@ -145,23 +145,19 @@ export const createPlan = async (req: Request, res: Response, next: NextFunction
 
 	// repitition table 생기면 요일 받아서 코드 추가하기
 
-	const year2 = req.body.year;
-	const month2 = req.body.month - 1;
-	const day2 = req.body.day + 1;
+	if (req.body.year && req.body.month && req.body.day) {
+		const year = req.body.year;
+		const month = req.body.month - 1;
+		const day = req.body.day + 1;
 
-	//currentDay = new Date(year2, month2, day2); zz
-	currentDay.setFullYear(year2);
-	currentDay.setMonth(month2);
-	currentDay.setDate(day2);
+		currentDay.setFullYear(year);
+		currentDay.setMonth(month);
+		currentDay.setDate(day);
+	} else {
+		currentDay.setFullYear(currentDay.getFullYear() + 1);
+	}
 
-	//const year = req.body.year? Number(req.body.year): 1;
-	//const month = req.body.month? Number(req.body.month): 0;
-	//const day = req.body.day? Number(req.body.day): 0;
 	const days = req.body.days; // 배열 [0, 0, 0, 0, 0, 0, 0] 요일을 의미함
-
-	//currentDay.setFullYear(currentDay.getFullYear() + year);
-	//currentDay.setMonth(currentDay.getMonth() + month);
-	//currentDay.setDate(currentDay.getDate() + day);
 
 	let plan = {
 		planName: String(req.body.planName),
@@ -260,6 +256,9 @@ export const createPlan = async (req: Request, res: Response, next: NextFunction
 				}
 				
 				if (Number(todayy) === Number(today)) {					
+					resultPlan = await prisma.plan.create({
+						data: plan
+					});
 
 					for (let i = 0; i < days.length; i++)
 					{
