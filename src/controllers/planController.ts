@@ -5,10 +5,10 @@ import { Console, time } from "console";
 
 const prisma = new PrismaClient();
 
-const deleteRepitition = async (dPlanId, dUserId, deleteDay) => {
+const deleteRepitition = async (dPlanId, dUserId, deleteDayId) => {
 	const planId = dPlanId;
 	const userId = dUserId;
-	const day = deleteDay;
+	const dayId = Number(deleteDayId);
 	let date, i, date2;
 
 	try {
@@ -37,7 +37,7 @@ const deleteRepitition = async (dPlanId, dUserId, deleteDay) => {
 		for (i = 0 ; i < getDates.length ; i++) {
 			date2 = new Date(getDates[i].date);
 
-			if( day === date2.getDay()) {
+			if( dayId === date2.getDay()) {
 
 				const deleteRepititionPlans = await prisma.plan.deleteMany({
 					where: {
@@ -55,12 +55,11 @@ const deleteRepitition = async (dPlanId, dUserId, deleteDay) => {
 				})
 			}
 		}
-
 		
 		const deletePlanDay = await prisma.planDay.deleteMany({
 			where: {
 				AND: [
-					{ day: day },
+					{ dayId: dayId },
 					{ planName: getPlanInfo.planName },
 					{ userId: userId }
 				]
@@ -74,12 +73,55 @@ const deleteRepitition = async (dPlanId, dUserId, deleteDay) => {
 	}
 }
 
+export const getRepititionValidity = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+	
+	let planId = Number(req.params.planId);
+	let date, day;
+
+	try {
+		const getPlanInfo = await prisma.plan.findUnique({
+			where: { planId: planId },
+			select: { 
+				planName: true,
+				dailyId: true }
+		});
+
+		const getDailyInfo = await prisma.daily.findUnique({
+			where: { dailyId: getPlanInfo.dailyId }
+		})
+
+		date = new Date(getDailyInfo.date);
+		day = date.getDay();
+		
+		const getValidity = await prisma.planDay.findMany({
+			where: {
+				AND: [
+					{ dayId: day },
+					{ planName: getPlanInfo.planName },
+					{ userId: getDailyInfo.userId }
+				]
+			},
+			select: {
+				year: true,
+				month: true,
+				day: true
+			}
+		})
+		
+		return res.json({ opcode: OPCODE.SUCCESS, getValidity });
+
+	} catch (error) {
+		console.log(error);
+		next(error);
+	}
+}
+
 export const getUserId = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	
 	let planId = Number(req.params.planId);
 		
 	try {
-		//const r = deleteRepitition(9, 1, 0);	//test
+		//const r = deleteRepitition(1, 1, 1);	//test
 
 		const getDailyId = await prisma.plan.findUnique({
 			where: { 

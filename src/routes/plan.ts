@@ -18,7 +18,8 @@ import { createPlan,
          getIncompletePlans,
          getUserId,
          getPlanData,
-		 getAllMonthlyStars 
+		 getAllMonthlyStars,
+         getRepititionValidity 
     } from "../controllers/planController";
 
 const router = express.Router();
@@ -40,5 +41,6 @@ router.get("/month/all/star", getAllMonthlyStars);
 router.route("/:planId").delete(deletePlan).patch(updatePlan).get(getUserId);
 router.get("/:planId/time", getPlanTime);
 router.get("/:planId/data",getPlanData);
+router.get("/:planId/validity", getRepititionValidity);
 
 export default router;
