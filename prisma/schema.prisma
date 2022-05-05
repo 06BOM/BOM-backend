@@ -284,7 +284,10 @@ model Scrap {
 model PlanDay {
 	planId				Int
 	planName			String		@db.VarChar(45)
+	year				Int			@default(0)
+	month				Int			@default(0)
 	day					Int			@default(0)
+	dayId				Int			@default(0)
 	userId				Int
 	user				User		@relation(fields: [userId], references: [userId], onDelete: Cascade)
 	plan				Plan		@relation(fields: [planId], references: [planId], onDelete: Cascade)	
