@@ -1,6 +1,7 @@
 import express from 'express';
 import morgan from 'morgan';
 import helmet from 'helmet';
+import path from 'path';
 
 import indexRouter from "./routes";
 import userRouter from "./routes/user";
@@ -17,6 +18,11 @@ app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({extended:false}));
 app.use(morgan("dev"));
+
+console.log(process.cwd() + "/public");
+app.set("view engine", "pug");
+app.set("views", process.cwd() + "/src/views");
+app.use("/public", express.static(path.join(process.cwd(), 'src', '/public')));
 
 app.use('/', indexRouter);
 app.use('/user', userRouter);
