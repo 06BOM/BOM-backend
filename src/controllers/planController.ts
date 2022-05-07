@@ -583,7 +583,52 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 				case 1 :
 					{
 						if(plan.repetitionType===1){//1->1 nothing happened
-							console.log("1->1 nothing happened");
+							console.log("1->1 change date");
+							//원래 있던 day의 정보를 모두 삭제하고
+							for(let i=-0; i<7; i++){
+								deleteRepitition(planId, getUser.userId, i);
+							}
+							
+							while (1) {	
+								const getDaily = await prisma.daily.findFirst({
+									where: {
+										AND: [
+											{ date: today },
+											{ userId: getUser.userId }
+										]
+									},
+									select:{ dailyId: true }
+								})
+								
+								if (getDaily === null) {
+									const createDaily = await prisma.daily.create({
+										data: { date: today, userId: getUser.userId }
+									});
+									plan.dailyId = createDaily.dailyId;	
+
+								} else {
+									plan.dailyId = getDaily.dailyId;
+								}
+								
+								if (Number(todayy) === Number(today)) {
+									await prisma.plan.update({
+										where: {
+											planId: planId
+										},
+										data: plan
+									})
+								}
+								else {
+									plan.time=0;
+									await prisma.plan.create({
+										data: plan
+									});
+								}
+								today.setUTCDate(today.getDate() + 1);
+								if (Number(today) === Number(currentDay)) {
+									break;	
+								}
+							}
 							break;
 						}
 						else if(plan.repetitionType===2){//1->2 daily to weekly
