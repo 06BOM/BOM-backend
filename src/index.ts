@@ -28,12 +28,13 @@ wsServer.on("connection", socket => {
 
     socket.on("enter_room", (roomName, done) => {
         name = "가히";
-        console.log(socket.rooms);
-        console.log(roomName);
         socket.join(roomName);
         console.log(socket.rooms);
         done();
-        socket.to(roomName).emit("welcome", name);
+    });
+
+    socket.on("gameStart", (done) => {
+        done();
     });
 
 	socket.on("ox", (payload) => {
