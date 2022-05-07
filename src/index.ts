@@ -13,6 +13,8 @@ const handleListening = () => {
 const httpServer = http.createServer(app);
 const wsServer = new Server(httpServer);
 
+let name;
+
 wsServer.on("connection", socket => {
 	socket.join("BOM");
 
@@ -25,15 +27,25 @@ wsServer.on("connection", socket => {
 	});
 
     socket.on("enter_room", (roomName, done) => {
-        console.log(roomName);
-        setTimeout(()=>{
-            done("hello from the backend"); // 여기 있는 done 함수는 여기서 실행하지 않는다 - 사용자로부터 함수를 받아서 사용하면 보안문제가 생길 수 있기 때문에
-        }, 15000);
+        name = "가히";
+        socket.join(roomName);
+        console.log(socket.rooms);
+        done();
+    });
+
+    socket.on("gameStart", (done) => {
+        done();
     });
 
 	socket.on("ox", (payload) => {
 		wsServer.sockets.emit("ox", { answer: payload.ox, userId: payload.userId });
 	});
+
+    socket.on("new_message", (msg, room, done) => {
+        socket.to(room).emit("new_message", `${name}: ${msg}`);
+        done();
+    });
+
 });
 
 httpServer.listen(PORT, handleListening);

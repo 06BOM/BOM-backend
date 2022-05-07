@@ -15,16 +15,13 @@ html(lang="en")
 					button Enter Room
 				h4 Open Rooms: 
 				ul
-			div#room 
-				h3
-				ul
-				form#name
-					input(placeholder="nickname", required, type="text")
-					button Save
-				form#msg
-					input(placeholder="message", required, type="text")
-					button Send
-			div 
+			div#beforeStart
+				button 게임시작
+			div#gameStart
+				h4(style="text-align:right") 순위판
+				ul(style="text-align:right")
+				p(style="text-align:center") 게임중: 라운드시작할때마다 문제랑 ox 뜨게 만들어주세용
+			div#ox
 				h1 OX 선택
 				button.o O
 				br
