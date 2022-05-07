@@ -3,14 +3,14 @@ const socket = io();
 const welcome = document.getElementById("welcome");
 const form_welcome = welcome.querySelector("form");
 const beforeStart = document.getElementById("beforeStart");
-const scoreBoard = document.getElementById("scoreBoard");
+const gameStart = document.getElementById("gameStart");
 const ox = document.getElementById("ox");
 const button_o = document.querySelector('.o');
 const button_x = document.querySelector('.x');
 
 let roomName;
 beforeStart.hidden = true;
-scoreBoard.hidden = true;
+gameStart.hidden = true;
 ox.hidden = true;
 
 function showBeforeStartRoom() {
@@ -22,8 +22,7 @@ function showBeforeStartRoom() {
 
 function showGameRoom(event) {
     beforeStart.hidden = true;
-    ox.hidden = false;
-    scoreBoard.hidden = false;
+    gameStart.hidden = false;
 }
 
 function handleRoomSubmit(event) {
