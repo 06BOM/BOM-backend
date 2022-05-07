@@ -46,5 +46,4 @@ wsServer.on("connection", socket => {
         done();
     });
 });
-
 httpServer.listen(PORT, handleListening);
