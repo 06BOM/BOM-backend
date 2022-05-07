@@ -7,6 +7,7 @@ const gameStart = document.getElementById("gameStart");
 const ox = document.getElementById("ox");
 const button_o = document.querySelector('.o');
 const button_x = document.querySelector('.x');
+const button_ready = document.querySelector('.ready');
 
 let roomName;
 beforeStart.hidden = true;
@@ -48,10 +49,16 @@ function handleXSubmit(event) {
 	socket.emit("ox", { userId: 1, ox: 'x'});
 }
 
+function handleReadySubmit(event) {
+	event.preventDefault();
+	socket.emit("ready");
+}
+
 form_welcome.addEventListener("submit", handleRoomSubmit);
 beforeStart.addEventListener("click", handleGameStart);
 button_o.addEventListener("click", handleOSubmit);
 button_x.addEventListener("click", handleXSubmit);
+button_ready.addEventListener("click", handleReadySubmit);
 
 socket.on("ox", (payload) => {
 	console.log(payload);

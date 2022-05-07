@@ -17,17 +17,14 @@ let name;
 
 wsServer.on("connection", socket => {
 	socket.join("BOM");
+	socket["ready"] = 0;
 
 	socket.onAny((event) => {
 		console.log(`Socket Event:${event}`);
 	});
 
-	socket.on("test", (payload) => { // 테스트 용도! 나중에 삭제 필요!
-		console.log(payload);
-	});
-
     socket.on("enter_room", (roomName, done) => {
-        name = "가히";
+		name = "가히";
         socket.join(roomName);
         console.log(socket.rooms);
         done();
@@ -40,10 +37,16 @@ wsServer.on("connection", socket => {
 	socket.on("ox", (payload) => {
 		wsServer.sockets.emit("ox", { answer: payload.ox, userId: payload.userId });
 	});
-
-    socket.on("new_message", (msg, room, done) => {
+	
+	socket.on("ready", () => {
+			socket["ready"] = 1;
+			
+	}); 
+	 
+	socket.on("new_message", (msg, room, done) => {
         socket.to(room).emit("new_message", `${name}: ${msg}`);
         done();
     });
 });
+
 httpServer.listen(PORT, handleListening);
