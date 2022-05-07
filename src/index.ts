@@ -45,7 +45,6 @@ wsServer.on("connection", socket => {
         socket.to(room).emit("new_message", `${name}: ${msg}`);
         done();
     });
-
 });
 
 httpServer.listen(PORT, handleListening);
