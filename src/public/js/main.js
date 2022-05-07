@@ -3,6 +3,7 @@ const socket = io();
 const form_test = document.querySelector("#test_form");
 const button_o = document.querySelector('.o');
 const button_x = document.querySelector('.x');
+const button_ready = document.querySelector('.ready');
 
 function handleTestSubmit(event) {
 	event.preventDefault();
@@ -12,13 +13,16 @@ function handleTestSubmit(event) {
 function handleOSubmit(event) {
 	event.preventDefault();
 	socket.emit("ox", { userId: 1, ox: 'o'});
-	console.log("o was clicked");
 }
 
 function handleXSubmit(event) {
 	event.preventDefault();
 	socket.emit("ox", { userId: 1, ox: 'x'});
-	console.log("x was clicked");
+}
+
+function handleReadySubmit(event) {
+	event.preventDefault();
+	socket.emit("ready");
 }
 
 form_test.addEventListener("submit", handleTestSubmit);
