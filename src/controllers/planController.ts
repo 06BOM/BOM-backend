@@ -276,7 +276,7 @@ export const createPlan = async (req: Request, res: Response, next: NextFunction
 					break;	
 				}
 			}
-		} else {  // 매주 반복
+		} else { // 매주 반복
 			while (1) {
 				const getDaily = await prisma.daily.findFirst({
 					where: {
@@ -292,7 +292,6 @@ export const createPlan = async (req: Request, res: Response, next: NextFunction
 					const createDaily = await prisma.daily.create({
 						data: { date: today, userId: userId }
 					});
-	
 					plan.dailyId = createDaily.dailyId;	
 				} else {
 					plan.dailyId = getDaily.dailyId;
@@ -349,7 +348,6 @@ export const createPlan = async (req: Request, res: Response, next: NextFunction
 				}
 			}
 		}
-
 		return res.json({ opcode: OPCODE.SUCCESS, resultPlan });
 	} catch(error) {
 		console.log(error);
@@ -397,18 +395,24 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 
 	let today = new Date(JSON.parse(JSON.stringify(getDate.date)));
 	let currentDay = new Date(JSON.parse(JSON.stringify(getDate.date)));
+	let year = 0, month = 0, day = 0;
 	today.setUTCHours(0, 0, 0);
 	currentDay.setUTCHours(0, 0, 0);
 	const todayy = new Date(JSON.parse(JSON.stringify(today)));
-
-	const year = req.body.year? Number(req.body.year): 1;
-	const month = req.body.month? Number(req.body.month): 0;
-	const day = req.body.day? Number(req.body.day): 0;
 	const days = req.body.days;
+	// repitition table 생기면 요일 받아서 코드 추가하기
 
-	currentDay.setFullYear(currentDay.getFullYear() + year);
-	currentDay.setMonth(currentDay.getMonth() + month);
-	currentDay.setDate(currentDay.getDate() + day);
+	if (req.body.year && req.body.month && req.body.day) {
+		year = parseInt(String(req.body.year));
+		month = parseInt(String(req.body.month - 1));
+		day = parseInt(String(req.body.day + 1));
+
+		currentDay.setFullYear(year);
+		currentDay.setMonth(month);
+		currentDay.setDate(day);
+	} else {
+		currentDay.setFullYear(currentDay.getFullYear() + 1);
+	}
 
 	
 	const originRepititionType = await prisma.plan.findUnique({
@@ -519,16 +523,18 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 										if (days[i]) {
 											await prisma.planDay.create({
 												data: {
-													planId: PlanData.planId,
-													planName: PlanData.planName,
-													day: i,
+													planId: resultPlan.planId,
+													planName: resultPlan.planName,
+													year: year,
+													month: month,
+													day: day,
+													dayId: i,
 													userId: getUser.userId
 												}
 											});		
 										}
 									}
 								} else if (days[today.getDay()]) {
-									
 									if (getDaily === null) {
 										const createDaily = await prisma.daily.create({
 											data: { date: today, userId: getUser.userId }
@@ -550,16 +556,18 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 												data: {
 													planId: resultPlan.planId,
 													planName: resultPlan.planName,
-													day: i,
+													year: year,
+													month: month,
+													day: day,
+													dayId: i,
 													userId: getUser.userId
 												}
 											});		
 										}
 									}
 								}
-				
+
 								today.setUTCDate(today.getDate() + 1);
-								
 								if (Number(today) === Number(currentDay)) {
 									break;	
 								}
@@ -580,6 +588,7 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 						}
 						else if(plan.repetitionType===2){//1->2 daily to weekly
 							console.log("1->2 daily to weekly");
+							
 							//매일 반복되는 계획을 먼저 다 지워줌
 							for(let i=-0; i<7; i++){
 								deleteRepitition(planId, getUser.userId, i);
@@ -596,10 +605,10 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 								}
 							}) 
 							
-							for(let i=0; i<getUpdateDailyId.length;i++){
+							for(let i = 0; i < getUpdateDailyId.length; i++){
 								await prisma.plan.updateMany({
-									where:{
-										AND:[
+									where: {
+										AND: [
 											{dailyId: getUpdateDailyId[i].dailyId},
 											{planName: getData.planName}
 										]
@@ -609,6 +618,7 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 									}
 								})
 							}
+
 							//들어온 day에 해당하는 계획 생성
 							while (1) {
 								const getDaily = await prisma.daily.findFirst({
@@ -627,22 +637,25 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 											planId: planId
 										},
 										data: plan
-									})
+									});
+
 									for (let i = 0; i < days.length; i++)
 									{
 										if (days[i]) {
 											await prisma.planDay.create({
 												data: {
-													planId: PlanData.planId,
-													planName: PlanData.planName,
-													day: i,
+													planId: resultPlan.planId,
+													planName: resultPlan.planName,
+													year: year,
+													month: month,
+													day: day,
+													dayId: i,
 													userId: getUser.userId
 												}
 											});		
 										}
 									}
 								} else if (days[today.getDay()]) {
-									
 									if (getDaily === null) {
 										const createDaily = await prisma.daily.create({
 											data: { date: today, userId: getUser.userId }
@@ -652,7 +665,6 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 										plan.dailyId = getDaily.dailyId;
 									}
 									plan.time = 0;
-
 									resultPlan = await prisma.plan.create({
 										data: plan
 									});
@@ -664,7 +676,10 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 												data: {
 													planId: resultPlan.planId,
 													planName: resultPlan.planName,
-													day: i,
+													year: year,
+													month: month,
+													day: day,
+													dayId: i,
 													userId: getUser.userId
 												}
 											});		
@@ -698,7 +713,7 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 								}
 							}) 
 							
-							for(let i=0; i<getUpdateDailyId.length;i++){
+							for(let i = 0; i < getUpdateDailyId.length; i++){
 								await prisma.plan.updateMany({
 									where:{
 										AND:[
@@ -735,12 +750,12 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 								}
 							}) 
 							
-							for(let i=0; i<getUpdateDailyId.length;i++){
+							for(let i = 0; i < getUpdateDailyId.length; i++){
 								await prisma.plan.updateMany({
 									where:{
 										AND:[
-											{dailyId: getUpdateDailyId[i].dailyId},
-											{planName: getData.planName}
+											{ dailyId: getUpdateDailyId[i].dailyId },
+											{ planName: getData.planName }
 										]
 									},
 									data:{
@@ -823,7 +838,10 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 												data: {
 													planId: PlanData.planId,
 													planName: PlanData.planName,
-													day: i,
+													year: year,
+													month: month,
+													day: day,
+													dayId: i,
 													userId: getUser.userId
 												}
 											});		
@@ -852,7 +870,10 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 												data: {
 													planId: resultPlan.planId,
 													planName: resultPlan.planName,
-													day: i,
+													year: year,
+													month: month,
+													day: day,
+													dayId: i,
 													userId: getUser.userId
 												}
 											});		
