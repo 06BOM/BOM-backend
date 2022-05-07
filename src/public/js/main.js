@@ -24,8 +24,6 @@ function showGameRoom(event) {
     beforeStart.hidden = true;
     ox.hidden = false;
     scoreBoard.hidden = false;
-    const h3 = room.querySelector("h3");
-    h3.innerText = `게임진행화면어쩌구저쩌구`;
 }
 
 function handleRoomSubmit(event) {
