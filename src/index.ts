@@ -15,13 +15,10 @@ const wsServer = new Server(httpServer);
 
 wsServer.on("connection", socket => {
 	socket.join("BOM");
+	socket["ready"] = 0;
 
 	socket.onAny((event) => {
 		console.log(`Socket Event:${event}`);
-	});
-
-	socket.on("test", (payload) => { // 테스트 용도! 나중에 삭제 필요!
-		console.log(payload);
 	});
 
     socket.on("enter_room", (roomName, done) => {
@@ -34,6 +31,11 @@ wsServer.on("connection", socket => {
 	socket.on("ox", (payload) => {
 		wsServer.sockets.emit("ox", { answer: payload.ox, userId: payload.userId });
 	});
+
+	socket.on("ready", () => {
+		socket["ready"] = 1;
+		
+	}); 
 });
 
 httpServer.listen(PORT, handleListening);
