@@ -28,12 +28,12 @@ html(lang="en")
 				button.exitWhilePlaying exit
 				.clock
 				ul(style="text-align:right")
-				p(style="text-align:center") 게임중: 라운드시작할때마다 문제랑 ox 뜨게 만들어주세용
-			div#ox
-				h1 OX 선택
-				button.o O
-				br
-				button.x X
+				p(style="text-align:center") 문제 : 
+					span.question
+			div#ox(style="position: relative;")
+				div#container(style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)")
+					button(style="").o O
+					button(style="padding: 1000;").x X
 			div#gameReady 
 				h1 준비 / 준비 풀기
 				button.ready 준비 

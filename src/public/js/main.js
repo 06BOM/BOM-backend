@@ -13,6 +13,7 @@ const button_exit = document.querySelector('.exit');
 const button_ready = document.querySelector('.ready');
 const button_exitWhilePlaying = document.querySelector('.exitWhilePlaying');
 const clock = document.querySelector('.clock');
+const question2 = document.querySelector('.question');
 
 let roomName;
 beforeStart.hidden = true;
@@ -66,7 +67,8 @@ function showBeforeStartRoom(roomName, newCount) {
 
 
 function showQuestion(question) {
-
+	question2.innerText = question;
+	ox.hidden = false;
 }
 
 function showGameRoom(event) {
