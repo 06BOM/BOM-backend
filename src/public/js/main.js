@@ -152,6 +152,16 @@ socket.on("remove message", () => {
     h5.innerText = ``;
 })
 
+socket.on("score change", (sockets, roomCount) => {
+    const scoreList = gameStart.querySelector("ul");
+    scoreList.innerHTML = "";
+    for(i = 0; i < roomCount; i++) {
+        const li = document.createElement("li");
+        li.innerText = `${sockets[i].nickname}: ${sockets[i].data.score}`;
+        scoreList.append(li);
+    }
+});
+
 socket.on("ready", () => {
 	readyToStart();
 });
