@@ -11,12 +11,14 @@ const button_x = document.querySelector('.x');
 const button_start = document.querySelector('.start');
 const button_exit = document.querySelector('.exit');
 const button_ready = document.querySelector('.ready');
+const button_exitWhilePlaying = document.querySelector('.exitWhilePlaying');
 
 let roomName;
 beforeStart.hidden = true;
 gameStart.hidden = true;
 gameReady.hidden = true;
 ox.hidden = true;
+const timeVal = 10;
 
 function showMainPage(){
     welcome.hidden = false;
@@ -36,6 +38,7 @@ function showBeforeStartRoom(roomName, newCount) {
 
 function showGameRoom(event) {
     beforeStart.hidden = true;
+    gameReady.hidden = true;
     gameStart.hidden = false;
 }
 
@@ -50,13 +53,20 @@ function handleRoomSubmit(event) {
 
 function handleRoomExit(event) {
     event.preventDefault();
-    roomName = socket.roomName;
+    const roomName = "BOM" // 추후 socket에서 유저가 접속한 방의 이름 가져오는 로직 생성 필요
+    socket.emit("exit_room", roomName, showMainPage);
+}
+
+function handlePlayingRoomExit(event) {//게임 진행중 방을 나가는 경우, 패널티 제공 로직 생성 필요
+    event.preventDefault();
+    const roomName = "BOM" // 추후 socket에서 유저가 접속한 방의 이름 가져오는 로직 생성 필요
     socket.emit("exit_room", roomName, showMainPage);
 }
 
 function handleGameStart(event) {
     event.preventDefault();
     socket.emit("gameStart", showGameRoom);
+    socket.emit("timerSet", {'seconds' : timeVal})
 }
 
 function handleOSubmit(event) {
@@ -77,6 +87,7 @@ function handleReadySubmit(event) {
 form_welcome.addEventListener("submit", handleRoomSubmit);
 button_start.addEventListener("click", handleGameStart);
 button_exit.addEventListener("click", handleRoomExit);
+button_exitWhilePlaying.addEventListener("click", handlePlayingRoomExit);
 button_o.addEventListener("click", handleOSubmit);
 button_x.addEventListener("click", handleXSubmit);
 button_ready.addEventListener("click", handleReadySubmit);
