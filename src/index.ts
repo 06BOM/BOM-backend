@@ -4,6 +4,7 @@ import WebSocket from "ws"; // 기본설치!
 import { Server } from "socket.io"; 
 import { doesNotMatch } from "assert";
 import { Socket } from "dgram";
+import { clearInterval } from "timers";
 
 const PORT = process.env.PORT || 3000;
 
@@ -49,19 +50,7 @@ wsServer.on("connection", socket => {
     socket.on("gameStart", (done) => {
         done();
     });
-
-    socket.on("timerSet", function(data){
-        var seconds = Number(data.seconds);
-        var timer;
-
-        timer = setInterval(function(){
-            if (seconds>0){
-                seconds--;
-                timer = seconds;
-            }
-        })
-    })
-    
+   
 	socket.on("ox", (payload) => {
 		wsServer.sockets.emit("ox", { answer: payload.ox, userId: payload.userId });
 	});

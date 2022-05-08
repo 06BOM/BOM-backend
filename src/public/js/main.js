@@ -12,13 +12,41 @@ const button_start = document.querySelector('.start');
 const button_exit = document.querySelector('.exit');
 const button_ready = document.querySelector('.ready');
 const button_exitWhilePlaying = document.querySelector('.exitWhilePlaying');
+const clock = document.querySelector('.clock');
 
 let roomName;
 beforeStart.hidden = true;
 gameStart.hidden = true;
 gameReady.hidden = true;
 ox.hidden = true;
-const timeVal = 10;
+
+let timeRemaining;
+let clockInterval = null;
+
+function countBack() {
+  clock.innerText = `00:${
+    timeRemaining < 10 ? `0${timeRemaining}` : timeRemaining
+  }`;
+  timeRemaining--;
+  if(timeRemaining<0){
+      stopClock();
+  }
+}
+
+function startClock() {
+  if (clockInterval === null) {
+    timeRemaining = 10;
+    countBack();
+    clockInterval = setInterval(countBack, 1000);
+  }
+}
+
+function stopClock() {
+  clearInterval(clockInterval);
+  clockInterval = null;
+  clock.innerText = "";
+}
+
 
 function showMainPage(){
     welcome.hidden = false;
@@ -67,9 +95,7 @@ function handlePlayingRoomExit(event) {//게임 진행중 방을 나가는 경�
 function handleGameStart(event) {
     event.preventDefault();
     socket.emit("gameStart", showGameRoom);
-    socket.emit("timerSet", {'seconds' : timeVal});
-    const clock = gameStart.querySelector(".clock");
-    clock.innerText = `남은 시간 : ${timeVal}`;
+    startClock();
 }
 
 function readyToStart() {
@@ -92,14 +118,6 @@ function handleReadySubmit(event) {
 	socket.emit("ready");
 }
 
-form_welcome.addEventListener("submit", handleRoomSubmit);
-button_start.addEventListener("click", handleGameStart);
-button_exit.addEventListener("click", handleRoomExit);
-button_exitWhilePlaying.addEventListener("click", handlePlayingRoomExit);
-button_o.addEventListener("click", handleOSubmit);
-button_x.addEventListener("click", handleXSubmit);
-button_ready.addEventListener("click", handleReadySubmit);
-
 socket.on("ox", (payload) => {
 	console.log(payload);
 });
@@ -121,3 +139,11 @@ socket.on("message specific user", (uid, msg)  => {
 socket.on("ready", () => {
 	readyToStart();
 });
+
+form_welcome.addEventListener("submit", handleRoomSubmit);
+button_start.addEventListener("click", handleGameStart);
+button_exit.addEventListener("click", handleRoomExit);
+button_exitWhilePlaying.addEventListener("click", handlePlayingRoomExit);
+button_o.addEventListener("click", handleOSubmit);
+button_x.addEventListener("click", handleXSubmit);
+button_ready.addEventListener("click", handleReadySubmit);
