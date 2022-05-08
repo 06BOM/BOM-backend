@@ -14,7 +14,9 @@ const handleListening = () => {
 const httpServer = http.createServer(app);
 const wsServer = new Server(httpServer);
 
-let name;
+function countRoom(roomName){
+    return wsServer.sockets.adapter.rooms.get(roomName)?.size;
+}
 
 wsServer.on("connection", socket => {
 
@@ -26,10 +28,16 @@ wsServer.on("connection", socket => {
 		console.log(`Socket Event:${event}`);
 	});
 
-    socket.on("enter_room", (roomName, done) => {
-        socket.join(roomName);
-        console.log(socket.rooms);
-        done();
+    socket.on("enter_room", (roomName, nickname, done) => {
+        if ( countRoom(roomName) > 10){
+            socket.emit("message specific user", socket.id, "정원초과로 입장하실 수 없습니다.");
+        } else {
+            socket.join(roomName);
+            console.log(socket.rooms);
+            done();
+            socket.data.nickname = nickname;
+            socket.to(roomName).emit("welcome", socket.data.nickname, roomName, countRoom(roomName));
+        }
     });
 
     socket.on("exit_room", (roomName, done) => {

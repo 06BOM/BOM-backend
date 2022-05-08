@@ -26,7 +26,7 @@ function showMainPage(){
     ox.hidden = true;
 }
 
-function showBeforeStartRoom() {
+function showBeforeStartRoom(event) {
     welcome.hidden = true;
     beforeStart.hidden = false;
     gameReady.hidden = false;
@@ -42,7 +42,8 @@ function showGameRoom(event) {
 function handleRoomSubmit(event) {
     event.preventDefault();
     const input = form_welcome.querySelector("input");
-    socket.emit("enter_room", input.value, showBeforeStartRoom);
+    const nickname = "가히"; // 추후 db접근해서 닉넴가져오거나
+    socket.emit("enter_room", input.value, nickname, showBeforeStartRoom);
     roomName = input.value;
     input.value = "";
 }
@@ -82,5 +83,19 @@ button_ready.addEventListener("click", handleReadySubmit);
 
 socket.on("ox", (payload) => {
 	console.log(payload);
+});
+
+socket.on("welcome", (user, roomName, newCount) => {
+    const h3 = beforeStart.querySelector("h3");
+    h3.innerText = `방이름: ${roomName} ( 참여인원: ${newCount}/10 )`;
+    const ul = beforeStart.querySelector("ul");
+    const li = document.createElement("li");
+    li.innerText = `${user}님 입장!`;
+    ul.appendChild(li);
+});
+
+socket.on("message specific user", (uid, msg)  => {
+    const h5 = welcome.querySelector("h5");
+    h5.innerText = `${msg}😥`;
 });
 
