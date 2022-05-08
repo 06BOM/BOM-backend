@@ -19,6 +19,18 @@ function countRoom(roomName){
 }
 
 let readyStorage = [];
+const question = [
+	{ oxQuestion: "이 앱의 이름은 다모여이다.", oxAnswer: "o" },
+	{ oxQuestion: "이 앱을 만든 조의 이름은 BOOM이다", oxAnswer: "x" },
+	{ oxQuestion: "이 앱을 만든 조는 6조이다.", oxAnswer: "o" },
+	{ oxQuestion: "토마토는 과일이 아니라 채소이다.", oxAnswer: "x" },
+	{ oxQuestion: "원숭이에게도 지문이 있다.", oxAnswer: "x" },
+	{ oxQuestion: "가장 강한 독을 가진 개구리 한마리의 독으로 사람 2000명 이상을 죽일 수 있다.", oxAnswer: "o" },
+	{ oxQuestion: "달팽이는 이빨이 있다", oxAnswer: "o" },
+	{ oxQuestion: "고양이는 잠을 잘 때 꿈을 꾼다", oxAnswer: "o" },
+	{ oxQuestion: "물고기도 색을 구분할 수 있다.", oxAnswer: "o" },
+	{ oxQuestion: "낙지의 심장은 3개이다", oxAnswer: "o" },
+];
 
 wsServer.on("connection", socket => {
 	socket["nickname"] = "Anon";
@@ -72,6 +84,10 @@ wsServer.on("connection", socket => {
         socket.to(room).emit("new_message", `${name}: ${msg}`);
         done();
     });
+
+	socket.on("question", (done) => {
+		done(question[0].oxQuestion);
+	});
 });
 
 httpServer.listen(PORT, handleListening);

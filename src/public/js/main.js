@@ -36,6 +36,11 @@ function showBeforeStartRoom(roomName, newCount) {
     h5.innerText = `방이름: ${roomName} ( 참여인원: ${newCount}/10 )`;
 };
 
+
+function showQuestion(question) {
+
+}
+
 function showGameRoom(event) {
     beforeStart.hidden = true;
     gameReady.hidden = true;
@@ -67,6 +72,7 @@ function handleGameStart(event) {
     event.preventDefault();
     socket.emit("gameStart", showGameRoom);
     socket.emit("timerSet", {'seconds' : timeVal})
+	socket.emit("question", showQuestion);
 }
 
 function readyToStart() {
