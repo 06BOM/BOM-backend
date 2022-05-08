@@ -60,8 +60,8 @@ function showBeforeStartRoom(roomName, newCount) {
     welcome.hidden = true;
     beforeStart.hidden = false;
     gameReady.hidden = false;
-    const h5 = beforeStart.querySelector("h5");
-    h5.innerText = `방이름: ${roomName} ( 참여인원: ${newCount}/10 )`;
+    const h4 = beforeStart.querySelector("h4");
+    h4.innerText = `방이름: ${roomName} ( 참여인원: ${newCount}/10 )`;
 };
 
 
@@ -127,8 +127,8 @@ socket.on("ox", (payload) => {
 });
 
 socket.on("welcome", (user, roomName, newCount) => {
-    const h5 = beforeStart.querySelector("h5");
-    h5.innerText = `방이름: ${roomName} ( 참여인원: ${newCount}/10 )`;
+    const h4 = beforeStart.querySelector("h4");
+    h4.innerText = `방이름: ${roomName} ( 참여인원: ${newCount}/10 )`;
     const ul = beforeStart.querySelector("ul");
     const li = document.createElement("li");
     li.innerText = `${user}님 입장!`;
@@ -144,6 +144,11 @@ socket.on("message ready", (uid, msg)  => {
     const h5 = beforeStart.querySelector("h5");
     h5.innerText = `${msg}`;
 });
+
+socket.on("remove message", () => {
+    const h5 = beforeStart.querySelector("h5");
+    h5.innerText = ``;
+})
 
 socket.on("ready", () => {
 	readyToStart();

@@ -62,7 +62,10 @@ wsServer.on("connection", socket => {
         if (readyStorage.length === countRoom(roomName)){
             done();
         } else {
-            socket.emit("message ready", socket.id, "참여자 모두 준비가 완료되어야합니다.😥");
+            socket.emit("message ready", socket.id, "참여자 모두 준비를 눌러주세요🙊");
+            setTimeout(function() {  
+                socket.emit("remove message");
+            }, 1000);
         }
     });
    
