@@ -3,6 +3,7 @@ import http from "http"; // 이미 기본 설치되어있음
 import WebSocket from "ws"; // 기본설치!
 import { Server } from "socket.io"; 
 import { doesNotMatch } from "assert";
+import { Socket } from "dgram";
 
 const PORT = process.env.PORT || 3000;
 
@@ -16,7 +17,9 @@ const wsServer = new Server(httpServer);
 let name;
 
 wsServer.on("connection", socket => {
-	socket.join("BOM");
+	socket["nickname"] = "Anon";
+    
+    socket.join("BOM");
 
 	socket.onAny((event) => {
 		console.log(`Socket Event:${event}`);
@@ -27,8 +30,13 @@ wsServer.on("connection", socket => {
 	});
 
     socket.on("enter_room", (roomName, done) => {
-        name = "가히";
         socket.join(roomName);
+        console.log(socket.rooms);
+        done();
+    });
+
+    socket.on("exit_room", (roomName, done) => {
+        socket.leave(roomName);
         console.log(socket.rooms);
         done();
     });

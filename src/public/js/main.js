@@ -7,16 +7,25 @@ const gameStart = document.getElementById("gameStart");
 const ox = document.getElementById("ox");
 const button_o = document.querySelector('.o');
 const button_x = document.querySelector('.x');
+const button_start = document.querySelector('.start');
+const button_exit = document.querySelector('.exit');
 
 let roomName;
 beforeStart.hidden = true;
 gameStart.hidden = true;
 ox.hidden = true;
 
+function showMainPage(){
+    welcome.hidden = false;
+    beforeStart.hidden = true;
+    gameStart.hidden = true;
+    ox.hidden = true;
+}
+
 function showBeforeStartRoom() {
     welcome.hidden = true;
     beforeStart.hidden = false;
-    const h3 = room.querySelector("h3");
+    const h3 = beforeStart.querySelector("h3");
     h3.innerText = `Room ${roomName}`;
 };
 
@@ -31,6 +40,12 @@ function handleRoomSubmit(event) {
     socket.emit("enter_room", input.value, showBeforeStartRoom);
     roomName = input.value;
     input.value = "";
+}
+
+function handleRoomExit(event) {
+    event.preventDefault();
+    roomName = socket.roomName;
+    socket.emit("exit_room", roomName, showMainPage);
 }
 
 function handleGameStart(event) {
@@ -49,7 +64,8 @@ function handleXSubmit(event) {
 }
 
 form_welcome.addEventListener("submit", handleRoomSubmit);
-beforeStart.addEventListener("click", handleGameStart);
+button_start.addEventListener("click", handleGameStart);
+button_exit.addEventListener("click", handleRoomExit);
 button_o.addEventListener("click", handleOSubmit);
 button_x.addEventListener("click", handleXSubmit);
 
