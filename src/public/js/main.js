@@ -121,7 +121,7 @@ function handleXSubmit(event) {
 
 function handleReadySubmit(event) {
 	event.preventDefault();
-	socket.emit("ready");
+	socket.emit("ready", roomName);
 }
 
 socket.on("ox", (payload) => {
