@@ -15,6 +15,7 @@ const button_ready = document.querySelector('.ready');
 const button_exitWhilePlaying = document.querySelector('.exitWhilePlaying');
 const clock = document.querySelector('.clock');
 const question2 = document.querySelector('.question');
+const answer = document.querySelector('.answer');
 
 let roomName;
 beforeStart.hidden = true;
@@ -89,6 +90,7 @@ function allRoundFinish(){
    gameStart.hidden = true;
    gameFinish.hidden = false;
    ox.hidden = true;
+   
 }
 
 function showGameRoom(event) {
