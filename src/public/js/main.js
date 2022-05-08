@@ -26,12 +26,12 @@ function showMainPage(){
     ox.hidden = true;
 }
 
-function showBeforeStartRoom(event) {
+function showBeforeStartRoom(roomName, newCount) {
     welcome.hidden = true;
     beforeStart.hidden = false;
     gameReady.hidden = false;
-    const h3 = beforeStart.querySelector("h3");
-    h3.innerText = `Room ${roomName}`;
+    const h5 = beforeStart.querySelector("h5");
+    h5.innerText = `방이름: ${roomName} ( 참여인원: ${newCount}/10 )`;
 };
 
 function showGameRoom(event) {
@@ -86,8 +86,8 @@ socket.on("ox", (payload) => {
 });
 
 socket.on("welcome", (user, roomName, newCount) => {
-    const h3 = beforeStart.querySelector("h3");
-    h3.innerText = `방이름: ${roomName} ( 참여인원: ${newCount}/10 )`;
+    const h5 = beforeStart.querySelector("h5");
+    h5.innerText = `방이름: ${roomName} ( 참여인원: ${newCount}/10 )`;
     const ul = beforeStart.querySelector("ul");
     const li = document.createElement("li");
     li.innerText = `${user}님 입장!`;

@@ -21,7 +21,7 @@ function countRoom(roomName){
 wsServer.on("connection", socket => {
 
 	socket["nickname"] = "Anon";
-    socket.join("BOM");
+    //socket.join("BOM");
 	socket["ready"] = 0;
 
 	socket.onAny((event) => {
@@ -29,12 +29,12 @@ wsServer.on("connection", socket => {
 	});
 
     socket.on("enter_room", (roomName, nickname, done) => {
-        if ( countRoom(roomName) > 10){
+        if ( countRoom(roomName) > 9 ){
             socket.emit("message specific user", socket.id, "정원초과로 입장하실 수 없습니다.");
         } else {
             socket.join(roomName);
             console.log(socket.rooms);
-            done();
+            done(roomName, countRoom(roomName));
             socket.data.nickname = nickname;
             socket.to(roomName).emit("welcome", socket.data.nickname, roomName, countRoom(roomName));
         }
