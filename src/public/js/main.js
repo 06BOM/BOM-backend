@@ -27,6 +27,7 @@ gameFinish.hidden = true;
 let timeRemaining;
 let clockInterval = null;
 let roundCnt = 10;
+let flag = 0;
 
 function countBack() {
   clock.innerText = `00:${
@@ -121,14 +122,17 @@ function handlePlayingRoomExit(event) {//게임 진행중 방을 나가는 경�
 
 function handleGameStart(event) {
     event.preventDefault();
-    socket.emit("gameStart", roomName, showGameRoom);
-	socket.emit("question", showQuestion);
-    startClock();
+	if (flag) {
+    	socket.emit("gameStart", roomName, showGameRoom);
+		socket.emit("question", showQuestion);
+    	startClock();
+	}
 }
 
 function readyToStart() {
 	// 모든 ready가 끝났을 때 호출된다.
 	console.log("completely ready!!!!!");
+	flag = 1;
 }
 
 function handleOSubmit(event) {
