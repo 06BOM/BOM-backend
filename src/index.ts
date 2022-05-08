@@ -23,6 +23,7 @@ function countRoom(roomName){
 let readyStorage = [];
 let arr = [];
 let sockets = [];
+let answer, explanation;
 
 const question = [
 	{ oxQuestion: "이 앱의 이름은 다모여이다.", oxAnswer: "o", explanation: "이 앱의 이름은 다모여가 맞다." },
@@ -122,7 +123,18 @@ wsServer.on("connection", socket => {
 		}		
 
 		arr[index] = 1;
+
+        answer = question[index].oxAnswer;
+        explanation = question[index].explanation;
+        
+        console.log(question[index].oxQuestion);
+        
+
 		done(question[index].oxQuestion);
+	});
+
+    socket.on("answer", (done) => {
+        done(answer, explanation);
 	});
 });
 

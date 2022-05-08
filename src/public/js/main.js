@@ -6,6 +6,8 @@ const beforeStart = document.getElementById("beforeStart");
 const gameStart = document.getElementById("gameStart");
 const gameReady = document.getElementById("gameReady");
 const gameFinish = document.getElementById("gameFinish");
+const roundStart = document.getElementById("roundStart");
+const roundFinished = document.getElementById("roundFinish");
 const ox = document.getElementById("ox");
 const button_o = document.querySelector('.o');
 const button_x = document.querySelector('.x');
@@ -15,14 +17,17 @@ const button_ready = document.querySelector('.ready');
 const button_exitWhilePlaying = document.querySelector('.exitWhilePlaying');
 const clock = document.querySelector('.clock');
 const question2 = document.querySelector('.question');
-const answer = document.querySelector('.answer');
+const answer2 = document.querySelector('.answer');
+const explanation2 = document.querySelector('.explanation');
 
 let roomName;
 beforeStart.hidden = true;
 gameStart.hidden = true;
-gameReady.hidden = true;
-ox.hidden = true;
+roundStart.hidden = true;
 gameFinish.hidden = true;
+ox.hidden = true;
+gameReady.hidden = true;
+roundFinished.hidden = true;
 
 let timeRemaining;
 let clockInterval = null;
@@ -54,9 +59,16 @@ function stopClock() {
     clock.innerText = "";
 
     if (roundCnt === 0){
-        allRoundFinish();
+        socket.emit("answer", showAnswer);
+        setTimeout(()=>{
+            allRoundFinish();
+        },3000);
     } else {
-        roundFinish();
+        socket.emit("answer", showAnswer);
+        setTimeout(()=>{//답안을 보여준 뒤, 3초간 대기
+            roundFinish();
+        },3000);
+        
     }
 }
 
@@ -67,6 +79,8 @@ function showMainPage(){
     gameStart.hidden = true;
     gameReady.hidden = true;
     ox.hidden = true;
+    roundStart.hidden = true;
+    roundFinished.hidden = true;
 }
 
 function showBeforeStartRoom(roomName, newCount) {
@@ -78,8 +92,21 @@ function showBeforeStartRoom(roomName, newCount) {
 };
 
 function showQuestion(question) {
+    roundStart.hidden = false;
+    roundFinished.hidden = true;
+    ox.hidden = false;
+
 	question2.innerText = question;
-	ox.hidden = false;
+}
+
+function showAnswer(answer, explanation) {
+    roundStart.hidden = true;
+    roundFinished.hidden = false;
+    ox.hidden = true;
+
+    console.log(answer, explanation);
+    answer2.innerText = answer;
+    explanation2.innerText = explanation;
 }
 
 function roundFinish(){
@@ -91,7 +118,6 @@ function allRoundFinish(){
    gameStart.hidden = true;
    gameFinish.hidden = false;
    ox.hidden = true;
-   
 }
 
 function showGameRoom(event) {

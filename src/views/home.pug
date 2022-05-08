@@ -19,8 +19,6 @@ html(lang="en")
 			div#beforeStart
 				h4
 				button.start 게임시작
-				h5
-				ul
 				br
 				button.exit exit
 			div#gameStart
@@ -28,9 +26,9 @@ html(lang="en")
 				ul(style="text-align:right")
 				button.exitWhilePlaying exit
 				.clock
+			div#roundStart
 				p(style="text-align:center") 문제 : 
 					span.question
-					span.answer
 			div#gameFinish
 				h2(style="text-align:center") 게임 결과화면
 				ul
@@ -41,5 +39,11 @@ html(lang="en")
 			div#gameReady 
 				h1 준비 / 준비 풀기
 				button.ready 준비 
+			div#roundFinish
+				p(style="text-align:center") 정답 : 
+					span.answer
+				p(style="text-align:center") 해설 : 
+					span.explanation
+
 		script(src="/socket.io/socket.io.js")
 		script(src="/public/js/main.js")
