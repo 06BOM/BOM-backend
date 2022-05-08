@@ -66,7 +66,7 @@ wsServer.on("connection", socket => {
 		wsServer.sockets.emit("ox", { answer: payload.ox, userId: payload.userId });
 	});
 	
-	socket.on("ready", () => {
+	socket.on("ready", (roomName) => {
 		if (!readyStorage.includes(socket.id)) {
 			readyStorage.push(socket.id);
 		} else {
@@ -75,7 +75,7 @@ wsServer.on("connection", socket => {
 			});
 		}
 
-		if (readyStorage.length === wsServer.sockets.adapter.rooms.get("BOM")?.size) {
+		if (readyStorage.length === wsServer.sockets.adapter.rooms.get(roomName)?.size) {
 			wsServer.sockets.emit("ready");
 		}
 	}); 
