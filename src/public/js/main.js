@@ -139,7 +139,7 @@ socket.on("welcome", (user, roomName, newCount) => {
 
 socket.on("message specific user", (uid, msg)  => {
     const h5 = welcome.querySelector("h5");
-    h5.innerText = `${msg}😥`;
+    h5.innerText = `${msg}`;
 });
 
 socket.on("ready", () => {
