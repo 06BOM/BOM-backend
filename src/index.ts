@@ -18,11 +18,11 @@ function countRoom(roomName){
     return wsServer.sockets.adapter.rooms.get(roomName)?.size;
 }
 
-wsServer.on("connection", socket => {
+let readyStorage = [];
 
+wsServer.on("connection", socket => {
 	socket["nickname"] = "Anon";
-    //socket.join("BOM");
-	socket["ready"] = 0;
+	// socket.join("BOM");
 
 	socket.onAny((event) => {
 		console.log(`Socket Event:${event}`);
@@ -55,7 +55,13 @@ wsServer.on("connection", socket => {
 	});
 	
 	socket.on("ready", () => {
-			socket["ready"] = 1;
+		if (!readyStorage.includes(socket.id)) {
+			readyStorage.push(socket.id);
+		}
+
+		if (readyStorage.length === wsServer.sockets.adapter.rooms.get("BOM")?.size) {
+			wsServer.sockets.emit("ready");
+		}
 	}); 
 	 
 	socket.on("new_message", (msg, room, done) => {

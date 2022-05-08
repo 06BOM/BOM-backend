@@ -59,6 +59,11 @@ function handleGameStart(event) {
     socket.emit("gameStart", showGameRoom);
 }
 
+function readyToStart() {
+	// 모든 ready가 끝났을 때 호출된다.
+	console.log("completely ready!!!!!");
+}
+
 function handleOSubmit(event) {
 	event.preventDefault();
 	socket.emit("ox", { userId: 1, ox: 'o'});
@@ -99,3 +104,6 @@ socket.on("message specific user", (uid, msg)  => {
     h5.innerText = `${msg}😥`;
 });
 
+socket.on("ready", () => {
+	readyToStart();
+});
