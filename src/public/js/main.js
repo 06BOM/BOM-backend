@@ -5,6 +5,7 @@ const form_welcome = welcome.querySelector("form");
 const beforeStart = document.getElementById("beforeStart");
 const gameStart = document.getElementById("gameStart");
 const gameReady = document.getElementById("gameReady");
+const gameFinish = document.getElementById("gameFinish");
 const ox = document.getElementById("ox");
 const button_o = document.querySelector('.o');
 const button_x = document.querySelector('.x');
@@ -20,9 +21,11 @@ beforeStart.hidden = true;
 gameStart.hidden = true;
 gameReady.hidden = true;
 ox.hidden = true;
+gameFinish.hidden = true;
 
 let timeRemaining;
 let clockInterval = null;
+let roundCnt = 10;
 
 function countBack() {
   clock.innerText = `00:${
@@ -43,9 +46,16 @@ function startClock() {
 }
 
 function stopClock() {
-  clearInterval(clockInterval);
-  clockInterval = null;
-  clock.innerText = "";
+    roundCnt--;
+    clearInterval(clockInterval);
+    clockInterval = null;
+    clock.innerText = "";
+
+    if (roundCnt === 0){
+        allRoundFinish();
+    } else {
+        roundFinish();
+    }
 }
 
 
@@ -65,10 +75,20 @@ function showBeforeStartRoom(roomName, newCount) {
     h4.innerText = `방이름: ${roomName} ( 참여인원: ${newCount}/10 )`;
 };
 
-
 function showQuestion(question) {
 	question2.innerText = question;
 	ox.hidden = false;
+}
+
+function roundFinish(){
+    socket.emit("question", showQuestion);
+    startClock();
+}
+
+function allRoundFinish(){
+   gameStart.hidden = true;
+   gameFinish.hidden = false;
+   ox.hidden = true;
 }
 
 function showGameRoom(event) {
