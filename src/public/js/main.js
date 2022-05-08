@@ -75,7 +75,7 @@ function showGameRoom(event) {
     beforeStart.hidden = true;
     gameReady.hidden = true;
     gameStart.hidden = false;
-
+    ox.hidden =true;
 }
 
 function handleRoomSubmit(event) {
@@ -94,7 +94,7 @@ function handleRoomExit(event) {
 
 function handlePlayingRoomExit(event) {//게임 진행중 방을 나가는 경우, 패널티 제공 로직 생성 필요
     event.preventDefault();
-    
+    socket.emit("exit_room", roomName, showMainPage);
 }
 
 function handleGameStart(event) {
