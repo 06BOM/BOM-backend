@@ -50,6 +50,18 @@ wsServer.on("connection", socket => {
         done();
     });
 
+    socket.on("timerSet", function(data){
+        var seconds = Number(data.seconds);
+        var timer;
+
+        timer = setInterval(function(){
+            if (seconds>0){
+                seconds--;
+                timer = seconds;
+            }
+        })
+    })
+    
 	socket.on("ox", (payload) => {
 		wsServer.sockets.emit("ox", { answer: payload.ox, userId: payload.userId });
 	});

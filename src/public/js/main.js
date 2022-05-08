@@ -40,6 +40,7 @@ function showGameRoom(event) {
     beforeStart.hidden = true;
     gameReady.hidden = true;
     gameStart.hidden = false;
+
 }
 
 function handleRoomSubmit(event) {
@@ -66,7 +67,9 @@ function handlePlayingRoomExit(event) {//게임 진행중 방을 나가는 경�
 function handleGameStart(event) {
     event.preventDefault();
     socket.emit("gameStart", showGameRoom);
-    socket.emit("timerSet", {'seconds' : timeVal})
+    socket.emit("timerSet", {'seconds' : timeVal});
+    const clock = gameStart.querySelector(".clock");
+    clock.innerText = `남은 시간 : ${timeVal}`;
 }
 
 function readyToStart() {
