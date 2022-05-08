@@ -367,8 +367,16 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 	
 	let plan = {
 		planName: req.body.planName? String(req.body.planName): getData.planName,
-		dailyId: req.body.categoryId? Number(req.body.dailyId): getData.dailyId,
 		categoryId: req.body.categoryId? parseInt(String(req.body.categoryId)): getData.categoryId,
+		repetitionType: req.body.repetitionType,
+		check:req.body.check,
+		time: getData.time
+	}
+
+	let plan1 = {
+		planName: req.body.planName? String(req.body.planName): getData.planName,
+		dailyId: getData.dailyId,
+		categoryId: req.body.categoryId? parseInt(String(req.body.categoryId)): Number(getData.categoryId),
 		repetitionType: req.body.repetitionType,
 		check:req.body.check,
 		time: getData.time
@@ -470,10 +478,10 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 									const createDaily = await prisma.daily.create({
 										data: { date: today, userId: getUser.userId }
 									});
-									plan.dailyId = createDaily.dailyId;	
+									getData.dailyId = createDaily.dailyId;	
 
 								} else {
-									plan.dailyId = getDaily.dailyId;
+									getData.dailyId = getDaily.dailyId;
 								}
 								
 								if (Number(todayy) === Number(today)) {
@@ -487,7 +495,7 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 								else {
 									plan.time=0;
 									await prisma.plan.create({
-										data: plan
+										data: plan1
 									});
 								}
 								today.setUTCDate(today.getDate() + 1);
@@ -539,14 +547,14 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 										const createDaily = await prisma.daily.create({
 											data: { date: today, userId: getUser.userId }
 										});
-										plan.dailyId = createDaily.dailyId;	
+										getData.dailyId = createDaily.dailyId;	
 									} else {
-										plan.dailyId = getDaily.dailyId;
+										plan1.dailyId = getDaily.dailyId;
 									}
 									plan.time = 0;
 
 									resultPlan = await prisma.plan.create({
-										data: plan
+										data: plan1
 									});
 
 									for (let i = 0; i < days.length; i++)
@@ -604,10 +612,10 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 									const createDaily = await prisma.daily.create({
 										data: { date: today, userId: getUser.userId }
 									});
-									plan.dailyId = createDaily.dailyId;	
+									plan1.dailyId = createDaily.dailyId;	
 
 								} else {
-									plan.dailyId = getDaily.dailyId;
+									plan1.dailyId = getDaily.dailyId;
 								}
 								
 								if (Number(todayy) === Number(today)) {
@@ -621,7 +629,7 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 								else {
 									plan.time=0;
 									await prisma.plan.create({
-										data: plan
+										data: plan1
 									});
 								}
 								today.setUTCDate(today.getDate() + 1);
@@ -705,13 +713,13 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 										const createDaily = await prisma.daily.create({
 											data: { date: today, userId: getUser.userId }
 										});
-										plan.dailyId = createDaily.dailyId;	
+										plan1.dailyId = createDaily.dailyId;	
 									} else {
-										plan.dailyId = getDaily.dailyId;
+										plan1.dailyId = getDaily.dailyId;
 									}
 									plan.time = 0;
 									resultPlan = await prisma.plan.create({
-										data: plan
+										data: plan1
 									});
 
 									for (let i = 0; i < days.length; i++)
@@ -824,10 +832,10 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 									const createDaily = await prisma.daily.create({
 										data: { date: today, userId: getUser.userId }
 									});
-									plan.dailyId = createDaily.dailyId;	
+									plan1.dailyId = createDaily.dailyId;	
 
 								} else {
-									plan.dailyId = getDaily.dailyId;
+									plan1.dailyId = getDaily.dailyId;
 								}
 								
 								if (Number(todayy) === Number(today)) {
@@ -841,7 +849,7 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 								else {
 									plan.time=0;
 									await prisma.plan.create({
-										data: plan
+										data: plan1
 									});
 								}
 								today.setUTCDate(today.getDate() + 1);
@@ -898,14 +906,14 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 										const createDaily = await prisma.daily.create({
 											data: { date: today, userId: getUser.userId }
 										});
-										plan.dailyId = createDaily.dailyId;	
+										plan1.dailyId = createDaily.dailyId;	
 									} else {
-										plan.dailyId = getDaily.dailyId;
+										plan1.dailyId = getDaily.dailyId;
 									}
 									plan.time = 0;
 
 									resultPlan = await prisma.plan.create({
-										data: plan
+										data: plan1
 									});
 
 									for (let i = 0; i < days.length; i++)
