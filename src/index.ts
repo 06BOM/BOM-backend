@@ -57,6 +57,10 @@ wsServer.on("connection", socket => {
 	socket.on("ready", () => {
 		if (!readyStorage.includes(socket.id)) {
 			readyStorage.push(socket.id);
+		} else {
+			readyStorage = readyStorage.filter((element) => {
+				return element != socket.id
+			});
 		}
 
 		if (readyStorage.length === wsServer.sockets.adapter.rooms.get("BOM")?.size) {
