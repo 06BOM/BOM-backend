@@ -58,8 +58,12 @@ wsServer.on("connection", socket => {
         done();
     });
 
-    socket.on("gameStart", (done) => {
-        done();
+    socket.on("gameStart", (roomName, done) => {
+        if (readyStorage.length === countRoom(roomName)){
+            done();
+        } else {
+            socket.emit("message ready", socket.id, "참여자 모두 준비가 완료되어야합니다.😥");
+        }
     });
    
 	socket.on("ox", (payload) => {

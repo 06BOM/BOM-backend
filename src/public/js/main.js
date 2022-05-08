@@ -87,19 +87,17 @@ function handleRoomSubmit(event) {
 
 function handleRoomExit(event) {
     event.preventDefault();
-    const roomName = "BOM" // 추후 socket에서 유저가 접속한 방의 이름 가져오는 로직 생성 필요
     socket.emit("exit_room", roomName, showMainPage);
 }
 
 function handlePlayingRoomExit(event) {//게임 진행중 방을 나가는 경우, 패널티 제공 로직 생성 필요
     event.preventDefault();
-    const roomName = "BOM" // 추후 socket에서 유저가 접속한 방의 이름 가져오는 로직 생성 필요
-    socket.emit("exit_room", roomName, showMainPage);
+    
 }
 
 function handleGameStart(event) {
     event.preventDefault();
-    socket.emit("gameStart", showGameRoom);
+    socket.emit("gameStart", roomName, showGameRoom);
 	socket.emit("question", showQuestion);
     startClock();
 }
@@ -139,6 +137,11 @@ socket.on("welcome", (user, roomName, newCount) => {
 
 socket.on("message specific user", (uid, msg)  => {
     const h5 = welcome.querySelector("h5");
+    h5.innerText = `${msg}`;
+});
+
+socket.on("message ready", (uid, msg)  => {
+    const h5 = beforeStart.querySelector("h5");
     h5.innerText = `${msg}`;
 });
 
