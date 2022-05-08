@@ -371,16 +371,14 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 		repetitionType: req.body.repetitionType,
 		check:req.body.check,
 		time: getData.time
-	}
+	};
 
 	let createPlan = {
 		planName: req.body.planName? String(req.body.planName): getData.planName,
 		dailyId: getData.dailyId,
 		categoryId: req.body.categoryId? parseInt(String(req.body.categoryId)): Number(getData.categoryId),
 		repetitionType: req.body.repetitionType,
-		check:req.body.check,
-		time: getData.time
-	}
+	};
 		
 	const getDate = await prisma.daily.findUnique({
 		where:{
@@ -473,15 +471,16 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 									},
 									select:{ dailyId: true }
 								})
-								
+								console.log(getDaily);
+
 								if (getDaily === null) {
 									const createDaily = await prisma.daily.create({
 										data: { date: today, userId: getUser.userId }
 									});
-									getData.dailyId = createDaily.dailyId;	
+									createPlan.dailyId = createDaily.dailyId;	
 
 								} else {
-									getData.dailyId = getDaily.dailyId;
+									createPlan.dailyId = getDaily.dailyId;
 								}
 								
 								if (Number(todayy) === Number(today)) {
@@ -491,9 +490,15 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 										},
 										data: plan
 									})
+
+									await prisma.plan.update({
+										where: {
+											planId: planId
+										},
+										data: createPlan
+									})
 								}
 								else {
-									plan.time=0;
 									await prisma.plan.create({
 										data: createPlan
 									});
@@ -627,8 +632,7 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 									})
 								}
 								else {
-									createPlan.time=0;
-									await prisma.plan.create({
+										await prisma.plan.create({
 										data: createPlan
 									});
 								}
@@ -717,7 +721,6 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 									} else {
 										createPlan.dailyId = getDaily.dailyId;
 									}
-									createPlan.time = 0;
 									resultPlan = await prisma.plan.create({
 										data: createPlan
 									});
@@ -847,7 +850,6 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 									})
 								}
 								else {
-									createPlan.time=0;
 									await prisma.plan.create({
 										data: createPlan
 									});
@@ -910,8 +912,6 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 									} else {
 										createPlan.dailyId = getDaily.dailyId;
 									}
-									createPlan.time = 0;
-
 									resultPlan = await prisma.plan.create({
 										data: createPlan
 									});
