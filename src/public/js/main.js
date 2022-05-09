@@ -112,7 +112,7 @@ function showAnswer(answer, explanation) {
 }
 
 function roundFinish(){
-    socket.emit("question", showQuestion);
+    socket.emit("question", roomName, showQuestion);
     startClock();
 }
 
@@ -154,7 +154,7 @@ function handleGameStart(event) {
     event.preventDefault();
 	if (flag) {
     	socket.emit("gameStart", roomName, showGameRoom);
-		socket.emit("question", showQuestion);
+		socket.emit("question", roomName, showQuestion);
 		startClock();
 	}
 }
@@ -210,18 +210,37 @@ socket.on("remove message", () => {
     h5.innerText = ``;
 })
 
-socket.on("score change", (sockets, roomCount) => {
+socket.on("score change", (users) => {
 	const scoreList = gameStart.querySelector("ul");
     scoreList.innerHTML = "";
-    for(i = 0; i < roomCount; i++) {
+    console.log("ggg", users);
+    console.log("gg", typeof users);
+    const d = new Object(users);
+    console.log("d", d);
+    console.log(valueOf(d));
+    /*for(i = 0; i < users.length; i++){
+        console.log("hhh");
+        console.log(users[i]);
+    }*/
+    /*users.forEach((value, key) => {
         const li = document.createElement("li");
-        li.innerText = `${sockets[i].nickname}: ${sockets[i].data.score}`;
+        li.innerText = `${key}: ${value}`;
         scoreList.append(li);
-    }
+    });*/
 });
 
 socket.on("ready", () => {
 	readyToStart();
+});
+
+socket.on("round",( question, id)=>{
+    roundStart.hidden = false;
+    roundFinished.hidden = true;
+    ox.hidden = false;
+
+	question2.innerText = question;
+	question2.setAttribute("data-id", id);
+	console.log(question2);
 });
 
 form_welcome.addEventListener("submit", handleRoomSubmit);

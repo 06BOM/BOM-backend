@@ -24,7 +24,7 @@ let readyStorage = [];
 let arr = [];
 let sockets = [];
 let answer, explanation;
-let users = new Map();
+let users = new Map<String, Number>();
 
 const question = [
 	{ id: 1, oxQuestion: "이 앱의 이름은 다모여이다.", oxAnswer: "o", explanation: "이 앱의 이름은 다모여가 맞다." },
@@ -75,7 +75,7 @@ wsServer.on("connection", socket => {
             // 코드 추가했엉
 			for (let i = 0; i < readyStorage.length; i++)
 			{
-				users.set(readyStorage[i], 0);
+				users.set(socket.data.nickname, 0);
 			}
 
 			done();
@@ -91,13 +91,14 @@ wsServer.on("connection", socket => {
 		if (question[payload.index].oxAnswer === payload.ox) // 정답이면
 		{
 			users.forEach((value, key) => {
-				if (key === socket.id)
+				if (key === socket.data.nickname)
 				{
-					users.set(key, value + 10);
+					users.set(key, Number(value) + 10);
 				}
 			});
+            socket.emit("score change", users);
 		}
-
+        console.log(users);
 		wsServer.sockets.emit("ox", { answer: payload.ox, userId: payload.userId });
 	});
 	
@@ -120,7 +121,7 @@ wsServer.on("connection", socket => {
         done();
     });
 
-	socket.on("question", (done) => {
+	socket.on("question", (roomName, done) => {
 		let cnt = 0;
 
 		for (let i = 0; i < question.length; i++) // Question 문제를 다 전송했는지 확인
@@ -146,7 +147,8 @@ wsServer.on("connection", socket => {
         
         console.log(question[index].oxQuestion);
         
-		done(question[index].oxQuestion, index);
+        socket.to(roomName).emit("round", question[index].oxQuestion, index);
+		//1done(question[index].oxQuestion, index);
 	});
 
     socket.on("answer", (done) => {
