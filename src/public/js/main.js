@@ -1,7 +1,6 @@
 const socket = io();
 
 const welcome = document.getElementById("welcome");
-const form_welcome = welcome.querySelector("form");
 const beforeStart = document.getElementById("beforeStart");
 const gameStart = document.getElementById("gameStart");
 const gameReady = document.getElementById("gameReady");
@@ -19,6 +18,10 @@ const clock = document.querySelector('.clock');
 const question2 = document.querySelector('.question');
 const answer2 = document.querySelector('.answer');
 const explanation2 = document.querySelector('.explanation');
+const roomForm = welcome.querySelector("#room");
+const nameForm = welcome.querySelector("#name");
+roomForm.addEventListener("submit", handleRoomSubmit);
+nameForm.addEventListener("submit", handleNicknameSubmit);
 
 let roomName;
 beforeStart.hidden = true;
@@ -133,12 +136,20 @@ function showGameRoom(event) {
 
 function handleRoomSubmit(event) {
     event.preventDefault();
-    const input = form_welcome.querySelector("input");
-    const nickname = "가히"; // 추후 db접근해서 닉넴가져오거나
-    socket.emit("enter_room", input.value, nickname, showBeforeStartRoom);
+    const input = welcome.querySelector("#room input");
+    //const nickname = "가히"; // 추후 db접근해서 닉넴가져오거나
+    socket.emit("enter_room", input.value, showBeforeStartRoom);
     roomName = input.value;
     input.value = "";
 }
+
+function handleNicknameSubmit(event) {
+    event.preventDefault();
+    const nickinput = welcome.querySelector("#name input");
+    socket.emit("nickname", nickinput.value);
+    nickname = nickinput.value;
+    nickinput.value = "";
+};
 
 function handleRoomExit(event) {
     event.preventDefault();
@@ -257,7 +268,7 @@ socket.on("round",( question, id)=>{
 	console.log(question2);
 });
 
-form_welcome.addEventListener("submit", handleRoomSubmit);
+
 button_start.addEventListener("click", handleGameStart);
 button_exit.addEventListener("click", handleRoomExit);
 button_exitWhilePlaying.addEventListener("click", handlePlayingRoomExit);

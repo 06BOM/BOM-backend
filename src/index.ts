@@ -46,25 +46,25 @@ for (let i = 0; i < question.length; i++)
 }
 
 wsServer.on("connection", socket => {
-	socket["nickname"] = "Anon";
+	socket.data.nickname = "Anon";
 
 	socket.onAny((event) => {
 		console.log(`Socket Event:${event}`);
 	});
-
-    socket.on("enter_room", (roomName, nickname, done) => {
+    
+    socket.on("enter_room", (roomName, done) => {
         if ( countRoom(roomName) > 9 ){
             socket.emit("message specific user", socket.id, "정원초과로 입장하실 수 없습니다.😥");
         } else {
             socket.join(roomName);
             console.log(socket.rooms);
             done(roomName, countRoom(roomName));
-            socket.data.nickname = nickname;
             sockets.push(socket);
             socket.to(roomName).emit("welcome", socket.data.nickname, roomName, countRoom(roomName));
         }
     });
-
+    socket.on("nickname", nickname => (socket.data.nickname = nickname));
+//
     
     socket.on("exit_room", (roomName, done) => {
         socket.leave(roomName);

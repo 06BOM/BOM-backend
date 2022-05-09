@@ -10,7 +10,11 @@ html(lang="en")
 			h1 OX 퀴즈
 		main 
 			div#welcome 
-				form 
+				h6 (이름 먼저 꼭 넣어주세용😎)
+				form#name
+					input(placeholder="nickname", required, type="text")
+					button save
+				form#room 
 					input(placeholder="room name", required, type="text")
 					button Enter Room
 				h5
