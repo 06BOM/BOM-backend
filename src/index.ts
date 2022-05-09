@@ -65,6 +65,7 @@ wsServer.on("connection", socket => {
         }
     });
 
+    
     socket.on("exit_room", (roomName, done) => {
         socket.leave(roomName);
         console.log(socket.rooms);
@@ -78,8 +79,10 @@ wsServer.on("connection", socket => {
 			{
 				users.set(socket.data.nickname, 0);
 			}
-
-			done();
+            usersList = JSON.stringify(Array.from(users));
+            socket.emit("score change", usersList);
+            socket.to(roomName).emit("scoreboard display", usersList);
+            done();
         } else {
             socket.emit("message ready", socket.id, "참여자 모두 준비를 눌러주세요🙊");
             setTimeout(function() {  
@@ -100,7 +103,7 @@ wsServer.on("connection", socket => {
             usersList = JSON.stringify(Array.from(users));
             socket.emit("score change", usersList);
 		}
-        console.log(users);
+        //
 		wsServer.sockets.emit("ox", { answer: payload.ox, userId: payload.userId });
 	});
 	
