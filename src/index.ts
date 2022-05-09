@@ -147,8 +147,8 @@ wsServer.on("connection", socket => {
         
         console.log(question[index].oxQuestion);
         
+		socket.emit("round", question[index].oxQuestion, index);
         socket.to(roomName).emit("round", question[index].oxQuestion, index);
-		//1done(question[index].oxQuestion, index);
 	});
 
     socket.on("answer", (done) => {
