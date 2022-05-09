@@ -24,7 +24,8 @@ let readyStorage = [];
 let arr = [];
 let sockets = [];
 let answer, explanation;
-let users = new Map<String, Number>();
+let users = new Map();
+let usersList;
 
 const question = [
 	{ id: 1, oxQuestion: "이 앱의 이름은 다모여이다.", oxAnswer: "o", explanation: "이 앱의 이름은 다모여가 맞다." },
@@ -96,7 +97,8 @@ wsServer.on("connection", socket => {
 					users.set(key, Number(value) + 10);
 				}
 			});
-            socket.emit("score change", users);
+            usersList = JSON.stringify(Array.from(users));
+            socket.emit("score change", usersList);
 		}
         console.log(users);
 		wsServer.sockets.emit("ox", { answer: payload.ox, userId: payload.userId });

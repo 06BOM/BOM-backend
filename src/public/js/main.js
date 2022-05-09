@@ -210,23 +210,17 @@ socket.on("remove message", () => {
     h5.innerText = ``;
 })
 
+let newMap
 socket.on("score change", (users) => {
 	const scoreList = gameStart.querySelector("ul");
     scoreList.innerHTML = "";
-    console.log("ggg", users);
-    console.log("gg", typeof users);
-    const d = new Object(users);
-    console.log("d", d);
-    console.log(valueOf(d));
-    /*for(i = 0; i < users.length; i++){
-        console.log("hhh");
-        console.log(users[i]);
-    }*/
-    /*users.forEach((value, key) => {
+    newMap = new Map(JSON.parse(users));
+    console.log(newMap);
+    newMap.forEach((value, key) => {
         const li = document.createElement("li");
         li.innerText = `${key}: ${value}`;
         scoreList.append(li);
-    });*/
+    });
 });
 
 socket.on("ready", () => {
