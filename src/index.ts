@@ -63,9 +63,11 @@ wsServer.on("connection", socket => {
             socket.to(roomName).emit("welcome", socket.data.nickname, roomName, countRoom(roomName));
         }
     });
-    socket.on("nickname", nickname => (socket.data.nickname = nickname));
-//
-    
+    socket.on("nickname", (nickname) => {
+		socket.data.nickname = nickname;
+		console.log("socket.data.nickname: ", socket.data.nickname);
+	});
+//    
     socket.on("exit_room", (roomName, done) => {
         socket.leave(roomName);
         console.log(socket.rooms);
