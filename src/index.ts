@@ -92,6 +92,8 @@ wsServer.on("connection", socket => {
     });
    
 	socket.on("ox", (payload) => {
+		socket.data.ox = payload.ox;
+
 		if (question[payload.index].oxAnswer === payload.ox) // 정답이면
 		{
 			users.forEach((value, key) => {
@@ -158,6 +160,21 @@ wsServer.on("connection", socket => {
 
     socket.on("answer", (done) => {
         done(answer, explanation);
+	});
+
+	socket.on("score", payload => {
+		if (question[payload.index].oxAnswer === payload.ox) // 정답이면
+		{
+			users.forEach((value, key) => {
+				if (key === socket.data.nickname)
+				{
+					users.set(key, Number(value) + 10);
+				}
+			});
+            usersList = JSON.stringify(Array.from(users));
+            socket.emit("score change", usersList);
+		}
+        console.log(users);
 	});
 });
 
