@@ -112,6 +112,7 @@ function showAnswer(answer, explanation) {
 }
 
 function roundFinish(){
+	socket.emit("score", { index: index });
     socket.emit("question", roomName, showQuestion);
     startClock();
 }
