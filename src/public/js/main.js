@@ -234,18 +234,20 @@ socket.on("scoreboard display", (users) => {
     });
 });
 
-socket.on("score change", (users) => {
+socket.on("score change", (users, count) => {
 	const scoreList = gameStart.querySelector("ul");
     //scoreList.innerHTML = "";
     console.log(scoreList);
     newMap = new Map(JSON.parse(users));
     console.log(newMap);
-    console.log("gg", newMap.size);
+    console.log("map size", newMap.size);
     const items = scoreList.getElementsByTagName('li');
-    for(i=0; i < items.length; i++){
+    console.log("지우기 전: ", items.length);
+    while(items.length != 0){
         items[0].remove();
-        console.log("remove");
     }
+   
+    console.log("지운 후: ",items);
     console.log("막", scoreList);
     newMap.forEach((value, key) => {
         const li = document.createElement("li");

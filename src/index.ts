@@ -60,6 +60,7 @@ wsServer.on("connection", socket => {
             console.log(socket.rooms);
             done(roomName, countRoom(roomName));
             sockets.push(socket);
+			users.set(socket.data.nickname, 0);	//여기로 옮겼엉
             socket.to(roomName).emit("welcome", socket.data.nickname, roomName, countRoom(roomName));
         }
     });
@@ -67,7 +68,7 @@ wsServer.on("connection", socket => {
 		socket.data.nickname = nickname;
 		console.log("socket.data.nickname: ", socket.data.nickname);
 	});
-//    
+    
     socket.on("exit_room", (roomName, done) => {
         socket.leave(roomName);
         console.log(socket.rooms);
@@ -77,12 +78,12 @@ wsServer.on("connection", socket => {
     socket.on("gameStart", (roomName, done) => {
         if (readyStorage.length === countRoom(roomName)){
             // 코드 추가했엉
-			for (let i = 0; i < readyStorage.length; i++)
+			/*for (let i = 0; i < readyStorage.length; i++)
 			{
 				users.set(socket.data.nickname, 0);
-			}
+			}*/
             usersList = JSON.stringify(Array.from(users));
-            socket.emit("score change", usersList);
+            socket.emit("score change", usersList, countRoom(roomName));
             socket.to(roomName).emit("scoreboard display", usersList);
             done();
         } else {
@@ -104,6 +105,7 @@ wsServer.on("connection", socket => {
 					users.set(key, Number(value) + 10);
 				}
 			});
+			console.log(users);
             usersList = JSON.stringify(Array.from(users));
             socket.emit("score change", usersList);
 		}
