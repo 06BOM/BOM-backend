@@ -151,7 +151,8 @@ function handleGameStart(event) {
 	if (flag) {
     	socket.emit("gameStart", roomName, showGameRoom);
 		socket.emit("question", showQuestion);
-    	startClock();
+    	socket.emit("score", roomName);
+		startClock();
 	}
 }
 
@@ -205,7 +206,7 @@ socket.on("remove message", () => {
 })
 
 socket.on("score change", (sockets, roomCount) => {
-    const scoreList = gameStart.querySelector("ul");
+	const scoreList = gameStart.querySelector("ul");
     scoreList.innerHTML = "";
     for(i = 0; i < roomCount; i++) {
         const li = document.createElement("li");
