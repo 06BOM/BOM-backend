@@ -146,7 +146,7 @@ wsServer.on("connection", socket => {
 	});
 
 	socket.on("score", (roomName) => {
-		wsServer.sockets.emit("score change", sockets);
+		//wsServer.sockets.emit("score change", sockets);
 	});
 });
 

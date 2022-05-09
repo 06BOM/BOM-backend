@@ -116,6 +116,8 @@ function roundFinish(){
 
 function allRoundFinish(){
    gameStart.hidden = true;
+   roundStart.hidden = true;
+   roundFinished.hidden = true;
    gameFinish.hidden = false;
    ox.hidden = true;
 }
