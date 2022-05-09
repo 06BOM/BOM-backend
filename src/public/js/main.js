@@ -91,12 +91,14 @@ function showBeforeStartRoom(roomName, newCount) {
     h4.innerText = `방이름: ${roomName} ( 참여인원: ${newCount}/10 )`;
 };
 
-function showQuestion(question) {
+function showQuestion(question, id) {
     roundStart.hidden = false;
     roundFinished.hidden = true;
     ox.hidden = false;
 
 	question2.innerText = question;
+	question2.setAttribute("data-id", id);
+	console.log(question2);
 }
 
 function showAnswer(answer, explanation) {
@@ -151,7 +153,6 @@ function handleGameStart(event) {
 	if (flag) {
     	socket.emit("gameStart", roomName, showGameRoom);
 		socket.emit("question", showQuestion);
-    	socket.emit("score", roomName);
 		startClock();
 	}
 }
@@ -164,12 +165,14 @@ function readyToStart() {
 
 function handleOSubmit(event) {
 	event.preventDefault();
-	socket.emit("ox", { userId: 1, ox: 'o'});
+	var index = question2.getAttribute('data-id');
+	socket.emit("ox", { userId: 1, ox: 'o', index: index });
 }
 
 function handleXSubmit(event) {
 	event.preventDefault();
-	socket.emit("ox", { userId: 1, ox: 'x'});
+	var index = question2.getAttribute('data-id');
+	socket.emit("ox", { userId: 1, ox: 'x', index: index});
 }
 
 function handleReadySubmit(event) {
