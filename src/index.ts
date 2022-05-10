@@ -83,8 +83,7 @@ wsServer.on("connection", socket => {
 				users.set(socket.data.nickname, 0);
 			}*/
             usersList = JSON.stringify(Array.from(users));
-            socket.emit("score change", usersList, countRoom(roomName));
-            socket.to(roomName).emit("scoreboard display", usersList);
+            wsServer.sockets.in(roomName).emit("scoreboard display", usersList);
 			socket.emit("showGameRoom");
 			socket.to(roomName).emit("showGameRoom");
 		} else {
@@ -164,9 +163,9 @@ wsServer.on("connection", socket => {
 					socket.data.ox = "";
 				}
 			});
+			console.log(users);
             usersList = JSON.stringify(Array.from(users));
-            socket.emit("score change", usersList);
-			socket.to(payload.roomName).emit("score change", usersList);
+            wsServer.sockets.in(payload.roomName).emit("score change", usersList);
 		}
 	});
 });
