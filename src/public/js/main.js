@@ -62,12 +62,12 @@ function stopClock() {
     clock.innerText = "";
 
     if (roundCnt === 0){
-        socket.emit("answer", showAnswer);
+        socket.emit("answer", roomName, showAnswer);
         setTimeout(()=>{
             allRoundFinish();
         },3000);
     } else {
-        socket.emit("answer", showAnswer);
+        socket.emit("answer", roomName, showAnswer);
         setTimeout(()=>{//답안을 보여준 뒤, 3초간 대기
             roundFinish();
         },3000);
@@ -102,6 +102,7 @@ function showQuestion(question, id) {
 	question2.innerText = question;
 	question2.setAttribute("data-id", id);
 	console.log(question2);
+    //startClock;
 }
 
 function showAnswer(answer, explanation) {
@@ -118,7 +119,6 @@ function roundFinish(){
 	var index = question2.getAttribute('data-id');
 	socket.emit("score", { index: index, roomName: roomName });
     socket.emit("question", roomName, showQuestion);
-    startClock();
 }
 
 function allRoundFinish(){
@@ -161,7 +161,6 @@ function handleGameStart(event) {
 	if (flag) {
     	socket.emit("gameStart", roomName);
 		socket.emit("question", roomName, showQuestion);
-		startClock();
 	}
 }
 
@@ -268,6 +267,10 @@ socket.on("showGameRoom", () => {
     gameReady.hidden = true;
     gameStart.hidden = false;
     ox.hidden = true;
+});
+
+socket.on("timer", ()=>{
+    startClock();
 });
 
 button_start.addEventListener("click", handleGameStart);

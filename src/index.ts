@@ -147,12 +147,11 @@ wsServer.on("connection", socket => {
         
 		socket.emit("round", question[index].oxQuestion, index);
         socket.to(roomName).emit("round", question[index].oxQuestion, index);
+		socket.emit("timer");
+		socket.to(roomName).emit("timer");
 	});
 
-    socket.on("answer", (done) => {
-        done(answer, explanation);
-	});
-
+ 
 	socket.on("score", payload => {
 		if (question[payload.index].oxAnswer === socket.data.ox) // 정답이면
 		{
