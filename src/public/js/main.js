@@ -129,13 +129,6 @@ function allRoundFinish(){
    ox.hidden = true;
 }
 
-function showGameRoom(event) {
-    beforeStart.hidden = true;
-    gameReady.hidden = true;
-    gameStart.hidden = false;
-    ox.hidden =true;
-}
-
 function handleRoomSubmit(event) {
     event.preventDefault();
     const input = welcome.querySelector("#room input");
@@ -166,7 +159,7 @@ function handlePlayingRoomExit(event) {//게임 진행중 방을 나가는 경�
 function handleGameStart(event) {
     event.preventDefault();
 	if (flag) {
-    	socket.emit("gameStart", roomName, showGameRoom);
+    	socket.emit("gameStart", roomName);
 		socket.emit("question", roomName, showQuestion);
 		startClock();
 	}
@@ -270,6 +263,12 @@ socket.on("round",( question, id)=>{
 	console.log(question2);
 });
 
+socket.on("showGameRoom", () => {
+    beforeStart.hidden = true;
+    gameReady.hidden = true;
+    gameStart.hidden = false;
+    ox.hidden = true;
+});
 
 button_start.addEventListener("click", handleGameStart);
 button_exit.addEventListener("click", handleRoomExit);

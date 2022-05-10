@@ -75,7 +75,7 @@ wsServer.on("connection", socket => {
         done();
     });
 
-    socket.on("gameStart", (roomName, done) => {
+    socket.on("gameStart", (roomName) => {
         if (readyStorage.length === countRoom(roomName)){
             // 코드 추가했엉
 			/*for (let i = 0; i < readyStorage.length; i++)
@@ -85,8 +85,9 @@ wsServer.on("connection", socket => {
             usersList = JSON.stringify(Array.from(users));
             socket.emit("score change", usersList, countRoom(roomName));
             socket.to(roomName).emit("scoreboard display", usersList);
-            done();
-        } else {
+			socket.emit("showGameRoom");
+			socket.to(roomName).emit("showGameRoom");
+		} else {
             socket.emit("message ready", socket.id, "참여자 모두 준비를 눌러주세요🙊");
             setTimeout(function() {  
                 socket.emit("remove message");
