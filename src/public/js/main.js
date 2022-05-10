@@ -112,6 +112,7 @@ function showAnswer(answer, explanation) {
 }
 
 function roundFinish(){
+	var index = question2.getAttribute('data-id');
 	socket.emit("score", { index: index });
     socket.emit("question", roomName, showQuestion);
     startClock();
@@ -168,14 +169,12 @@ function readyToStart() {
 
 function handleOSubmit(event) {
 	event.preventDefault();
-	var index = question2.getAttribute('data-id');
-	socket.emit("ox", { userId: 1, ox: 'o', index: index });
+	socket.emit("ox", { userId: 1, ox: 'o' });
 }
 
 function handleXSubmit(event) {
 	event.preventDefault();
-	var index = question2.getAttribute('data-id');
-	socket.emit("ox", { userId: 1, ox: 'x', index: index});
+	socket.emit("ox", { userId: 1, ox: 'x' });
 }
 
 function handleReadySubmit(event) {

@@ -93,21 +93,7 @@ wsServer.on("connection", socket => {
    
 	socket.on("ox", (payload) => {
 		socket.data.ox = payload.ox;
-		console.log(socket.data.ox);
 
-		/*
-		if (question[payload.index].oxAnswer === payload.ox) // 정답이면
-		{
-			users.forEach((value, key) => {
-				if (key === socket.data.nickname)
-				{
-					users.set(key, Number(value) + 10);
-				}
-			});
-            usersList = JSON.stringify(Array.from(users));
-            socket.emit("score change", usersList);
-		}
-        console.log(users);*/
 		wsServer.sockets.emit("ox", { answer: payload.ox, userId: payload.userId });
 	});
 	
@@ -171,12 +157,12 @@ wsServer.on("connection", socket => {
 				if (key === socket.data.nickname)
 				{
 					users.set(key, Number(value) + 10);
+					socket.data.ox = "";
 				}
 			});
             usersList = JSON.stringify(Array.from(users));
             socket.emit("score change", usersList);
 		}
-        console.log(users);
 	});
 });
 
