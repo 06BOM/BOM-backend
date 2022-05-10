@@ -25,7 +25,7 @@ let arr = [];
 let sockets = [];
 let answer, explanation;
 let users = new Map();
-let usersList;
+let sortUsers, usersList;
 
 const question = [
 	{ id: 1, oxQuestion: "이 앱의 이름은 다모여이다.", oxAnswer: "o", explanation: "이 앱의 이름은 다모여가 맞다." },
@@ -163,8 +163,9 @@ wsServer.on("connection", socket => {
 					socket.data.ox = "";
 				}
 			});
-			console.log(users);
-            usersList = JSON.stringify(Array.from(users));
+			sortUsers = new Map([...users.entries()].sort((a, b) => b[1] - a[1]));
+			console.log("dd", sortUsers);
+            usersList = JSON.stringify(Array.from(sortUsers));
             wsServer.sockets.in(payload.roomName).emit("score change", usersList);
 		}
 	});
