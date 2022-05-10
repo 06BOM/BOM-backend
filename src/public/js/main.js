@@ -116,7 +116,7 @@ function showAnswer(answer, explanation) {
 
 function roundFinish(){
 	var index = question2.getAttribute('data-id');
-	socket.emit("score", { index: index });
+	socket.emit("score", { index: index, roomName: roomName });
     socket.emit("question", roomName, showQuestion);
     startClock();
 }

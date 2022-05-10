@@ -165,6 +165,7 @@ wsServer.on("connection", socket => {
 			});
             usersList = JSON.stringify(Array.from(users));
             socket.emit("score change", usersList);
+			socket.to(payload.roomName).emit("score change", usersList);
 		}
 	});
 });
