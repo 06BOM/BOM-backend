@@ -70,9 +70,12 @@ wsServer.on("connection", socket => {
 	});
     
     socket.on("exit_room", (roomName, done) => {
-        socket.leave(roomName);
-        console.log(socket.rooms);
+		let leaveNickname = socket.data.nickname;
+		socket.leave(roomName);
+		socket.to(roomName).emit("bye", leaveNickname, roomName, countRoom(roomName));
         done();
+		
+
     });
 
     socket.on("gameStart", (roomName) => {

@@ -198,6 +198,15 @@ socket.on("welcome", (user, roomName, newCount) => {
     ul.appendChild(li);
 });
 
+socket.on("bye", (user, roomName, newCount) => {
+    const h4 = beforeStart.querySelector("h4");
+    h4.innerText = `방이름: ${roomName} ( 참여인원: ${newCount}/10 )`;
+    const ul = beforeStart.querySelector("ul");
+    const li = document.createElement("li");
+    li.innerText = `${user}님 퇴장!`;
+    ul.appendChild(li);
+});
+
 socket.on("message specific user", (uid, msg)  => {
     const h5 = welcome.querySelector("h5");
     h5.innerText = `${msg}`;
