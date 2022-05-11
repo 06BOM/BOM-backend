@@ -171,6 +171,10 @@ wsServer.on("connection", socket => {
             wsServer.sockets.in(payload.roomName).emit("score change", usersList);
 		}
 	});
+
+	socket.on("answer", (done) => {
+        done(answer, explanation);
+	});
 });
 
 httpServer.listen(PORT, handleListening);

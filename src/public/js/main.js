@@ -62,12 +62,12 @@ function stopClock() {
     clock.innerText = "";
 
     if (roundCnt === 0){
-        socket.emit("answer", roomName, showAnswer);
+        socket.emit("answer", showAnswer);
         setTimeout(()=>{
             allRoundFinish();
         },3000);
     } else {
-        socket.emit("answer", roomName, showAnswer);
+        socket.emit("answer", showAnswer);
         setTimeout(()=>{//답안을 보여준 뒤, 3초간 대기
             roundFinish();
         },3000);
