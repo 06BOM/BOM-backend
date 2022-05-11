@@ -121,12 +121,25 @@ function roundFinish(){
     socket.emit("question", roomName, showQuestion);
 }
 
+function allFinish(users){
+    const resultList = gameFinish.querySelector("ul");
+    newMap = new Map(JSON.parse(users));
+    i = 0;
+    newMap.forEach((value, key) => {
+        i++;
+        const li = document.createElement("li");
+        li.innerText = `🎲 ${i}위  ${key}  ${value}점`;
+        resultList.append(li);
+    })
+}
+
 function allRoundFinish(){
    gameStart.hidden = true;
    roundStart.hidden = true;
    roundFinished.hidden = true;
-   gameFinish.hidden = false;
    ox.hidden = true;
+   socket.emit("all finish", roomName, allFinish);
+   gameFinish.hidden = false;
 }
 
 function handleRoomSubmit(event) {
@@ -227,7 +240,6 @@ socket.on("scoreboard display", (users) => {
     const scoreList = gameStart.querySelector("ul");
     //scoreList.innerHTML = "";
     newMap = new Map(JSON.parse(users));
-    console.log(newMap);
     newMap.forEach((value, key) => {
         const li = document.createElement("li");
         li.innerText = `${key}: ${value}`;
@@ -238,18 +250,11 @@ socket.on("scoreboard display", (users) => {
 socket.on("score change", (users, count) => {
 	const scoreList = gameStart.querySelector("ul");
     //scoreList.innerHTML = "";
-    console.log(scoreList);
     newMap = new Map(JSON.parse(users));
-    console.log(newMap);
-    console.log("map size", newMap.size);
     const items = scoreList.getElementsByTagName('li');
-    console.log("지우기 전: ", items.length);
     while(items.length != 0){
         items[0].remove();
     }
-   
-    console.log("지운 후: ",items);
-    console.log("막", scoreList);
     newMap.forEach((value, key) => {
         const li = document.createElement("li");
         li.innerText = `${key}: ${value}`;
@@ -277,6 +282,18 @@ socket.on("showGameRoom", () => {
     gameStart.hidden = false;
     ox.hidden = true;
 });
+
+socket.on("all finish", (users) => {
+    const resultList = gameFinish.querySelector("ul");
+    newMap = new Map(JSON.parse(users));
+    i = 0;
+    newMap.forEach((value, key) => {
+        i++;
+        const li = document.createElement("li");
+        li.innerText = `🎲 ${i}위  ${key}  ${value}점`;
+        resultList.append(li);
+    })
+})
 
 socket.on("timer", ()=>{
     startClock();

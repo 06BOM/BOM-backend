@@ -183,6 +183,14 @@ wsServer.on("connection", socket => {
         flag = 0;
 		done(answer, explanation);
 	});
+
+	socket.on("all finish", (roomName, done) => {
+		sortUsers = new Map([...users.entries()].sort((a, b) => b[1] - a[1]));
+		console.log("cc", sortUsers);
+		usersList = JSON.stringify(Array.from(sortUsers));
+		done(usersList);
+		//wsServer.sockets.in(roomName).emit("all finish", usersList);
+	 })
 });
 
 httpServer.listen(PORT, handleListening);
