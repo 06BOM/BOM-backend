@@ -145,7 +145,6 @@ function allRoundFinish(){
 function handleRoomSubmit(event) {
     event.preventDefault();
     const input = welcome.querySelector("#room input");
-    //const nickname = "가히"; // 추후 db접근해서 닉넴가져오거나
     socket.emit("enter_room", input.value, showBeforeStartRoom);
     roomName = input.value;
     input.value = "";
@@ -282,18 +281,6 @@ socket.on("showGameRoom", () => {
     gameStart.hidden = false;
     ox.hidden = true;
 });
-
-socket.on("all finish", (users) => {
-    const resultList = gameFinish.querySelector("ul");
-    newMap = new Map(JSON.parse(users));
-    i = 0;
-    newMap.forEach((value, key) => {
-        i++;
-        const li = document.createElement("li");
-        li.innerText = `🎲 ${i}위  ${key}  ${value}점`;
-        resultList.append(li);
-    })
-})
 
 socket.on("timer", ()=>{
     startClock();

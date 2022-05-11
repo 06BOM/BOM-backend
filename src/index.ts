@@ -81,11 +81,6 @@ wsServer.on("connection", socket => {
 
     socket.on("gameStart", (roomName) => {
         if (readyStorage.length === countRoom(roomName)){
-            // 코드 추가했엉
-			/*for (let i = 0; i < readyStorage.length; i++)
-			{
-				users.set(socket.data.nickname, 0);
-			}*/
             usersList = JSON.stringify(Array.from(users));
             wsServer.sockets.in(roomName).emit("scoreboard display", usersList);
 			socket.emit("showGameRoom");
@@ -188,8 +183,7 @@ wsServer.on("connection", socket => {
 		sortUsers = new Map([...users.entries()].sort((a, b) => b[1] - a[1]));
 		console.log("cc", sortUsers);
 		usersList = JSON.stringify(Array.from(sortUsers));
-		done(usersList);
-		//wsServer.sockets.in(roomName).emit("all finish", usersList);
+		done(usersList);		
 	 })
 });
 
