@@ -26,6 +26,7 @@ let sockets = [];
 let answer, explanation;
 let users = new Map();
 let sortUsers, usersList;
+let flag = 0;
 
 const question = [
 	{ id: 1, oxQuestion: "이 앱의 이름은 다모여이다.", oxAnswer: "o", explanation: "이 앱의 이름은 다모여가 맞다." },
@@ -135,6 +136,12 @@ wsServer.on("connection", socket => {
 			}
 		}
 
+		if (flag === 0) {
+			flag = 1;	
+		} else {
+			return;
+		}
+
 		let index = Math.floor(Math.random() * 10);
 
 		while(arr[index]) {
@@ -173,7 +180,8 @@ wsServer.on("connection", socket => {
 	});
 
 	socket.on("answer", (done) => {
-        done(answer, explanation);
+        flag = 0;
+		done(answer, explanation);
 	});
 });
 
