@@ -92,6 +92,8 @@ function showBeforeStartRoom(roomName, newCount) {
     gameReady.hidden = false;
     const h4 = beforeStart.querySelector("h4");
     h4.innerText = `방이름: ${roomName} ( 참여인원: ${newCount}/10 )`;
+	const form = beforeStart.querySelector("form");
+	form.addEventListener("submit", handleMessageSubmit);
 };
 
 function showQuestion(question, id) {
@@ -140,6 +142,13 @@ function allRoundFinish(){
    ox.hidden = true;
    socket.emit("all finish", roomName, allFinish);
    gameFinish.hidden = false;
+}
+
+function addMessage(message) {
+	const ul = beforeStart.querySelector("ul");
+    const li = document.createElement("li");
+    li.innerText = message;
+    ul.appendChild(li);
 }
 
 function handleRoomSubmit(event) {
@@ -195,6 +204,16 @@ function handleXSubmit(event) {
 function handleReadySubmit(event) {
 	event.preventDefault();
 	socket.emit("ready", roomName);
+}
+
+function handleMessageSubmit(event) {
+	event.preventDefault();
+	const input = beforeStart.querySelector("input");
+	const value = input.value;
+	socket.emit("new_message", input.value, roomName, () => {
+		addMessage(`You: ${value}`);
+	});
+	input.value = "";
 }
 
 socket.on("ox", (payload) => {
@@ -285,6 +304,8 @@ socket.on("showGameRoom", () => {
 socket.on("timer", ()=>{
     startClock();
 });
+
+socket.on("new_message", addMessage);
 
 button_start.addEventListener("click", handleGameStart);
 button_exit.addEventListener("click", handleRoomExit);
