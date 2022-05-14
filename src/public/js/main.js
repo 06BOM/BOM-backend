@@ -122,16 +122,25 @@ function roundFinish(){
 	socket.emit("score", { index: index, roomName: roomName });
     socket.emit("question", roomName, showQuestion);
 }
-
+let n;
 function allFinish(users){
     const resultList = gameFinish.querySelector("ul");
+    const rankList = [];
     newMap = new Map(JSON.parse(users));
+    rankList[0] = 1;
+    for(i=1; i < newMap.size; i++) {
+        if (users[i-1][1] === users[i][1]) {
+            rankList[i] = rankList[i-1]
+        } else {
+            rankList[i] = i + 1;
+        }
+    }
     i = 0;
     newMap.forEach((value, key) => {
-        i++;
         const li = document.createElement("li");
-        li.innerText = `🎲 ${i}위  ${key}  ${value}점`;
+        li.innerText = `🎲 ${rankList[i]}위  ${key}  ${value}점`;
         resultList.append(li);
+        i++;
     })
 }
 
