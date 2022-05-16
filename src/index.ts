@@ -20,7 +20,8 @@ function countRoom(roomName){
     return wsServer.sockets.adapter.rooms.get(roomName)?.size;
 }
 
-let readyStorage = [];
+//let readyStorage = [];	// readyStorage.push([])
+let readyStorage = new Map<string, string[]>();
 let arr = [];
 let sockets = [];
 let answer, explanation;
@@ -61,6 +62,7 @@ wsServer.on("connection", socket => {
             console.log(socket.rooms);
             done(roomName, countRoom(roomName));
             sockets.push(socket);
+			readyStorage.set(roomName, []);
 			users.set(socket.data.nickname, 0);	//여기로 옮겼엉
             socket.to(roomName).emit("welcome", socket.data.nickname, roomName, countRoom(roomName));
         }
@@ -71,47 +73,62 @@ wsServer.on("connection", socket => {
 	});
     
     socket.on("exit_room", (roomName, done) => {
-		let leaveNickname = socket.data.nickname;
+		//let leaveNickname = socket.data.nickname;
+		let roomReadyArr = readyStorage.get(roomName);
+		console.log("1: ", roomReadyArr);
+		let removeIdArr = roomReadyArr.filter((element) => element !== socket.id);
+		console.log("2: ", removeIdArr);
+		readyStorage.set(roomName, removeIdArr);
+		console.log(readyStorage.get(roomName));
 		socket.leave(roomName);
-		socket.to(roomName).emit("bye", leaveNickname, roomName, countRoom(roomName));
+		console.log(socket.rooms);
+		socket.to(roomName).emit("bye", socket.data.nickname, roomName, countRoom(roomName));
         done();
-		
-
-    });
+    });//
 
     socket.on("gameStart", (roomName) => {
-        if (readyStorage.length === countRoom(roomName)){
-            usersList = JSON.stringify(Array.from(users));
-            wsServer.sockets.in(roomName).emit("scoreboard display", usersList);
-			socket.emit("showGameRoom");
-			socket.to(roomName).emit("showGameRoom");
-		} else {
-            socket.emit("message ready", socket.id, "참여자 모두 준비를 눌러주세요🙊");
-            setTimeout(function() {  
-                socket.emit("remove message");
-            }, 1000);
-        }
+        usersList = JSON.stringify(Array.from(users));
+        wsServer.sockets.in(roomName).emit("scoreboard display", usersList);
+		wsServer.sockets.in(roomName).emit("showGameRoom");
     });
    
 	socket.on("ox", (payload) => {
 		socket.data.ox = payload.ox;
-
 		wsServer.sockets.emit("ox", { answer: payload.ox, userId: payload.userId });
 	});
 	
 	socket.on("ready", (roomName) => {
-		if (!readyStorage.includes(socket.id)) {
-			readyStorage.push(socket.id);
+		let roomReadyArr = readyStorage.get(roomName);
+		console.log(roomReadyArr);
+		if (!roomReadyArr.includes(socket.id)) {
+			roomReadyArr.push(socket.id);
+			readyStorage.set(roomName, roomReadyArr);
+			console.log(readyStorage.get(roomName));
 		} else {
-			readyStorage = readyStorage.filter((element) => {
-				return element != socket.id
-			});
+			/*readyStorage = readyStorage.filter((element) => {
+				return element != socket.id	
+			});*/
+			let removeIdArr = roomReadyArr.filter((element) => element !== socket.id);
+			console.log(removeIdArr);
+			readyStorage.set(roomName, removeIdArr);
+			console.log(readyStorage.get(roomName));
 		}
 
-		if (readyStorage.length === wsServer.sockets.adapter.rooms.get(roomName)?.size) {
-			wsServer.sockets.emit("ready");
+		roomReadyArr = readyStorage.get(roomName);
+
+		if (roomReadyArr.length === wsServer.sockets.adapter.rooms.get(roomName)?.size) {
+			wsServer.sockets.in(roomName).emit("ready");
+		} else {
+			wsServer.sockets.in(roomName).emit("ready check");
 		}
 	}); 
+
+	socket.on("ready check", (roomName) => {
+		if ((readyStorage.get(roomName)).length === wsServer.sockets.adapter.rooms.get(roomName)?.size) {
+			console.log("h");
+			wsServer.sockets.emit("ready");
+		}
+	});
 	 
 	socket.on("new_message", (msg, room, done) => {
         socket.to(room).emit("new_message", `${socket.data.nickname}: ${msg}`);
@@ -150,10 +167,8 @@ wsServer.on("connection", socket => {
         
         console.log(question[index].oxQuestion);
         
-		socket.emit("round", question[index].oxQuestion, index);
-        socket.to(roomName).emit("round", question[index].oxQuestion, index);
-		socket.emit("timer");
-		socket.to(roomName).emit("timer");
+		wsServer.sockets.in(roomName).emit("round", question[index].oxQuestion, index);
+		wsServer.sockets.in(roomName).emit("timer");
 	});
 
  

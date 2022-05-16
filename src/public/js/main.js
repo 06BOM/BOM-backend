@@ -176,8 +176,14 @@ function handleNicknameSubmit(event) {
     nickinput.value = "";
 };
 
+function checkReady(){
+    flag = 0;
+    socket.emit("ready check", roomName);
+}
+
 function handleRoomExit(event) {
     event.preventDefault();
+    checkReady();
     socket.emit("exit_room", roomName, showMainPage);
 }
 
@@ -291,6 +297,10 @@ socket.on("score change", (users, count) => {
 
 socket.on("ready", () => {
 	readyToStart();
+});
+
+socket.on("ready check", () => {
+    checkReady();
 });
 
 socket.on("round",( question, id)=>{
