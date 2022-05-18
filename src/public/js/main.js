@@ -63,7 +63,7 @@ function stopClock() {
     clock.innerText = "";
 
     if (roundCnt === 0){
-        socket.emit("answer", showAnswer);
+        socket.emit("answer", roomName, showAnswer);
         setTimeout(()=>{
             allRoundFinish();
         },3000);
@@ -73,7 +73,7 @@ function stopClock() {
         roundFinished.hidden = true;
     } 
     else {
-        socket.emit("answer", showAnswer);
+        socket.emit("answer", roomName, showAnswer);
         setTimeout(()=>{//답안을 보여준 뒤, 3초간 대기
             roundFinish();
         },3000);
@@ -114,6 +114,7 @@ function showQuestion(question, id) {
 }
 
 function showAnswer(answer, explanation) {
+    //event.preventDefault();
     roundStart.hidden = true;
     roundFinished.hidden = false;
     //ox.hidden = true;
@@ -126,7 +127,7 @@ function showAnswer(answer, explanation) {
 function roundFinish(){
 	var index = question2.getAttribute('data-id');
 	socket.emit("score", { index: index, roomName: roomName });
-    socket.emit("question", roomName, showQuestion);
+    socket.emit("question", roomName);
 }
 let n;
 function allFinish(users){
