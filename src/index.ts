@@ -183,7 +183,7 @@ wsServer.on("connection", socket => {
 		checkQuestionsUsage.set(roomName, [0,0,0,0,0,0,0,0,0,0]);	
 		immMap = new Map(scoreListOfRooms.get(roomName));
 		immMap.forEach((value, key) => {
-			immMap.set(key, 0);
+			immMap.set(key, 0); 
 		})	
 		scoreListOfRooms.set(roomName, immMap);
 	 })
