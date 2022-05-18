@@ -31,6 +31,9 @@ html(lang="en")
 				ul#message
 				br
 				button.exit exit
+			div#gameReady 
+				h1 준비 / 준비 풀기
+				button.ready 준비 
 			div#gameStart
 				h4(style="text-align:right") 순위판
 				ul(style="text-align:right; list-style:none;")
@@ -39,21 +42,17 @@ html(lang="en")
 				.clock
 				p(style="text-align:center") 문제 : 
 					span.question(data-id=0)
-			div#gameFinish
-				h2(style="text-align:center") 게임결과
-				ul(style="text-align:center")
-			div#ox(style="position: relative;")
 				div#container(style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)")
 					button(style="").o O
 					button(style="padding: 1000;").x X
-			div#gameReady 
-				h1 준비 / 준비 풀기
-				button.ready 준비 
 			div#roundFinish
 				p(style="text-align:center") 정답 : 
 					span.answer
 				p(style="text-align:center") 해설 : 
 					span.explanation
+			div#gameFinish
+				h2(style="text-align:center") 게임결과
+				ul(style="text-align:center")
 
 		script(src="/socket.io/socket.io.js")
 		script(src="/public/js/main.js")

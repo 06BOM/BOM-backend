@@ -7,7 +7,7 @@ const gameReady = document.getElementById("gameReady");
 const gameFinish = document.getElementById("gameFinish");
 const roundStart = document.getElementById("roundStart");
 const roundFinished = document.getElementById("roundFinish");
-const ox = document.getElementById("ox");
+//const ox = document.getElementById("ox");
 const button_o = document.querySelector('.o');
 const button_x = document.querySelector('.x');
 const button_start = document.querySelector('.start');
@@ -28,14 +28,15 @@ beforeStart.hidden = true;
 gameStart.hidden = true;
 roundStart.hidden = true;
 gameFinish.hidden = true;
-ox.hidden = true;
+//ox.hidden = true;
 gameReady.hidden = true;
 roundFinished.hidden = true;
 
 let timeRemaining;
 let clockInterval = null;
 let roundCnt = 10;
-let flag = 0;
+let readyFlag = 0;
+let exitFlag = 0;
 
 function countBack() {
   clock.innerText = `00:${
@@ -66,7 +67,12 @@ function stopClock() {
         setTimeout(()=>{
             allRoundFinish();
         },3000);
-    } else {
+    } else if (exitFlag === 1){
+        gameStart.hidden = true;
+        roundStart.hidden = true;
+        roundFinished.hidden = true;
+    } 
+    else {
         socket.emit("answer", showAnswer);
         setTimeout(()=>{//답안을 보여준 뒤, 3초간 대기
             roundFinish();
@@ -81,7 +87,7 @@ function showMainPage(){
     beforeStart.hidden = true;
     gameStart.hidden = true;
     gameReady.hidden = true;
-    ox.hidden = true;
+   //ox.hidden = true;
     roundStart.hidden = true;
     roundFinished.hidden = true;
 }
@@ -99,7 +105,7 @@ function showBeforeStartRoom(roomName, newCount) {
 function showQuestion(question, id) {
     roundStart.hidden = false;
     roundFinished.hidden = true;
-    ox.hidden = false;
+    //ox.hidden = false;
 
 	question2.innerText = question;
 	question2.setAttribute("data-id", id);
@@ -110,7 +116,7 @@ function showQuestion(question, id) {
 function showAnswer(answer, explanation) {
     roundStart.hidden = true;
     roundFinished.hidden = false;
-    ox.hidden = true;
+    //ox.hidden = true;
 
     console.log(answer, explanation);
     answer2.innerText = answer;
@@ -148,7 +154,7 @@ function allRoundFinish(){
    gameStart.hidden = true;
    roundStart.hidden = true;
    roundFinished.hidden = true;
-   ox.hidden = true;
+   //ox.hidden = true;
    socket.emit("all finish", roomName, allFinish);
    gameFinish.hidden = false;
 }
@@ -177,7 +183,7 @@ function handleNicknameSubmit(event) {
 };
 
 function checkReady(){
-    flag = 0;
+    readyFlag = 0;
     socket.emit("ready check", roomName);
 }
 
@@ -189,12 +195,13 @@ function handleRoomExit(event) {
 
 function handlePlayingRoomExit(event) {//게임 진행중 방을 나가는 경우, 패널티 제공 로직 생성 필요
     event.preventDefault();
+    exitFlag = 1;
     socket.emit("exit_room", roomName, showMainPage);
 }
 
 function handleGameStart(event) {
     event.preventDefault();
-	if (flag) {
+	if (readyFlag) {
     	socket.emit("gameStart", roomName);
 		socket.emit("question", roomName, showQuestion);
 	}
@@ -203,7 +210,7 @@ function handleGameStart(event) {
 function readyToStart() {
 	// 모든 ready가 끝났을 때 호출된다.
 	console.log("completely ready!!!!!");
-	flag = 1;
+	readyFlag = 1;
 }
 
 function handleOSubmit(event) {
@@ -306,7 +313,7 @@ socket.on("ready check", () => {
 socket.on("round",( question, id)=>{
     roundStart.hidden = false;
     roundFinished.hidden = true;
-    ox.hidden = false;
+    //ox.hidden = false;
 
 	question2.innerText = question;
 	question2.setAttribute("data-id", id);
@@ -317,7 +324,6 @@ socket.on("showGameRoom", () => {
     beforeStart.hidden = true;
     gameReady.hidden = true;
     gameStart.hidden = false;
-    ox.hidden = true;
 });
 
 socket.on("timer", ()=>{
