@@ -62,4 +62,45 @@ export const getAllCharacters = async (req: Request, res: Response, next: NextFu
 	}
 };
 
+export const createCollection = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+    
+    let collectionData ={
+        userId : Number(req.query.userId),
+        characterId : Number(req.query.characterId)
+    } 
 
+    try {
+        const resultCollection = await prisma.collection.create({
+            data: collectionData
+        })
+        return res.json({ opcode: OPCODE.SUCCESS, resultCollection })
+
+    } catch(error) {
+        console.log(error);
+        next(error);
+    }
+}
+
+export const deleteCollection = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+    
+    const userId = Number(req.query.userId);
+    const characterId = Number(req.query.characterId);
+
+
+    try {
+        await prisma.collection.deleteMany({
+            where:{
+                AND: [
+                    {userId : userId},
+                    {characterId : characterId}
+                ]
+            }
+        })
+
+        return res.json({ opcode: OPCODE.SUCCESS })
+
+    } catch(error) {
+        console.log(error);
+        next(error);
+    }
+}
