@@ -34,6 +34,7 @@ export const getCharacterImageUrl = async (req: Request, res: Response, next: Ne
                 imageUrl:true
             }
 		});
+
 		return res.status(201).json({ opcode: OPCODE.SUCCESS, character});
 
 	} catch(error) {
@@ -73,6 +74,7 @@ export const createCollection = async (req: Request, res: Response, next: NextFu
         const resultCollection = await prisma.collection.create({
             data: collectionData
         })
+
         return res.json({ opcode: OPCODE.SUCCESS, resultCollection })
 
     } catch(error) {
@@ -104,3 +106,51 @@ export const deleteCollection = async (req: Request, res: Response, next: NextFu
         next(error);
     }
 }
+
+export const searchCharacter = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+    
+    const userId = Number(req.query.userId);
+    const search = String(req.query.search);
+    let resultCharacter = [];
+
+    try {
+        const resultCollection = await prisma.collection.findMany({
+            where: {
+                userId: userId
+            }
+        })
+
+        for(let i = 0; i< resultCollection.length; i++){
+
+            console.log(resultCollection[i].characterId);
+            
+            //안됨...
+            resultCharacter.push(
+                await prisma.character.findMany({
+                    where: {
+                        AND: [
+                            {
+                                characterId : resultCollection[i].characterId
+                            },
+                            {
+                                characterName : {
+                                    contains : search
+                                }
+                            }
+                        ]
+                        
+                    }
+                })
+            )  
+        }
+        
+
+
+        return res.json({ opcode: OPCODE.SUCCESS, resultCharacter })
+
+    } catch(error) {
+        console.log(error);
+        next(error);
+    }
+}
+
