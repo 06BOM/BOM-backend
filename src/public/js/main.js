@@ -204,7 +204,7 @@ function handleMakeRoom(event){
     event.preventDefault();
     const input = welcome.querySelector("#createroom input");
     //socket.emit("create room", roomName, kind, userId, grade, subject, secretMode, password);
-    socket.emit("create room", { roomName: input.value, kind: 0, userId: 1, grade: 3, subject: "과학", secretMode: false, password: null, participantsNum: 0});
+    socket.emit("create room", { roomName: input.value, kind: 0, userId: 1, grade: 3, subject: "과학", secretMode: false, password: null, participantsNum: 0}, nickname);
     roomName = input.value;
     input.value = "";
 }
