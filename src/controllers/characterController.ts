@@ -21,3 +21,24 @@ export const getCharacterInfomation = async (req: Request, res: Response, next: 
 	}
 };
 
+
+export const getCharacterImageUrl = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+	const characterId = Number(req.query.characterId);
+
+	try {
+		const character = await prisma.character.findUnique({
+			where: {
+				characterId
+			},
+            select:{
+                imageUrl:true
+            }
+		});
+		return res.status(201).json({ opcode: OPCODE.SUCCESS, character});
+
+	} catch(error) {
+		console.log(error);
+		next(error);
+	}
+};
+
