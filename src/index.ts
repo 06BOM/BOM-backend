@@ -28,7 +28,11 @@ let immMap, sortScores;
 let questionsOfRooms = new Map<string, {}>();
 
 async function getRoomInfo(roomName) {
+	let roomInfo = await prisma.room.findFirst({
+		where: { roomName: roomName }
+	})
 
+	return roomInfo;
 }
 
 async function set10Questions(roomName, subject, grade, range){
@@ -97,7 +101,9 @@ wsServer.on("connection", socket => {
 			scoreListOfRooms.set(roomName, immScoreMap);
 			console.log("scoreListOfRooms: ", scoreListOfRooms)
 
-            socket.to(roomName).emit("welcome", socket.data.nickname, roomName, countRoom(roomName));
+            let users = [];
+			scoreListOfRooms.forEach((value, key, map) => value.forEach((value, key, map) => users.push(key)));
+			wsServer.to(roomName).emit("welcome", socket.data.nickname, roomName, countRoom(roomName));
         }
     });
 
@@ -205,6 +211,7 @@ wsServer.on("connection", socket => {
 
 		done(JSON.stringify(Array.from(sortScores)));
 
+		set10Questions(roomName, "subject", "grade", "range");
 		playingFlag.set(roomName, 0);
 		checkQuestionsUsage.set(roomName, [0,0,0,0,0,0,0,0,0,0]);	
 		immMap = new Map(scoreListOfRooms.get(roomName));
