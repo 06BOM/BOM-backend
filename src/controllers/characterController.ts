@@ -42,3 +42,24 @@ export const getCharacterImageUrl = async (req: Request, res: Response, next: Ne
 	}
 };
 
+export const getAllCharacters = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+	const userId = Number(req.query.userId);
+
+	try {
+		const characters = await prisma.collection.findMany({
+			where: {
+				userId: userId
+			},
+            select:{
+                characterId : true
+            }
+		});
+		return res.status(201).json({ opcode: OPCODE.SUCCESS, characters});
+
+	} catch(error) {
+		console.log(error);
+		next(error);
+	}
+};
+
+
