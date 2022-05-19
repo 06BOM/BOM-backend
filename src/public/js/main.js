@@ -313,6 +313,10 @@ let newMap, i;
 socket.on("scoreboard display", (users) => {
     const scoreList = gameStart.querySelector("ul");
     //scoreList.innerHTML = "";
+    const items = scoreList.getElementsByTagName('li');
+    while(items.length != 0){
+        items[0].remove();
+    }   //문제 생김 여기 위 지워보셈
     newMap = new Map(JSON.parse(users));
     newMap.forEach((value, key) => {
         const li = document.createElement("li");
@@ -335,6 +339,14 @@ socket.on("score change", (users, count) => {
         scoreList.append(li);
     });
 });
+
+socket.on("clear", () => {
+    const beforeStartul = beforeStart.querySelector("ul");
+    const items = beforeStartul.getElementsByTagName('li');
+    while(items.length != 0){
+        items[0].remove();
+    }
+})
 
 socket.on("ready", () => {
 	readyToStart();

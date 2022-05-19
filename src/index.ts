@@ -271,8 +271,10 @@ wsServer.on("connection", socket => {
 			firstQflag.delete(roomName);
 			console.log("delete checkQuestionsUsage, firstQflag ", checkQuestionsUsage, firstQflag);
 			deleteRoom(roomName);
+			wsServer.sockets.in(roomName).emit("clear");
 		}
 		socket.leave(roomName);
+		console.log("현재 존재하는 방들: ", socket.rooms);
 		socket.to(roomName).emit("bye", socket.data.nickname, roomName, countRoom(roomName));
         done();
     });
