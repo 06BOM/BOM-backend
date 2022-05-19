@@ -1,4 +1,4 @@
-FROM node:6.2.2
+FROM node:16-alpine
 MAINTAINER Chaejin Lim <icj0103@ajou.ac.kr>
 
 # Create /app directory
@@ -11,7 +11,7 @@ ADD . /app
 RUN npm install
 
 # Port that we're gonna open
-EXPOSE 3000 80
+EXPOSE 3000
 
 # The command that we're gonna execute
 CMD ["npm", "start"]
