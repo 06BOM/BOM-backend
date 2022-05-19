@@ -125,7 +125,7 @@ wsServer.on("connection", socket => {
 		
 		checkRoomExist(payload.roomName).then( checkExist => {
 			console.log("here checkExist: ", checkExist);
-
+			
 			if (checkExist === null){
 				console.log("in here 1")
 				createRoom(payload).then( a => {
@@ -197,12 +197,8 @@ wsServer.on("connection", socket => {
 		console.log("firstQflag: ", firstQflag);
 
 		for (let i = 0; i < 10; i++){
-			if (checkQuestionsUsage.get(roomName)[i] === 1) { 
-				cnt++;
-			}
-			if (cnt >= 10) {
-				return; 
-			}
+			if (checkQuestionsUsage.get(roomName)[i] === 1) cnt++;
+			if (cnt >= 10) return; 
 		}
 
 		if (firstQflag.get(roomName) === 0) {	//flag 0: 가장 첫번째 실행한 사람만 아래 코드 실행

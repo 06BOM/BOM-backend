@@ -90,7 +90,6 @@ function stopClock() {
     }
 }
 
-
 function showMainPage(){
     welcome.hidden = false;
     beforeStart.hidden = true;
@@ -226,10 +225,10 @@ function handlePlayingRoomExit(event) {//게임 진행중 방을 나가는 경�
     socket.emit("exit_room", roomName, showMainPage);
 }
 
-function handleGameStart(event) {
+function handleGameStart(event) {   //방장인지 확인하는 로직 프론트쪽에서 구현해야해용
     event.preventDefault();
 	if (readyFlag) {
-    	socket.emit("gameStart", roomName);
+    	socket.emit("gameStart", roomName); 
 		socket.emit("question", roomName, showQuestion);
 	}
 }
