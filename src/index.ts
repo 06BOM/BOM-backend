@@ -61,8 +61,8 @@ async function set10Questions(roomName, subject, grade){
 
 	let questionIds = await prisma.oXDB.findMany({
 		where: {
-			subject: "과학",
-			grade: 1
+			subject: subject,
+			grade: grade
 		},
 		select: { oxquestionId: true }
 	})
@@ -70,7 +70,6 @@ async function set10Questions(roomName, subject, grade){
 	questionIds.map(question => {
 		allQuestionIds.push(question.oxquestionId);
 	});
-	console.log("10개의 question id: ", questionIds);
 
 	for(let i=0; i < 10; i++){
 		let moveId = allQuestionIds.splice(Math.floor(Math.random() * allQuestionIds.length),1)[0]
@@ -79,7 +78,7 @@ async function set10Questions(roomName, subject, grade){
 		});
 		questions.push(question);
 	}
-	
+	console.log("10개의 question id: ", questions);
 	questionsOfRooms.set(roomName, questions);
 	//let difference = allQuestionIds.filter(x => !questionIds.includes(x)); 추후 차집합 필요 시 사용
 }
@@ -139,8 +138,13 @@ wsServer.on("connection", socket => {
 					let immScoreMap = new Map();
 					immScoreMap.set(nickname, 0);
 					scoreListOfRooms.set(payload.roomName, immScoreMap);
-					console.log("scoreListOfRooms: ", scoreListOfRooms)
+					console.log("scoreListOfRooms: ", scoreListOfRooms);
+
+					getRoomInfo(payload.roomName).then(roomInfo => {
+						set10Questions(payload.roomName, roomInfo.subject, roomInfo.grade);
+					})
 				});
+
 			} else {
 				console.log("in here 2");
 				socket.emit("already exist");
@@ -184,11 +188,8 @@ wsServer.on("connection", socket => {
 		firstQflag.set(roomName, 0);
 		playingFlag.set(roomName, 1);
 		immMap = new Map(scoreListOfRooms.get(roomName));
-		let roomInfo = getRoomInfo(roomName);
-		set10Questions(roomName, "subject", "grade").then( a => {
-			wsServer.sockets.in(roomName).emit("scoreboard display", JSON.stringify(Array.from(immMap)));
-			wsServer.sockets.in(roomName).emit("showGameRoom");
-		})
+		wsServer.sockets.in(roomName).emit("scoreboard display", JSON.stringify(Array.from(immMap)));
+		wsServer.sockets.in(roomName).emit("showGameRoom");
     });
 
 	socket.on("question", (roomName) => {
@@ -257,6 +258,9 @@ wsServer.on("connection", socket => {
 			immMap.set(key, 0); 
 		})	
 		scoreListOfRooms.set(roomName, immMap);
+		getRoomInfo(roomName).then(roomInfo => {
+			set10Questions(roomName, roomInfo.subject, roomInfo.grade);
+		})
 	 })
 
 	 socket.on("exit_room", (roomName, done) => {
