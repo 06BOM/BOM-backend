@@ -370,7 +370,7 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
 		categoryId: req.body.categoryId? parseInt(String(req.body.categoryId)): getData.categoryId,
 		repetitionType: req.body.repetitionType,
 		check:req.body.check,
-		time: getData.time
+		time: req.body.time? parseInt(String(req.body.time)): getData.time
 	};
 
 	let createPlan = {

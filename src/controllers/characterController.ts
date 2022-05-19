@@ -124,7 +124,7 @@ export const searchCharacter = async (req: Request, res: Response, next: NextFun
 
             console.log(resultCollection[i].characterId);
             
-            //안됨...
+           
             resultCharacter.push(
                 await prisma.character.findMany({
                     where: {
