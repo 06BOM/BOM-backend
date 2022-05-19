@@ -62,4 +62,21 @@ export const getAllCharacters = async (req: Request, res: Response, next: NextFu
 	}
 };
 
+export const createCollection = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+    
+    let collectionData ={
+        userId : Number(req.query.userId),
+        characterId : Number(req.query.characterId)
+    } 
 
+    try {
+        const resultCollection = await prisma.collection.create({
+            data: collectionData
+        })
+        return res.json({ opcode: OPCODE.SUCCESS, resultCollection })
+
+    } catch(error) {
+        console.log(error);
+        next(error);
+    }
+}
