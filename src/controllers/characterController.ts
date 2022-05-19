@@ -80,3 +80,27 @@ export const createCollection = async (req: Request, res: Response, next: NextFu
         next(error);
     }
 }
+
+export const deleteCollection = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+    
+    const userId = Number(req.query.userId);
+    const characterId = Number(req.query.characterId);
+
+
+    try {
+        await prisma.collection.deleteMany({
+            where:{
+                AND: [
+                    {userId : userId},
+                    {characterId : characterId}
+                ]
+            }
+        })
+
+        return res.json({ opcode: OPCODE.SUCCESS })
+
+    } catch(error) {
+        console.log(error);
+        next(error);
+    }
+}
