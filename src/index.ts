@@ -1,6 +1,5 @@
 import app from "./app";
 import http from "http"; // 이미 기본 설치되어있음
-//import WebSocket from "ws"; // 기본설치!
 import { Server } from "socket.io"; 
 
 const PORT = process.env.PORT || 3000;
@@ -19,9 +18,11 @@ function countRoom(roomName){
 let readyStorage = new Map<string, string[]>();
 let checkQuestionsUsage = new Map<string, Number[]>();
 let firstQflag = new Map<string, Number>();
+let playingFlag = new Map<string, Number>();
 let answer, explanation;
 let scoreListOfRooms = new Map<string, Map<string, Number>>();
 let immMap, sortScores;
+let questionsOfRooms = new Map<string, {}>();
 
 const question = [
 	{ id: 1, oxQuestion: "이 앱의 이름은 다모여이다.", oxAnswer: "o", explanation: "이 앱의 이름은 다모여가 맞다." },
@@ -49,13 +50,15 @@ wsServer.on("connection", socket => {
 	});
     
     socket.on("enter_room", (roomName, done) => {
-        if ( countRoom(roomName) > 9 ){
-            socket.emit("message specific user", socket.id, "정원초과로 입장하실 수 없습니다.😥");
-        
+		//countRoom(roomName) > 9
+		let playingF = 0;
+        if (playingFlag.get(roomName) === 1){	
+			console.log("여기 들어옴");
+            playingF = 1;
 		} else {
             socket.join(roomName);
             console.log(socket.rooms);
-            done(roomName, countRoom(roomName));
+            done(roomName, countRoom(roomName), playingF);
 
 			readyStorage.set(roomName, []);
 			checkQuestionsUsage.set(roomName, [0,0,0,0,0,0,0,0,0,0]); 
@@ -110,6 +113,7 @@ wsServer.on("connection", socket => {
 
     socket.on("gameStart", (roomName) => {
 		firstQflag.set(roomName, 0);
+		playingFlag.set(roomName, 1);
 		immMap = new Map(scoreListOfRooms.get(roomName));
         wsServer.sockets.in(roomName).emit("scoreboard display", JSON.stringify(Array.from(immMap)));
 		wsServer.sockets.in(roomName).emit("showGameRoom");
@@ -180,6 +184,7 @@ wsServer.on("connection", socket => {
 
 		done(JSON.stringify(Array.from(sortScores)));
 
+		//playingFlag.set(roomName, 0);
 		checkQuestionsUsage.set(roomName, [0,0,0,0,0,0,0,0,0,0]);	
 		immMap = new Map(scoreListOfRooms.get(roomName));
 		immMap.forEach((value, key) => {

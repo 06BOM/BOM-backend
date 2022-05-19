@@ -7,7 +7,6 @@ const gameReady = document.getElementById("gameReady");
 const gameFinish = document.getElementById("gameFinish");
 const roundStart = document.getElementById("roundStart");
 const roundFinished = document.getElementById("roundFinish");
-//const ox = document.getElementById("ox");
 const button_o = document.querySelector('.o');
 const button_x = document.querySelector('.x');
 const button_start = document.querySelector('.start');
@@ -20,23 +19,31 @@ const answer2 = document.querySelector('.answer');
 const explanation2 = document.querySelector('.explanation');
 const roomForm = welcome.querySelector("#room");
 const nameForm = welcome.querySelector("#name");
+
+
 roomForm.addEventListener("submit", handleRoomSubmit);
 nameForm.addEventListener("submit", handleNicknameSubmit);
+button_start.addEventListener("click", handleGameStart);
+button_exit.addEventListener("click", handleRoomExit);
+button_exitWhilePlaying.addEventListener("click", handlePlayingRoomExit);
+button_o.addEventListener("click", handleOSubmit);
+button_x.addEventListener("click", handleXSubmit);
+button_ready.addEventListener("click", handleReadySubmit);
 
-let roomName;
+
 beforeStart.hidden = true;
 gameStart.hidden = true;
 roundStart.hidden = true;
 gameFinish.hidden = true;
-//ox.hidden = true;
 gameReady.hidden = true;
 roundFinished.hidden = true;
 
-let timeRemaining;
+let roomName, timeRemaining;
 let clockInterval = null;
 let roundCnt = 10;
 let readyFlag = 0;
 let exitFlag = 0;
+let playingFlag = 0;
 
 function countBack() {
   clock.innerText = `00:${
@@ -92,14 +99,18 @@ function showMainPage(){
     roundFinished.hidden = true;
 }
 
-function showBeforeStartRoom(roomName, newCount) {
-    welcome.hidden = true;
-    beforeStart.hidden = false;
-    gameReady.hidden = false;
-    const h4 = beforeStart.querySelector("h4");
-    h4.innerText = `방이름: ${roomName} ( 참여인원: ${newCount}/10 )`;
-	const form = beforeStart.querySelector("form");
-	form.addEventListener("submit", handleMessageSubmit);
+function showBeforeStartRoom(roomName, newCount, playingFlag) {
+    if (playingFlag === 0) {
+        welcome.hidden = true;
+        beforeStart.hidden = false;
+        gameReady.hidden = false;
+        const h4 = beforeStart.querySelector("h4");
+        h4.innerText = `방이름: ${roomName} ( 참여인원: ${newCount}/10 )`;
+        const form = beforeStart.querySelector("form");
+        form.addEventListener("submit", handleMessageSubmit);
+    } else {
+        console.log("게임중인 방이라 입장불가");
+    }
 };
 
 function showQuestion(question, id) {
@@ -129,6 +140,7 @@ function roundFinish(){
 	socket.emit("score", { index: index, roomName: roomName });
     socket.emit("question", roomName);
 }
+
 let n;
 function allFinish(users){
     const resultList = gameFinish.querySelector("ul");
@@ -148,7 +160,7 @@ function allFinish(users){
         li.innerText = `🎲 ${rankList[i]}위  ${key}  ${value}점`;
         resultList.append(li);
         i++;
-    })
+    }) 
 }
 
 function allRoundFinish(){
@@ -332,10 +344,3 @@ socket.on("timer", ()=>{
 });
 
 socket.on("new_message", addMessage);
-
-button_start.addEventListener("click", handleGameStart);
-button_exit.addEventListener("click", handleRoomExit);
-button_exitWhilePlaying.addEventListener("click", handlePlayingRoomExit);
-button_o.addEventListener("click", handleOSubmit);
-button_x.addEventListener("click", handleXSubmit);
-button_ready.addEventListener("click", handleReadySubmit);
