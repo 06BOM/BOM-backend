@@ -19,10 +19,12 @@ const answer2 = document.querySelector('.answer');
 const explanation2 = document.querySelector('.explanation');
 const roomForm = welcome.querySelector("#room");
 const nameForm = welcome.querySelector("#name");
+const createRoomForm = welcome.querySelector("#createroom");
 
 
 roomForm.addEventListener("submit", handleRoomSubmit);
 nameForm.addEventListener("submit", handleNicknameSubmit);
+createRoomForm.addEventListener("submit", handleMakeRoom);
 button_start.addEventListener("click", handleGameStart);
 button_exit.addEventListener("click", handleRoomExit);
 button_exitWhilePlaying.addEventListener("click", handlePlayingRoomExit);
@@ -198,6 +200,15 @@ function handleNicknameSubmit(event) {
     nickinput.value = "";
 };
 
+function handleMakeRoom(event){
+    event.preventDefault();
+    const input = welcome.querySelector("#createroom input");
+    //socket.emit("create room", roomName, kind, userId, grade, subject, secretMode, password);
+    socket.emit("create room", { roomName: input.value, kind: 0, userId: 1, grade: 3, subject: "과학", secretMode: false, password: null, participantsNum: 0});
+    roomName = input.value;
+    input.value = "";
+}
+
 function checkReady(){
     readyFlag = 0;
     socket.emit("ready check", roomName);
@@ -266,6 +277,14 @@ socket.on("welcome", (user, roomName, newCount) => {
     li.innerText = `${user}님 입장!`;
     ul.appendChild(li);
 });
+
+socket.on("create room", (roomName, newCount) => {
+    showBeforeStartRoom(roomName, newCount, 0);
+})
+
+socket.on("already exist", ()=>{
+    console.log("이미 같은 이름의 방이 존재! 다른 방이름으로 생성하시오!");
+})
 
 socket.on("bye", (user, roomName, newCount) => {
     const h4 = beforeStart.querySelector("h4");

@@ -190,7 +190,6 @@ model OXDB {
   totalNumSolved Int    @default(0)
   correctNum     Int    @default(0)
   provider       Int
-  explanation    String @db.VarChar(45)
   user           User   @relation(fields: [provider], references: [userId])
 
   @@index([provider], map: "OXDB_provider_fkey")
@@ -212,6 +211,7 @@ model Room {
   password        String?      @db.VarChar(45)
   subject         String       @db.VarChar(45)
   userId          Int
+  grade           Int
   user            User         @relation(fields: [userId], references: [userId])
   oxUnitRange     OXUnitRange?
 
@@ -333,6 +333,6 @@ model PlanDay {
   plan     Plan   @relation(fields: [planId], references: [planId], onDelete: Cascade)
   user     User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
-  @@id([planId, dayId])
+  @@id([planId, day])
   @@index([userId], map: "PlanDay_userId_fkey")
 }
