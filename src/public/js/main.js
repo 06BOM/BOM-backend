@@ -128,7 +128,6 @@ function showAnswer(answer, explanation) {
     //event.preventDefault();
     roundStart.hidden = true;
     roundFinished.hidden = false;
-    //ox.hidden = true;
 
     console.log(answer, explanation);
     answer2.innerText = answer;
@@ -167,9 +166,13 @@ function allRoundFinish(){
    gameStart.hidden = true;
    roundStart.hidden = true;
    roundFinished.hidden = true;
-   //ox.hidden = true;
    socket.emit("all finish", roomName, allFinish);
    gameFinish.hidden = false;
+   setTimeout(()=>{
+       gameFinish.hidden = true;
+       beforeStart.hidden = false;
+       playingFlag = 0;
+    },5000);    
 }
 
 function addMessage(message) {

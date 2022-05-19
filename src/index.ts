@@ -184,7 +184,7 @@ wsServer.on("connection", socket => {
 
 		done(JSON.stringify(Array.from(sortScores)));
 
-		//playingFlag.set(roomName, 0);
+		playingFlag.set(roomName, 0);
 		checkQuestionsUsage.set(roomName, [0,0,0,0,0,0,0,0,0,0]);	
 		immMap = new Map(scoreListOfRooms.get(roomName));
 		immMap.forEach((value, key) => {
