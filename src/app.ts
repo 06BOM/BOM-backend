@@ -11,6 +11,7 @@ import commentRouter from "./routes/comment";
 import categoryRouter from "./routes/category";
 import characterRouter from "./routes/character";
 import mockRouter from "./routes/mock";
+import oxRouter from "./routes/ox";
 
 import { OPCODE, DamoyeoError } from './tools';
 import { NextFunction, Request, Response } from 'express';
@@ -34,6 +35,7 @@ app.use('/comment', commentRouter);
 app.use('/category', categoryRouter);
 app.use('/character', characterRouter);
 app.use('/mock', mockRouter);
+app.use('/ox', oxRouter);
 
 
 app.use((req: Request, res: Response, next: NextFunction) => {
