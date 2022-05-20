@@ -40,7 +40,7 @@ gameFinish.hidden = true;
 gameReady.hidden = true;
 roundFinished.hidden = true;
 
-let roomName, timeRemaining;
+let roomName, timeRemaining, nickname;
 let clockInterval = null;
 let roundCnt = 10;
 let readyFlag = 0;
@@ -190,7 +190,7 @@ function handleRoomSubmit(event) {
     socket.emit("join_room", roominput.value, nickinput.value, showBeforeStartRoom);
     nickname = nickinput.value;
     roomName = roominput.value;
-    // roominput.value = "";
+    roominput.value = "";
     // nickname = "";
 }
 
@@ -220,13 +220,13 @@ function checkReady(){
 function handleRoomExit(event) {
     event.preventDefault();
     checkReady();
-    socket.emit("exit_room", roomName, nickname,showMainPage);
+    socket.emit("exit_room", roomName,showMainPage);
 }
 
 function handlePlayingRoomExit(event) {//게임 진행중 방을 나가는 경우, 패널티 제공 로직 생성 필요
     event.preventDefault();
     exitFlag = 1;
-    socket.emit("exit_room", roomName, nickname, showMainPage);
+    socket.emit("exit_room", roomName, showMainPage);
 }
 
 function handleGameStart(event) {   //방장인지 확인하는 로직 프론트쪽에서 구현해야해용
