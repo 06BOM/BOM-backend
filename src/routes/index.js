@@ -2,8 +2,7 @@ import express from "express";
 const router = express.Router();
 
 router.get('/', (req, res) => {
-	console.log("hello hihihi");
-	res.send("Hello!! hihihi!!");
+	res.send("Hello!! ci/cd test!!");
 });
 
 export default router;
