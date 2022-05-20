@@ -51,7 +51,7 @@ async function getRoomInfo(roomName) {
 	let roomInfo = await prisma.room.findFirst({
 		where: { roomName: roomName }
 	})
-	console.log("roomInfo: ", roomInfo);
+	//console.log("roomInfo: ", roomInfo);
 	return roomInfo;
 }
 
@@ -93,7 +93,7 @@ wsServer.on("connection", socket => {
 
 	socket.on("nickname", (nickname) => {
 		socket.data.nickname = nickname;
-		console.log("socket.data.nickname: ", socket.data.nickname);
+		//console.log("socket.data.nickname: ", socket.data.nickname);
 	});
     
     socket.on("enter_room", (roomName, done) => {
@@ -112,7 +112,7 @@ wsServer.on("connection", socket => {
 			}
 			immScoreMap.set(socket.data.nickname, 0);
 			scoreListOfRooms.set(roomName, immScoreMap);
-			console.log("scoreListOfRooms: ", scoreListOfRooms)
+			console.log("enter room - scoreListOfRooms: ", scoreListOfRooms)
 
             let users = [];
 			scoreListOfRooms.forEach((value, key, map) => value.forEach((value, key, map) => users.push(key)));
@@ -138,7 +138,7 @@ wsServer.on("connection", socket => {
 					let immScoreMap = new Map();
 					immScoreMap.set(nickname, 0);
 					scoreListOfRooms.set(payload.roomName, immScoreMap);
-					console.log("scoreListOfRooms: ", scoreListOfRooms);
+					console.log("create room - scoreListOfRooms: ", scoreListOfRooms);
 
 					getRoomInfo(payload.roomName).then(roomInfo => {
 						set10Questions(payload.roomName, roomInfo.subject, roomInfo.grade);
@@ -217,7 +217,7 @@ wsServer.on("connection", socket => {
         answer = questionsOfRooms.get(roomName)[index].oxanswer;
         explanation = questionsOfRooms.get(roomName)[index].explanation;
         
-        console.log("문제정보: ", answer, explanation, questionsOfRooms.get(roomName)[index].oxquestion);
+        //console.log("문제정보: ", answer, explanation, questionsOfRooms.get(roomName)[index].oxquestion);
 		wsServer.sockets.in(roomName).emit("round", questionsOfRooms.get(roomName)[index].oxquestion, index);
 		wsServer.sockets.in(roomName).emit("timer");
 	});
@@ -233,7 +233,9 @@ wsServer.on("connection", socket => {
 	});
 
 	socket.on("score", payload => {
-		if (questionsOfRooms.get(payload.roomName)[payload.index].oxAnswer === socket.data.ox) {	//정답
+		console.log("[payload.index].oxanswer: ", questionsOfRooms.get(payload.roomName)[payload.index].oxAnswer)
+		console.log("socket.data.ox: ", socket.data.ox);
+		if (questionsOfRooms.get(payload.roomName)[payload.index].oxanswer === socket.data.ox) {	//정답
 			immMap = scoreListOfRooms.get(payload.roomName);
 			immMap.forEach((value, key) => {
 				if (key === socket.data.nickname) {
@@ -242,6 +244,7 @@ wsServer.on("connection", socket => {
 				}
 			});
 			sortScores = new Map([...immMap.entries()].sort((a, b) => b[1] - a[1]));
+			scoreListOfRooms.set(payload.roomName, sortScores);
 			console.log("sortScores: ", sortScores);
             wsServer.sockets.in(payload.roomName).emit("score change", JSON.stringify(Array.from(sortScores)));
 		}
@@ -274,7 +277,8 @@ wsServer.on("connection", socket => {
 			wsServer.sockets.in(roomName).emit("clear");
 		}
 		socket.leave(roomName);
-		console.log("현재 존재하는 방들: ", socket.rooms);
+		console.log("exit-현재 존재하는 방들: ", socket.rooms);
+		console.log("scoreListOfRooms: ")
 		socket.to(roomName).emit("bye", socket.data.nickname, roomName, countRoom(roomName));
         done();
     });
