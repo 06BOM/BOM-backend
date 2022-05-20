@@ -216,13 +216,13 @@ function checkReady(){
 function handleRoomExit(event) {
     event.preventDefault();
     checkReady();
-    socket.emit("exit_room", roomName, showMainPage);
+    socket.emit("exit_room", roomName, nickname,showMainPage);
 }
 
 function handlePlayingRoomExit(event) {//게임 진행중 방을 나가는 경우, 패널티 제공 로직 생성 필요
     event.preventDefault();
     exitFlag = 1;
-    socket.emit("exit_room", roomName, showMainPage);
+    socket.emit("exit_room", roomName, nickname, showMainPage);
 }
 
 function handleGameStart(event) {   //방장인지 확인하는 로직 프론트쪽에서 구현해야해용
