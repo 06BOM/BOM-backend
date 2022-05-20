@@ -154,3 +154,37 @@ export const searchCharacter = async (req: Request, res: Response, next: NextFun
     }
 }
 
+export const searchNotHavingCharacter = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+    
+    const userId = Number(req.query.userId);
+    let havingCharacterArr = [];
+    try {
+        const havingCharacterData = await prisma.collection.findMany({
+			where: {
+				userId: userId
+			}
+		})
+        
+        for(let i=0;i<havingCharacterData.length;i++){
+            console.log(havingCharacterData[i].characterId);
+            havingCharacterArr.push(havingCharacterData[i].characterId);
+        }
+        
+        console.log(havingCharacterArr);
+        const notHavingCharacterData = await prisma.character.findMany({
+            where:{
+                characterId: {
+                    not: {in : havingCharacterArr}
+                }
+            }
+        })
+       
+        
+        return res.json({ opcode: OPCODE.SUCCESS, notHavingCharacterData })
+
+    } catch(error) {
+        console.log(error);
+        next(error);
+    }
+}
+

@@ -4,7 +4,8 @@ import { getCharacterInfomation,
          getAllCharacters,
          createCollection,
          deleteCollection,
-         searchCharacter
+         searchCharacter,
+         searchNotHavingCharacter
         } from "../controllers/characterController";
 
 const router = express.Router();
@@ -15,5 +16,6 @@ router.get('/user/collection', getAllCharacters);
 router.post('/user/collection', createCollection);
 router.delete('/user/collection', deleteCollection);
 router.get('/search', searchCharacter);
+router.get('/user/want', searchNotHavingCharacter);
 
 export default router;
