@@ -1,0 +1,62 @@
+doctype html 
+html(lang="en")
+	head
+		meta(charset="UTF-8")
+		meta(http-equiv="X-UA-Compatible", content="IE=edge")
+		meta(name="viewport", content="width=device-width, initial-scale=1.0")
+		title BOM
+	body
+		header
+			h1 OX 퀴즈
+		main 
+			div#welcome 
+				h6 (이름 먼저 꼭 넣어주세용😎)
+				form#name
+					input(placeholder="nickname", required, type="text")
+					button save
+				h6 방입장하기
+				form#room 
+					input(placeholder="room name", required, type="text")
+					button Enter Room
+				h6 방생성하기
+				form#createroom
+					input(placeholder="room name", required, type="text")
+					button 생성
+				h4 Open Rooms: 
+				ul
+			div#beforeStart
+				h4
+				button.start 게임시작
+				ul
+				h5 댓글 쓰기
+				form 
+					input(placeholder="message", required, type="text")
+					button Send
+				ul#message
+				br
+				button.exit exit
+			div#gameReady 
+				h1 준비 / 준비 풀기
+				button.ready 준비 
+			div#gameStart
+				h4(style="text-align:right") 순위판
+				ul(style="text-align:right; list-style:none;")
+				button.exitWhilePlaying exit
+			div#roundStart
+				.clock
+				p(style="text-align:center") 문제 : 
+					span.question(data-id=0)
+				div#container(style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)")
+					button(style="").o O
+					button(style="padding: 1000;").x X
+			div#roundFinish
+				p(style="text-align:center") 정답 : 
+					span.answer
+				p(style="text-align:center") 해설 : 
+					span.explanation
+			div#gameFinish
+				h2(style="text-align:center") 게임결과
+				ul(style="text-align:center")
+
+		script(src="/socket.io/socket.io.js")
+		script(src="/public/js/main.js")

@@ -1,280 +1,339 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "mysql"
-  url      = "mysql://root:root@localhost:3306/damoyeo"
+  url      = "mysql://root:ajouuniversity@damoyeo-db.c4gznlia3chr.ap-northeast-2.rds.amazonaws.com:3306/damoyeo"
 }
 
 model User {
-	userId				Int			@default(autoincrement()) @id
-	emailId 			String 		@unique @db.VarChar(45)
-	userName			String		@db.VarChar(45)
-	password 			String		@db.VarChar(45)
-	nickname 			String		@db.VarChar(45)
-	birth 				DateTime
-	phoneNum 			String		@db.VarChar(45)
-	grade 				Int
-	star 				Int			@default(0)
-	timeItem 			Int			@default(0)
-	passItem 			Int			@default(0)
-	introduction		String?
-	platform 			String?
-	platformId			String?		@db.VarChar(255)
-	lock				Boolean		@default(false)
-	lockFreeDate		DateTime?
-	userType			Int			@default(0)      // 0 -> user, 1 -> administrator, 2-> platform
-	characterId			Int			@default(0)
-	sessions			Session[]
-	character			Character		@relation(fields: [characterId], references: [characterId])
-	daily				Daily[]
-	categories			Category[]
-	receivedMessage		Message[]			@relation("receive")
-	sentMessage			Message[]			@relation("send")
-	sentReport			Report[]			@relation("report")
-	receivedReport		Report[]			@relation("reported")
-	reportLog			ReportLog[]
-	mockDB				MockDB[]
-	oxDB				OXDB[]
-	room 				Room[]
-	questAttempt		QuestAttempt[]
-	fromFollower		Follower[]		@relation("from")
-	toFollower			Follower[]		@relation("to")
-	post				Post[]
-	comment				Comment[]
-	collection			Collection[]
-	likes				Like[]
-	scraps				Scrap[]
+  userId           Int            @id @default(autoincrement())
+  emailId          String         @unique @db.VarChar(45)
+  userName         String         @db.VarChar(45)
+  password         String         @db.VarChar(45)
+  nickname         String         @db.VarChar(45)
+  birth            DateTime
+  phoneNum         String         @db.VarChar(45)
+  grade            Int
+  star             Int            @default(0)
+  timeItem         Int            @default(0)
+  passItem         Int            @default(0)
+  introduction     String?
+  platform         String?
+  platformId       String?        @db.VarChar(255)
+  lock             Boolean        @default(false)
+  lockFreeDate     DateTime?
+  userType         Int            @default(0)
+  characterId      Int            @default(1)
+  character        Character      @relation(fields: [characterId], references: [characterId])
+  categories       Category[]
+  collections      Collection[]
+  comments         Comment[]
+  daily            Daily[]
+  fromFollowers    Follower[]     @relation("from")
+  toFollowers      Follower[]     @relation("to")
+  likes            Like[]
+  receivedMessages Message[]      @relation("receive")
+  sentMessages     Message[]      @relation("send")
+  mockDB           MockDB[]
+  oxDB             OXDB[]
+  planDays         PlanDay[]
+  posts            Post[]
+  questAttempts    QuestAttempt[]
+  sentReports      Report[]       @relation("report")
+  receivedReports  Report[]       @relation("reported")
+  reportLogs       ReportLog[]
+  rooms            Room[]
+  scraps           Scrap[]
+  sessions         Session[]
+
+  @@index([characterId], map: "User_characterId_fkey")
 }
 
 model Daily {
-	dailyId				Int			@default(autoincrement()) @id
-	date				DateTime
-	obtainedStar		Int			@default(0)
-	userId				Int
-	user				User		@relation(fields: [userId], references: [userId])
-	plans				Plan[]
+  dailyId      Int      @id @default(autoincrement())
+  date         DateTime
+  obtainedStar Int      @default(0)
+  userId       Int
+  user         User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  plans        Plan[]
+
+  @@index([userId], map: "Daily_userId_fkey")
 }
 
 model Category {
-	categoryId			Int			@default(autoincrement()) @id
-	categoryName		String
-	color				String
-	type				Boolean		@default(false)
-	userId				Int
-	plan				Plan[]
-	user				User		@relation(fields: [userId], references: [userId])
-	post				Post[]
+  categoryId   Int     @id @default(autoincrement())
+  categoryName String  @db.VarChar(45)
+  color        String  @db.VarChar(45)
+  type         Boolean @default(false)
+  userId       Int?
+  user         User?   @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  plan         Plan[]
+  post         Post[]
+
+  @@index([userId], map: "Category_userId_fkey")
 }
 
 model Plan {
-	planId				Int			@default(autoincrement()) @id
-	planName			String
-	time				Int			@default(0)			
-	check				Boolean		@default(false)
-	repetitionType		Int?		// 1 -> 매일 반복, 2-> 매주 반복, 3-> 매달 반복
-	dailyId				Int
-	categoryId			Int
-	daily				Daily		@relation(fields: [dailyId], references: [dailyId])
-	category			Category	@relation(fields: [categoryId], references: [categoryId])
+  planId         Int       @id @default(autoincrement())
+  planName       String    @db.VarChar(45)
+  time           Int       @default(0)
+  check          Boolean   @default(false)
+  repetitionType Int?
+  dailyId        Int
+  categoryId     Int
+  category       Category  @relation(fields: [categoryId], references: [categoryId])
+  daily          Daily     @relation(fields: [dailyId], references: [dailyId])
+  planDays       PlanDay[]
+
+  @@index([categoryId], map: "Plan_categoryId_fkey")
+  @@index([dailyId], map: "Plan_dailyId_fkey")
 }
 
 model Message {
-	messageId			Int			@default(autoincrement()) @id
-	sendDate			DateTime
-	contents			String
-	readCheck			Boolean 	@default(false)
-	recvId				Int
-	sentId				Int
-	receiver			User		@relation(name: "receive", fields: [recvId], references: [userId])
-	sender				User		@relation(name: "send", fields: [sentId], references: [userId])
+  messageId Int      @id @default(autoincrement())
+  sendDate  DateTime
+  contents  String   @db.VarChar(45)
+  readCheck Boolean  @default(false)
+  recvId    Int
+  sentId    Int
+  receiver  User     @relation("receive", fields: [recvId], references: [userId])
+  sender    User     @relation("send", fields: [sentId], references: [userId])
+
+  @@index([recvId], map: "Message_recvId_fkey")
+  @@index([sentId], map: "Message_sentId_fkey")
 }
 
 model Session {
-	sessionId			Int			@default(autoincrement()) @id
-	createdAt			DateTime	@default(now())
-	user				User		@relation(fields: [userId], references: [userId])
-	userId				Int
+  sessionId Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@index([userId], map: "Session_userId_fkey")
 }
 
 model Report {
-	reportId			Int			@default(autoincrement()) @id
-	contents			String?
-	reportType			Int
-	accept				Boolean		@default(false)
-	reportUser			Int
-	reportedUser		Int
-	reportedPost		Int?
-	reporter			User		@relation(name: "report", fields: [reportUser], references: [userId])
-	receiver			User		@relation(name: "reported", fields: [reportedUser], references: [userId])
-	reportLog			ReportLog[]
-	post				Post?		@relation(fields: [reportedPost], references: [postId])
+  reportId     Int        @id @default(autoincrement())
+  contents     String?
+  reportType   Int
+  accept       Boolean    @default(false)
+  reportUser   Int
+  reportedUser Int
+  reportedPost Int?
+  reporter     User       @relation("report", fields: [reportUser], references: [userId])
+  post         Post?      @relation(fields: [reportedPost], references: [postId])
+  receiver     User       @relation("reported", fields: [reportedUser], references: [userId])
+  reportLog    ReportLog?
+
+  @@index([reportUser], map: "Report_reportUser_fkey")
+  @@index([reportedPost], map: "Report_reportedPost_fkey")
+  @@index([reportedUser], map: "Report_reportedUser_fkey")
 }
 
-//
 model ReportLog {
-	reportLogId			Int			@default(autoincrement()) @id
-	disciplinaryAction	Int
-	reportId			Int
-	adminId				Int
-	user				User		@relation(fields: [adminId], references: [userId])
-	report				Report		@relation(fields: [reportId], references: [reportId])
+  reportLogId        Int    @id @default(autoincrement())
+  disciplinaryAction Int    @default(0)
+  reportId           Int    @unique
+  adminId            Int
+  user               User   @relation(fields: [adminId], references: [userId])
+  report             Report @relation(fields: [reportId], references: [reportId])
+
+  @@index([adminId], map: "ReportLog_adminId_fkey")
 }
 
 model Character {
-	characterId			Int			@default(autoincrement()) @id
-	characterName		String
-	star				Int
-	imageUrl			String
-	silhouetteUrl		String
-	introduction		String
-	explanation			String
-	brain				Int
-	speed				Int
-	power				Int
-	teq					Int
-	strength			Int
-	height				Int
-	weight				Int
-	mbti				String
-	user				User[]
-	collections			Collection[]
+  characterId   Int          @id @default(autoincrement())
+  characterName String       @db.VarChar(45)
+  star          Int
+  imageUrl      String       @db.Text
+  silhouetteUrl String       @db.Text
+  introduction  String       @db.Text
+  explanation   String       @db.Text
+  brain         Int
+  speed         Int
+  power         Int
+  teq           Int
+  strength      Int
+  height        Int
+  weight        Int
+  mbti          String       @db.VarChar(45)
+  collections   Collection[]
+  user          User[]
 }
 
 model MockDB {
-	mockquestionId		Int			@default(autoincrement()) @id
-	grade				Int
-	subject				String
-	questionImage		String
-	answer				String
-	explanation			String
-	privisionCheck		Boolean
-	totalNumSolved		Int
-	correctNum			Int
-	provider			Int
-	user				User		@relation(fields: [provider], references: [userId])
-	questAttempt		QuestAttempt[]
+  mockquestionId Int            @id @default(autoincrement())
+  grade          Int
+  subject        String         @db.VarChar(45)
+  questionImage  String         @db.Text
+  answer         String         @db.VarChar(45)
+  explanation    String         @db.Text
+  provisionCheck Boolean        @default(false)
+  totalNumSolved Int            @default(0)
+  correctNum     Int            @default(0)
+  provider       Int
+  user           User           @relation(fields: [provider], references: [userId])
+  questAttempt   QuestAttempt[]
+
+  @@index([provider], map: "MockDB_provider_fkey")
 }
 
 model OXDB {
-	oxquestionId		Int			@default(autoincrement()) @id
-	oxquestion			String
-	oxanswer			String
-	subject				String
-	grade				Int
-	range				Int
-	totalNumSolved		Int
-	correctNum			Int
-	provider			Int
-	user				User		@relation(fields: [provider], references: [userId])
+  oxquestionId   Int    @id @default(autoincrement())
+  oxquestion     String @db.VarChar(45)
+  oxanswer       String @db.VarChar(45)
+  subject        String @db.VarChar(45)
+  grade          Int
+  range          Int
+  totalNumSolved Int    @default(0)
+  correctNum     Int    @default(0)
+  provider       Int
+  explanation    String @db.VarChar(45)
+  user           User   @relation(fields: [provider], references: [userId])
+
+  @@index([provider], map: "OXDB_provider_fkey")
 }
 
 model SketchDB {
-	sketchquestionId	Int			@default(autoincrement()) @id
-	sketchword			String
-	subject				String
-	description			String		@db.VarChar(255)
+  sketchquestionId Int    @id @default(autoincrement())
+  sketchword       String @db.VarChar(45)
+  subject          String @db.VarChar(45)
+  description      String @db.VarChar(255)
 }
 
 model Room {
-	roomId				Int			@default(autoincrement()) @id
-	roomName			String
-	kind				Int
-	participantsNum		Int
-	secretMode			Int
-	password			String
-	subject				String
-	userId				Int
-	user				User		@relation(fields: [userId], references: [userId])
-	oxUnitRanges		OXUnitRange[]	
+  roomId          Int          @id @default(autoincrement())
+  roomName        String       @db.VarChar(45)
+  kind            Int
+  participantsNum Int
+  secretMode      Boolean      @default(false)
+  password        String?      @db.VarChar(45)
+  subject         String       @db.VarChar(45)
+  userId          Int
+  grade           Int
+  user            User         @relation(fields: [userId], references: [userId])
+  oxUnitRange     OXUnitRange?
+
+  @@index([userId], map: "Room_userId_fkey")
 }
 
 model QuestAttempt {
-	questionId			Int
-	userId				Int
-	count				Int
-	date				DateTime
-	question			MockDB		@relation(fields: [questionId], references: [mockquestionId])
-	user				User		@relation(fields: [userId], references: [userId])
-	@@id([questionId, userId])
+  questionId Int
+  userId     Int
+  count      Int      @default(0)
+  date       DateTime
+  question   MockDB   @relation(fields: [questionId], references: [mockquestionId])
+  user       User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@id([questionId, userId])
+  @@index([userId], map: "QuestAttempt_userId_fkey")
 }
 
 model Follower {
-	fromId				Int
-	toId				Int
-	permission			Boolean
-	fromUser			User		@relation(name: "from", fields: [fromId], references: [userId])
-	toUser				User		@relation(name: "to", fields: [toId], references: [userId])
-	@@id([fromId, toId])
+  fromId     Int
+  toId       Int
+  permission Boolean @default(false)
+  fromUser   User    @relation("from", fields: [fromId], references: [userId], onDelete: Cascade)
+  toUser     User    @relation("to", fields: [toId], references: [userId], onDelete: Cascade)
+
+  @@id([fromId, toId])
+  @@index([toId], map: "Follower_toId_fkey")
 }
 
 model Post {
-	postId				Int			@default(autoincrement()) @id
-	title				String
-	content				String		@db.VarChar(150)
-	createdAt			DateTime
-	postKind			Boolean
-	anonymous			Boolean	
-	categoryId			Int
-	userId				Int
-	category			Category	@relation(fields: [categoryId], references: [categoryId])
-	user				User		@relation(fields: [userId], references: [userId])
-	postContentUrl		PostContentUrl[]
-	comments			Comment[]
-	report				Report[]
-	like				Like[]
-	scrap				Scrap[]
+  postId          Int              @id @default(autoincrement())
+  title           String           @db.VarChar(45)
+  content         String           @db.VarChar(150)
+  createdAt       DateTime         @default(now())
+  postKind        Int
+  anonymous       Boolean          @default(false)
+  categoryId      Int
+  userId          Int
+  category        Category         @relation(fields: [categoryId], references: [categoryId])
+  user            User             @relation(fields: [userId], references: [userId])
+  comments        Comment[]
+  like            Like[]
+  postContentUrls PostContentUrl[]
+  report          Report[]
+  scrap           Scrap[]
+
+  @@index([categoryId], map: "Post_categoryId_fkey")
+  @@index([userId], map: "Post_userId_fkey")
 }
 
 model PostContentUrl {
-	contentId			Int			@default(autoincrement()) @id
-	contentUrl			String
-	postId				Int
-	post				Post		@relation(fields: [postId], references: [postId])
+  contentId  Int    @id @default(autoincrement())
+  contentUrl String @db.Text
+  postId     Int
+  post       Post   @relation(fields: [postId], references: [postId], onDelete: Cascade)
+
+  @@index([postId], map: "PostContentUrl_postId_fkey")
 }
 
 model Comment {
-	commentId			Int			@default(autoincrement()) @id
-	content				String
-	createdAt			DateTime
-	commentParent		Int
-	postId				Int
-	userId				Int
-	post				Post		@relation(fields: [postId], references: [postId])
-	user				User		@relation(fields: [userId], references: [userId])
+  commentId     Int      @id @default(autoincrement())
+  content       String   @db.Text
+  createdAt     DateTime @default(now())
+  commentParent Int?
+  postId        Int
+  userId        Int
+  post          Post     @relation(fields: [postId], references: [postId], onDelete: Cascade)
+  user          User     @relation(fields: [userId], references: [userId])
+
+  @@index([postId], map: "Comment_postId_fkey")
+  @@index([userId], map: "Comment_userId_fkey")
 }
 
 model OXUnitRange {
-	id					Int			@default(autoincrement()) @id
-	unit				Int
-	roomId				Int
-	room				Room		@relation(fields: [roomId], references: [roomId])
+  id     Int  @id @default(autoincrement())
+  unit   Int
+  roomId Int  @unique
+  room   Room @relation(fields: [roomId], references: [roomId])
 }
 
 model Collection {
-	userId				Int
-	characterId			Int
-	user				User		@relation(fields: [userId], references: [userId])
-	character			Character	@relation(fields: [characterId], references: [characterId])
-	@@id([userId, characterId])	
+  userId      Int
+  characterId Int
+  character   Character @relation(fields: [characterId], references: [characterId])
+  user        User      @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@id([userId, characterId])
+  @@index([characterId], map: "Collection_characterId_fkey")
 }
 
 model Like {
-	communityId			Int
-	userId				Int
-	community			Post		@relation(fields: [communityId], references: [postId])
-	user				User		@relation(fields: [userId], references: [userId])
-	@@id([communityId, userId])
+  postId Int
+  userId Int
+  post   Post @relation(fields: [postId], references: [postId], onDelete: Cascade)
+  user   User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@id([postId, userId])
+  @@index([userId], map: "Like_userId_fkey")
 }
 
 model Scrap {
-	communityId			Int
-	userId				Int
-	community			Post		@relation(fields: [communityId], references: [postId])
-	user				User		@relation(fields: [userId], references: [userId])
-	@@id([communityId, userId])
+  postId Int
+  userId Int
+  post   Post @relation(fields: [postId], references: [postId], onDelete: Cascade)
+  user   User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@id([postId, userId])
+  @@index([userId], map: "Scrap_userId_fkey")
+}
+
+model PlanDay {
+  planId   Int
+  planName String @db.VarChar(45)
+  year     Int    @default(0)
+  month    Int    @default(0)
+  day      Int    @default(0)
+  dayId    Int    @default(0)
+  userId   Int
+  plan     Plan   @relation(fields: [planId], references: [planId], onDelete: Cascade)
+  user     User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@id([planId, day])
+  @@index([userId], map: "PlanDay_userId_fkey")
 }
