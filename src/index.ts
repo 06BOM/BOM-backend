@@ -120,6 +120,7 @@ wsServer.on("connection", socket => {
 
 	socket.on("create_room", ({ payload, nickname }) => {// {}추가
 		console.log(`create_room : ${payload} ${nickname}`);
+		socket.data.nickname = nickname;
 		checkRoomExist(payload.roomName).then( checkExist => {
 			console.log("here checkExist: ", checkExist);
 			
@@ -129,7 +130,6 @@ wsServer.on("connection", socket => {
 					socket.join(payload.roomName);
             		console.log("현재 존재하는 방들: ", socket.rooms);
 					socket.emit("create_room", payload.roomName, countRoom(payload.roomName));
-					// wsServer.to(payload.roomName).emit("welcome", nickname, payload.roomName, countRoom(payload.roomName));
 					
 					if (readyStorage.get(payload.roomName) === undefined) {
 						readyStorage.set(payload.roomName, []);
@@ -262,18 +262,24 @@ wsServer.on("connection", socket => {
 		})
 	 })
 
-	 socket.on("exit_room", (roomName, done) => {
+	 socket.on("exit_room", (roomName, nickname, done) => {
 		let removeIdArr = readyStorage.get(roomName).filter((element) => element !== socket.id);
 		readyStorage.set(roomName, removeIdArr);
+		immMap = scoreListOfRooms.get(roomName);
+		immMap.delete(nickname);
+		scoreListOfRooms.set(roomName, immMap);
+
 		if (readyStorage.get(roomName).length === 0){
 			checkQuestionsUsage.delete(roomName);
 			firstQflag.delete(roomName);
+			scoreListOfRooms.delete(roomName);
 			console.log("delete checkQuestionsUsage, firstQflag ", checkQuestionsUsage, firstQflag);
 			deleteRoom(roomName);
 			wsServer.sockets.in(roomName).emit("clear");
 		}
 		socket.leave(roomName);
-		console.log("현재 존재하는 방들: ", socket.rooms);
+		console.log("exit-현재 존재하는 방들: ", socket.rooms);
+		console.log("scoreListOfRooms: ", scoreListOfRooms)
 		socket.to(roomName).emit("bye", socket.data.nickname, roomName, countRoom(roomName));
         done();
     });
