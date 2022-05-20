@@ -203,7 +203,7 @@ function handleRoomSubmit(event) {
 // };
 
 function handleMakeRoom(event){
-    event.preventDefault();
+    event.preventDefault(); 
     const roominput = welcome.querySelector("#createroom input");
     const nickinput = welcome.querySelector("#name");
     //socket.emit("create room", roomName, kind, userId, grade, subject, secretMode, password);

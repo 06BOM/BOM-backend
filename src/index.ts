@@ -91,17 +91,18 @@ wsServer.on("connection", socket => {
 		console.log(`Socket Event:${event}`);
 	});
     
-    socket.on("join_room", (roomName, nickname, done) => {
+    socket.on("join_room", ({roomName, nickname}) => { // {} 추가
 		socket.data.nickname = nickname;
 		console.log("socket.data.nickname: ", socket.data.nickname);
 		let playingF = 0;
         if (playingFlag.get(roomName) === 1){	
 			console.log("게임중이어서 방 입장 불가😖");
+			socket.emit("already start", "게임중이어서 방 입장이 불가능합니다😅"); // 추가
             playingF = 1;
 		} else {
             socket.join(roomName);
             console.log("현재 존재하는 방들: ", socket.rooms);
-            done(roomName, countRoom(roomName), playingF); 
+            // done(roomName, countRoom(roomName), playingF);
 
 			let immScoreMap = new Map();
 			if (scoreListOfRooms.has(roomName)) {
@@ -117,8 +118,8 @@ wsServer.on("connection", socket => {
         }
     });
 
-	socket.on("create_room", ( payload, nickname ) => {
-		console.log(nickname);
+	socket.on("create_room", ({ payload, nickname }) => {// {}추가
+		console.log(`create_room : ${payload} ${nickname}`);
 		checkRoomExist(payload.roomName).then( checkExist => {
 			console.log("here checkExist: ", checkExist);
 			
@@ -128,7 +129,7 @@ wsServer.on("connection", socket => {
 					socket.join(payload.roomName);
             		console.log("현재 존재하는 방들: ", socket.rooms);
 					socket.emit("create_room", payload.roomName, countRoom(payload.roomName));
-					wsServer.to(payload.roomName).emit("welcome", nickname, payload.roomName, countRoom(payload.roomName));
+					// wsServer.to(payload.roomName).emit("welcome", nickname, payload.roomName, countRoom(payload.roomName));
 					
 					if (readyStorage.get(payload.roomName) === undefined) {
 						readyStorage.set(payload.roomName, []);
@@ -145,7 +146,7 @@ wsServer.on("connection", socket => {
 
 			} else {
 				console.log("in here 2");
-				socket.emit("already exist");
+				socket.emit("already exist", "이미 같은 이름의 방이 존재! 다른 방이름으로 생성하시오!"); // 추가
 			}
 		});
 	});
