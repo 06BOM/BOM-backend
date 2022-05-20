@@ -23,7 +23,7 @@ const createRoomForm = welcome.querySelector("#createroom");
 
 
 roomForm.addEventListener("submit", handleRoomSubmit);
-nameForm.addEventListener("submit", handleNicknameSubmit);
+// nameForm.addEventListener("submit", handleNicknameSubmit);
 createRoomForm.addEventListener("submit", handleMakeRoom);
 button_start.addEventListener("click", handleGameStart);
 button_exit.addEventListener("click", handleRoomExit);
@@ -185,27 +185,31 @@ function addMessage(message) {
 
 function handleRoomSubmit(event) {
     event.preventDefault();
-    const input = welcome.querySelector("#room input");
-    socket.emit("enter_room", input.value, showBeforeStartRoom);
-    roomName = input.value;
-    input.value = "";
+    const roominput = welcome.querySelector("#room input");
+    const nickinput = welcome.querySelector("#name");
+    socket.emit("join_room", roominput.value, nickinput.value, showBeforeStartRoom);
+    nickname = nickinput.value;
+    roomName = roominput.value;
+    // roominput.value = "";
+    // nickname = "";
 }
 
-function handleNicknameSubmit(event) {
-    event.preventDefault();
-    const nickinput = welcome.querySelector("#name input");
-    socket.emit("nickname", nickinput.value);
-    nickname = nickinput.value;
-    nickinput.value = "";
-};
+// function handleNicknameSubmit(event) {
+//     event.preventDefault();
+//     const nickinput = welcome.querySelector("#name input");
+//     socket.emit("nickname", nickinput.value);
+//     nickname = nickinput.value;
+//     nickinput.value = "";
+// };
 
 function handleMakeRoom(event){
     event.preventDefault();
-    const input = welcome.querySelector("#createroom input");
+    const roominput = welcome.querySelector("#createroom input");
+    const nickinput = welcome.querySelector("#name");
     //socket.emit("create room", roomName, kind, userId, grade, subject, secretMode, password);
-    socket.emit("create room", { roomName: input.value, kind: 0, userId: 1, grade: 3, subject: "과학", secretMode: false, password: null, participantsNum: 0}, nickname);
-    roomName = input.value;
-    input.value = "";
+    socket.emit("create_room", { roomName: roominput.value, kind: 0, userId: 1, grade: 3, subject: "과학", secretMode: false, password: null, participantsNum: 0}, nickinput.value);
+    roomName = roominput.value;
+    roominput.value = "";
 }
 
 function checkReady(){
@@ -277,7 +281,7 @@ socket.on("welcome", (user, roomName, newCount) => {
     ul.appendChild(li);
 });
 
-socket.on("create room", (roomName, newCount) => {
+socket.on("create_room", (roomName, newCount) => {
     showBeforeStartRoom(roomName, newCount, 0);
 })
 
