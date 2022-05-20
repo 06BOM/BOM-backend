@@ -90,13 +90,10 @@ wsServer.on("connection", socket => {
 	socket.onAny((event) => {
 		console.log(`Socket Event:${event}`);
 	});
-
-	socket.on("nickname", (nickname) => {
-		socket.data.nickname = nickname;
-		//console.log("socket.data.nickname: ", socket.data.nickname);
-	});
     
-    socket.on("enter_room", (roomName, done) => {
+    socket.on("join_room", (roomName, nickname, done) => {
+		socket.data.nickname = nickname;
+		console.log("socket.data.nickname: ", socket.data.nickname);
 		let playingF = 0;
         if (playingFlag.get(roomName) === 1){	
 			console.log("게임중이어서 방 입장 불가😖");
@@ -120,8 +117,9 @@ wsServer.on("connection", socket => {
         }
     });
 
-	socket.on("create room", ( payload, nickname ) => {
-		
+	socket.on("create_room", ( payload, nickname ) => {
+		console.log(nickname);
+		socket.data.nickname = nickname;
 		checkRoomExist(payload.roomName).then( checkExist => {
 			console.log("here checkExist: ", checkExist);
 			
@@ -130,7 +128,7 @@ wsServer.on("connection", socket => {
 				createRoom(payload).then( a => {
 					socket.join(payload.roomName);
             		console.log("현재 존재하는 방들: ", socket.rooms);
-					socket.emit("create room", payload.roomName, countRoom(payload.roomName)); 
+					socket.emit("create_room", payload.roomName, countRoom(payload.roomName));
 					
 					if (readyStorage.get(payload.roomName) === undefined) {
 						readyStorage.set(payload.roomName, []);
