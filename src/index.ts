@@ -28,59 +28,83 @@ let immMap, sortScores;
 let questionsOfRooms = new Map<string, {}>();
 
 async function createRoom(roomInfo) {
-	let room = await prisma.room.create({
-		data: roomInfo
-	})
+	try{
+		let room = await prisma.room.create({
+			data: roomInfo
+		})
+	} catch (error){
+		console.log(error);
+	}
 }
 
 async function deleteRoom(roomName) {
-	let room = await prisma.room.deleteMany({
-		where: { roomName : roomName}
-	})
+	try{
+		let room = await prisma.room.deleteMany({
+			where: { roomName : roomName}
+		})
+
+	} catch (error){
+		console.log(error);
+	}
 }
 
 async function checkRoomExist(roomName) {
-	let checkExist = await prisma.room.findFirst({
-		where: { roomName: roomName }
-	})
-	console.log("ddd: ", checkExist);
-	return checkExist;
+	try{
+		let checkExist = await prisma.room.findFirst({
+			where: { roomName: roomName }
+		})
+
+		console.log("ddd: ", checkExist);
+		return checkExist;
+
+	} catch (error){
+		console.log(error);
+	}
 }
 
 async function getRoomInfo(roomName) {
-	let roomInfo = await prisma.room.findFirst({
-		where: { roomName: roomName }
-	})
-	console.log("roomInfo: ", roomInfo);
-	return roomInfo;
+	try{
+		let roomInfo = await prisma.room.findFirst({
+			where: { roomName: roomName }
+		})
+		//console.log("roomInfo: ", roomInfo);
+		return roomInfo;
+	} catch (error){
+		console.log(error);
+	}
 }
 
 async function set10Questions(roomName, subject, grade){
 	let allQuestionIds = [];
 	let questions = [];
 
-	let questionIds = await prisma.oXDB.findMany({
-		where: {
-			subject: subject,
-			grade: grade
-		},
-		select: { oxquestionId: true }
-	})
-
-	questionIds.map(question => {
-		allQuestionIds.push(question.oxquestionId);
-	});
-
-	for(let i=0; i < 10; i++){
-		let moveId = allQuestionIds.splice(Math.floor(Math.random() * allQuestionIds.length),1)[0]
-		let question = await prisma.oXDB.findUnique({
-			where: { oxquestionId: moveId }
+	try{
+		let questionIds = await prisma.oXDB.findMany({
+			where: {
+				subject: subject,
+				grade: grade
+			},
+			select: { oxquestionId: true }
+		})
+	
+		questionIds.map(question => {
+			allQuestionIds.push(question.oxquestionId);
 		});
-		questions.push(question);
+	
+		for(let i=0; i < 10; i++){
+			let moveId = allQuestionIds.splice(Math.floor(Math.random() * allQuestionIds.length),1)[0]
+			let question = await prisma.oXDB.findUnique({
+				where: { oxquestionId: moveId }
+			});
+			questions.push(question);
+		}
+		console.log("10개의 question id: ", questions);
+		questionsOfRooms.set(roomName, questions);
+		//let difference = allQuestionIds.filter(x => !questionIds.includes(x)); 추후 차집합 필요 시 사용
+	
+	} catch (error){
+		console.log(error);
 	}
-	console.log("10개의 question id: ", questions);
-	questionsOfRooms.set(roomName, questions);
-	//let difference = allQuestionIds.filter(x => !questionIds.includes(x)); 추후 차집합 필요 시 사용
 }
 
 
@@ -262,11 +286,11 @@ wsServer.on("connection", socket => {
 		})
 	 })
 
-	 socket.on("exit_room", (roomName, nickname, done) => {
+	 socket.on("exit_room", (roomName, done) => {
 		let removeIdArr = readyStorage.get(roomName).filter((element) => element !== socket.id);
 		readyStorage.set(roomName, removeIdArr);
 		immMap = scoreListOfRooms.get(roomName);
-		immMap.delete(nickname);
+		immMap.delete(socket.data.nickname);
 		scoreListOfRooms.set(roomName, immMap);
 
 		if (readyStorage.get(roomName).length === 0){
