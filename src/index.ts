@@ -230,6 +230,10 @@ wsServer.on("connection", socket => {
 		firstQflag.set(roomName, 0);
 		playingFlag.set(roomName, 1);
 		immMap = new Map(scoreListOfRooms.get(roomName));
+		immMap.forEach((value, key) => {
+			immMap.set(key, 0); 
+		})	
+		scoreListOfRooms.set(roomName, immMap);
 		wsServer.sockets.in(roomName).emit("scoreboard display", JSON.stringify(Array.from(immMap)));
 		wsServer.sockets.in(roomName).emit("showGameRoom");
     });
@@ -294,6 +298,7 @@ wsServer.on("connection", socket => {
 
 	socket.on("all finish", (roomName, done) => {
 		let score = 3;
+		immMap = new Map(scoreListOfRooms.get(roomName));
 		sortScores = new Map([...immMap.entries()].sort((a, b) => b[1] - a[1]));
 		done(JSON.stringify(Array.from(sortScores)));
 		console.log("sortScores", sortScores);
@@ -316,11 +321,6 @@ wsServer.on("connection", socket => {
 
 		playingFlag.set(roomName, 0);
 		checkQuestionsUsage.set(roomName, [0,0,0,0,0,0,0,0,0,0]);	
-		immMap = new Map(scoreListOfRooms.get(roomName));
-		immMap.forEach((value, key) => {
-			immMap.set(key, 0); 
-		})	
-		scoreListOfRooms.set(roomName, immMap);
 		getRoomInfo(roomName).then(roomInfo => {
 			set10Questions(roomName, roomInfo.subject, roomInfo.grade);
 		})
