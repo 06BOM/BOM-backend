@@ -108,6 +108,25 @@ async function set10Questions(roomName, subject, grade){
 	}
 }
 
+async function throwStars(key, stars) {
+	try{
+		console.log("key", key);
+		console.log(typeof key);
+		console.log("stars", stars);
+		const user = await prisma.user.findFirst({
+			where: { userName: key }
+		});
+
+		console.log(user);
+		const updateUser = await prisma.user.update({
+            where: { userId: user.userId },
+            data: { star : user.star + stars }
+        });		
+		console.log(updateUser);
+	} catch (error){
+		console.log(error);
+	}	
+}
 
 wsServer.on("connection", socket => {
 	socket.data.nickname = "Anon";
@@ -274,8 +293,26 @@ wsServer.on("connection", socket => {
 	});
 
 	socket.on("all finish", (roomName, done) => {
+		let score = 3;
 		sortScores = new Map([...immMap.entries()].sort((a, b) => b[1] - a[1]));
 		done(JSON.stringify(Array.from(sortScores)));
+		console.log("sortScores", sortScores);
+		sortScores.forEach(async (value, key) => {
+			if (score === 3) {
+				console.log("3:::", key);
+				await throwStars(key, 5);
+				score--;
+			} else if (score === 2) {
+				console.log("2:::", key);
+				await throwStars(key, 3);
+				score--;
+			} else if (score === 1) {
+				console.log("1:::", key);
+				await throwStars(key, 1);
+				score--;
+			}
+			await throwStars(key, value / 10);
+		});
 
 		playingFlag.set(roomName, 0);
 		checkQuestionsUsage.set(roomName, [0,0,0,0,0,0,0,0,0,0]);	
