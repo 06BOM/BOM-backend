@@ -22,6 +22,7 @@ let readyStorage = new Map<string, string[]>();
 let checkQuestionsUsage = new Map<string, Number[]>();
 let firstQflag = new Map<string, Number>();
 let playingFlag = new Map<string, Number>();
+let starFlag = new Map<string, Number>();
 let answer, explanation;
 let scoreListOfRooms = new Map<string, Map<string, Number>>();
 let immMap, sortScores;
@@ -107,6 +108,20 @@ async function set10Questions(roomName, subject, grade){
 	}
 }
 
+async function throwStars(key, stars) {
+	try{
+		const user = await prisma.user.findFirst({
+			where: { userName: key }
+		});
+
+		const updateUser = await prisma.user.update({
+            where: { userId: user.userId },
+            data: { star : user.star + stars }
+        });		
+	} catch (error){
+		console.log(error);
+	}	
+}
 
 wsServer.on("connection", socket => {
 	socket.data.nickname = "Anon";
@@ -210,7 +225,12 @@ wsServer.on("connection", socket => {
 		checkQuestionsUsage.set(roomName, [0,0,0,0,0,0,0,0,0,0]);
 		firstQflag.set(roomName, 0);
 		playingFlag.set(roomName, 1);
+		starFlag.set(roomName, 0);
 		immMap = new Map(scoreListOfRooms.get(roomName));
+		immMap.forEach((value, key) => {
+			immMap.set(key, 0); 
+		})	
+		scoreListOfRooms.set(roomName, immMap);
 		wsServer.sockets.in(roomName).emit("scoreboard display", JSON.stringify(Array.from(immMap)));
 		wsServer.sockets.in(roomName).emit("showGameRoom");
     });
@@ -270,17 +290,84 @@ wsServer.on("connection", socket => {
 		}
 	});
 
-	socket.on("all finish", (roomName, done) => {
+	socket.on("all finish", async (roomName, done) => {
+		immMap = new Map(scoreListOfRooms.get(roomName));
 		sortScores = new Map([...immMap.entries()].sort((a, b) => b[1] - a[1]));
 		done(JSON.stringify(Array.from(sortScores)));
 
+		if (starFlag.get(roomName) === 0) {	//flag 0: 가장 첫번째 실행한 사람만 아래 코드 실행
+			starFlag.set(roomName, 1);	
+		} else {
+			return;
+		}
+
+		let cnt = 3;
+		let checkTie = [];
+		const sortScoresArray = Array.from(sortScores);
+
+		for (let i = 0; i < sortScoresArray.length; i++) // 동점처리 <- 이 부분 수정필요
+		{
+			if (i === sortScoresArray.length - 1)
+			{
+				if (i === 0){
+					checkTie.push(1);
+					break;
+				}
+
+				if (cnt > 0 && sortScoresArray[i - 1][1] === sortScoresArray[i][1])
+				{
+					checkTie.push(checkTie[checkTie.length - 1]);
+				} else if (cnt === 2) {
+					checkTie.push(2);
+				} else if (cnt === 3) {
+					checkTie.push(3);
+				} else {
+					checkTie.push(0);
+				}
+				break;
+			}
+
+			if (cnt === 3 && sortScoresArray[i][1] !== sortScoresArray[i + 1][1])
+			{
+				checkTie.push(1);
+				cnt--;
+			} else if (cnt === 3 && sortScoresArray[i][1] === sortScoresArray[i + 1][1])
+			{
+				checkTie.push(1);
+			} else if (cnt === 2 && sortScoresArray[i][1] !== sortScoresArray[i + 1][1])
+			{
+				checkTie.push(2);
+				cnt--;
+			} else if (cnt === 2 && sortScoresArray[i][1] === sortScoresArray[i + 1][1])
+			{
+				checkTie.push(2);
+			} else if (cnt === 1 && sortScoresArray[i][1] !== sortScoresArray[i + 1][1])
+			{
+				checkTie.push(3);
+				cnt--;
+			} else if (cnt === 1 && sortScoresArray[i][1] === sortScoresArray[i + 1][1])
+			{
+				checkTie.push(3);
+			} else {
+				checkTie.push(0);
+			}
+		}
+		console.log("checkTie", checkTie);
+
+		for (let i = 0; i < sortScoresArray.length; i++) // 동점처리
+		{
+			if (checkTie[i] === 1) {
+				await throwStars(sortScoresArray[i][0], 5);
+			} else if (checkTie[i] === 2) {
+				await throwStars(sortScoresArray[i][0], 3);
+			} else if (checkTie[i] === 3) {
+				await throwStars(sortScoresArray[i][0], 1);
+			}
+			await throwStars(sortScoresArray[i][0], sortScoresArray[i][1] / 10);			
+		}
+
 		playingFlag.set(roomName, 0);
 		checkQuestionsUsage.set(roomName, [0,0,0,0,0,0,0,0,0,0]);	
-		immMap = new Map(scoreListOfRooms.get(roomName));
-		immMap.forEach((value, key) => {
-			immMap.set(key, 0); 
-		})	
-		scoreListOfRooms.set(roomName, immMap);
 		getRoomInfo(roomName).then(roomInfo => {
 			set10Questions(roomName, roomInfo.subject, roomInfo.grade);
 		})
@@ -296,6 +383,7 @@ wsServer.on("connection", socket => {
 		if (readyStorage.get(roomName).length === 0){
 			checkQuestionsUsage.delete(roomName);
 			firstQflag.delete(roomName);
+			starFlag.delete(roomName);
 			scoreListOfRooms.delete(roomName);
 			console.log("delete checkQuestionsUsage, firstQflag ", checkQuestionsUsage, firstQflag);
 			deleteRoom(roomName);
