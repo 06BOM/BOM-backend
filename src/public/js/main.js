@@ -81,6 +81,7 @@ function stopClock() {
         gameStart.hidden = true;
         roundStart.hidden = true;
         roundFinished.hidden = true;
+        exitFlag = 0;
     } 
     else {
         socket.emit("answer", roomName, showAnswer);
@@ -226,7 +227,7 @@ function checkReady(){
 function handleRoomExit(event) {
     event.preventDefault();
     checkReady();
-    socket.emit("exit_room", roomName,showMainPage);
+    socket.emit("exit_room", roomName, showMainPage);
 }
 
 function handlePlayingRoomExit(event) {//게임 진행중 방을 나가는 경우, 패널티 제공 로직 생성 필요
