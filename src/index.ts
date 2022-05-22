@@ -22,6 +22,7 @@ let readyStorage = new Map<string, string[]>();
 let checkQuestionsUsage = new Map<string, Number[]>();
 let firstQflag = new Map<string, Number>();
 let playingFlag = new Map<string, Number>();
+let starFlag = new Map<string, Number>();
 let answer, explanation;
 let scoreListOfRooms = new Map<string, Map<string, Number>>();
 let immMap, sortScores;
@@ -110,19 +111,14 @@ async function set10Questions(roomName, subject, grade){
 
 async function throwStars(key, stars) {
 	try{
-		console.log("key", key);
-		console.log(typeof key);
-		console.log("stars", stars);
 		const user = await prisma.user.findFirst({
 			where: { userName: key }
 		});
 
-		console.log(user);
 		const updateUser = await prisma.user.update({
             where: { userId: user.userId },
             data: { star : user.star + stars }
         });		
-		console.log(updateUser);
 	} catch (error){
 		console.log(error);
 	}	
@@ -229,6 +225,7 @@ wsServer.on("connection", socket => {
 		checkQuestionsUsage.set(roomName, [0,0,0,0,0,0,0,0,0,0]);
 		firstQflag.set(roomName, 0);
 		playingFlag.set(roomName, 1);
+		starFlag.set(roomName, 0);
 		immMap = new Map(scoreListOfRooms.get(roomName));
 		immMap.forEach((value, key) => {
 			immMap.set(key, 0); 
@@ -296,34 +293,38 @@ wsServer.on("connection", socket => {
 		}
 	});
 
-	socket.on("all finish", (roomName, done) => {
-		let score = 3;
+	socket.on("all finish", async (roomName, done) => {
+		let cnt = 3;
 		immMap = new Map(scoreListOfRooms.get(roomName));
 		sortScores = new Map([...immMap.entries()].sort((a, b) => b[1] - a[1]));
 		done(JSON.stringify(Array.from(sortScores)));
-		console.log("sortScores", sortScores);
-		sortScores.forEach(async (value, key) => {
-			if (score === 3) {
-				console.log("3:::", key);
-				await throwStars(key, 5);
-				score--;
-			} else if (score === 2) {
-				console.log("2:::", key);
-				await throwStars(key, 3);
-				score--;
-			} else if (score === 1) {
-				console.log("1:::", key);
-				await throwStars(key, 1);
-				score--;
+
+		if (starFlag.get(roomName) === 0) {	//flag 0: 가장 첫번째 실행한 사람만 아래 코드 실행
+			starFlag.set(roomName, 1);	
+		} else {
+			return;
+		}
+
+		for (let score of sortScores) {
+			if (cnt === 3) {
+				await throwStars(score[0], 5);
+				cnt--;
+			} else if (cnt === 2) {
+				await throwStars(score[0], 3);
+				cnt--;
+			} else if (cnt === 1) {
+				await throwStars(score[0], 1);
+				cnt--;
 			}
-			await throwStars(key, value / 10);
-		});
+			await throwStars(score[0], score[1] / 10);
+		}
 
 		playingFlag.set(roomName, 0);
 		checkQuestionsUsage.set(roomName, [0,0,0,0,0,0,0,0,0,0]);	
 		getRoomInfo(roomName).then(roomInfo => {
 			set10Questions(roomName, roomInfo.subject, roomInfo.grade);
 		})
+		starFlag.set(roomName, 0);
 	 })
 
 	 socket.on("exit_room", (roomName, done) => {
@@ -336,6 +337,7 @@ wsServer.on("connection", socket => {
 		if (readyStorage.get(roomName).length === 0){
 			checkQuestionsUsage.delete(roomName);
 			firstQflag.delete(roomName);
+			starFlag.delete(roomName);
 			scoreListOfRooms.delete(roomName);
 			console.log("delete checkQuestionsUsage, firstQflag ", checkQuestionsUsage, firstQflag);
 			deleteRoom(roomName);
