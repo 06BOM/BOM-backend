@@ -3,7 +3,6 @@ import express from 'express';
 import { getRoomInformation,
          searchRoom,
          getAllRoom
-    
 } from "../controllers/roomController";
 
 
