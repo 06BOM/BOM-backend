@@ -13,6 +13,7 @@ import characterRouter from "./routes/character";
 import mockRouter from "./routes/mock";
 import oxRouter from "./routes/ox";
 import roomRouter from "./routes/room";
+import questRouter from "./routes/quest";
 
 import { OPCODE, DamoyeoError } from './tools';
 import { NextFunction, Request, Response } from 'express';
@@ -38,6 +39,7 @@ app.use('/character', characterRouter);
 app.use('/mock', mockRouter);
 app.use('/ox', oxRouter);
 app.use('/room',roomRouter);
+app.use('/quest', questRouter);
 
 app.use((req: Request, res: Response, next: NextFunction) => {
 	const error = new DamoyeoError(`${req.method} ${req.url} 라우터가 없습니다.`, 404);
