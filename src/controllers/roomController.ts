@@ -43,3 +43,18 @@ export const searchRoom = async (req: Request, res: Response, next: NextFunction
         next(error);
     }
 }
+
+export const getAllRoom = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+
+    try {
+        const resultRoom = await prisma.room.findMany({
+
+        })
+
+        return res.json({ opcode: OPCODE.SUCCESS, resultRoom })
+
+    } catch(error) {
+        console.log(error);
+        next(error);
+    }
+}
