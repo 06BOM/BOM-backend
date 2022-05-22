@@ -259,7 +259,7 @@ wsServer.on("connection", socket => {
 		}
 	});
 
-    socket.on("gameStart", (roomName) => {
+    socket.on("gameStartFunction", (roomName) => {
 		checkQuestionsUsage.set(roomName, [0,0,0,0,0,0,0,0,0,0]);
 		firstQflag.set(roomName, 0);
 		playingFlag.set(roomName, 1);
@@ -408,7 +408,7 @@ wsServer.on("connection", socket => {
 		}
 
 		playingFlag.set(roomName, 0);
-		checkQuestionsUsage.set(roomName, [0,0,0,0,0,0,0,0,0,0]);	
+		//checkQuestionsUsage.set(roomName, [0,0,0,0,0,0,0,0,0,0]);	
 		readyStorage.set(roomName, []);
 		wsServer.sockets.in(roomName).emit("ready check");
 		getRoomInfo(roomName).then(roomInfo => {
