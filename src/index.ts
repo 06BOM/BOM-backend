@@ -27,12 +27,45 @@ let answer, explanation;
 let scoreListOfRooms = new Map<string, Map<string, Number>>();
 let immMap, sortScores;
 let questionsOfRooms = new Map<string, {}>();
+let whereSocketIdIn = new Map<string, string>();
 
 async function createRoom(roomInfo) {
 	try{
 		let room = await prisma.room.create({
 			data: roomInfo
 		})
+	} catch (error){
+		console.log(error);
+	}
+}
+
+async function increaseParticipants(roomName) {
+	try{
+		let roomInfo = await prisma.room.findFirst({
+			where: { roomName: roomName }
+		})
+
+		let room = await prisma.room.updateMany({
+			where: { roomName : roomName },
+			data: { participantsNum: (roomInfo.participantsNum + 1) }
+		})
+
+	} catch (error){
+		console.log(error);
+	}
+}
+
+async function reduceParticipants(roomName) {
+	try{
+		let roomInfo = await prisma.room.findFirst({
+			where: { roomName: roomName }
+		})
+
+		let room = await prisma.room.updateMany({
+			where: { roomName : roomName },
+			data: { participantsNum: (roomInfo.participantsNum - 1) }
+		})
+
 	} catch (error){
 		console.log(error);
 	}
@@ -141,7 +174,10 @@ wsServer.on("connection", socket => {
 		} else {
             socket.join(roomName);
             console.log("현재 존재하는 방들: ", socket.rooms);
-            // done(roomName, countRoom(roomName), playingF);
+			whereSocketIdIn.set(socket.id, roomName);
+			increaseParticipants(roomName);
+			console.log("wherSocketIdIn: ", whereSocketIdIn);
+            // done(roomName, countRoom(roomName), playingF); 
 
 			let immScoreMap = new Map();
 			if (scoreListOfRooms.has(roomName)) {
@@ -167,12 +203,14 @@ wsServer.on("connection", socket => {
 				console.log("in here 1")
 				createRoom(payload).then( a => {
 					socket.join(payload.roomName);
+					increaseParticipants(payload.roomName);
             		console.log("현재 존재하는 방들: ", socket.rooms);
 					socket.emit("create_room", payload.roomName, countRoom(payload.roomName));
 					
 					if (readyStorage.get(payload.roomName) === undefined) {
 						readyStorage.set(payload.roomName, []);
 					}
+					whereSocketIdIn.set(socket.id, payload.roomName);
 					let immScoreMap = new Map();
 					immScoreMap.set(nickname, 0);
 					scoreListOfRooms.set(payload.roomName, immScoreMap);
@@ -221,7 +259,7 @@ wsServer.on("connection", socket => {
 		}
 	});
 
-    socket.on("gameStart", (roomName) => {
+    socket.on("gameStartFunction", (roomName) => {
 		checkQuestionsUsage.set(roomName, [0,0,0,0,0,0,0,0,0,0]);
 		firstQflag.set(roomName, 0);
 		playingFlag.set(roomName, 1);
@@ -367,20 +405,25 @@ wsServer.on("connection", socket => {
 		}
 
 		playingFlag.set(roomName, 0);
-		checkQuestionsUsage.set(roomName, [0,0,0,0,0,0,0,0,0,0]);	
+		//checkQuestionsUsage.set(roomName, [0,0,0,0,0,0,0,0,0,0]);	
+		readyStorage.set(roomName, []);
+		wsServer.sockets.in(roomName).emit("ready check");
 		getRoomInfo(roomName).then(roomInfo => {
 			set10Questions(roomName, roomInfo.subject, roomInfo.grade);
 		})
 	 })
 
-	socket.on("exit_room", ({ roomName }) => {
-		let removeIdArr = readyStorage.get(roomName).filter((element) => element !== socket.id);
-		readyStorage.set(roomName, removeIdArr);
+	 socket.on("exit_room", ({roomName}) => {
+		if (readyStorage.get(roomName) != undefined){
+			let removeIdArr = readyStorage.get(roomName).filter((element) => element !== socket.id);
+			readyStorage.set(roomName, removeIdArr);
+		}
 		immMap = scoreListOfRooms.get(roomName);
 		immMap.delete(socket.data.nickname);
 		scoreListOfRooms.set(roomName, immMap);
+		whereSocketIdIn.delete(socket.id);
 
-		if (readyStorage.get(roomName).length === 0){
+		if (scoreListOfRooms.get(roomName).size === 0){
 			checkQuestionsUsage.delete(roomName);
 			firstQflag.delete(roomName);
 			starFlag.delete(roomName);
@@ -390,11 +433,48 @@ wsServer.on("connection", socket => {
 			wsServer.sockets.in(roomName).emit("clear");
 		}
 		socket.leave(roomName);
+		reduceParticipants(roomName);
 		console.log("exit-현재 존재하는 방들: ", socket.rooms);
 		console.log("scoreListOfRooms: ", scoreListOfRooms)
 		// socket.to(roomName).emit("bye", socket.data.nickname, roomName, countRoom(roomName)); 버그유발
 		socket.emit("bye", socket.data.nickname, roomName, countRoom(roomName));
         // done();
+    });
+
+    socket.on("disconnecting", () => {
+		console.log(scoreListOfRooms.size);
+		
+		let roomNamee = whereSocketIdIn.get(socket.id);
+		console.log("roomNameee", roomNamee);
+		if (readyStorage.get(roomNamee) != undefined){
+			let removeIdArr = readyStorage.get(roomNamee).filter((element) => element !== socket.id);
+			readyStorage.set(roomNamee, removeIdArr);
+		}
+		immMap = scoreListOfRooms.get(roomNamee);
+		console.log("immMap: ", immMap);
+
+		if(immMap){
+			immMap.delete(socket.data.nickname);
+			scoreListOfRooms.set(roomNamee, immMap);
+
+			if (scoreListOfRooms.get(roomNamee).size === 0){
+				checkQuestionsUsage.delete(roomNamee);
+				firstQflag.delete(roomNamee);
+				starFlag.delete(roomNamee);
+				scoreListOfRooms.delete(roomNamee);
+				console.log("delete checkQuestionsUsage, firstQflag ", checkQuestionsUsage, firstQflag);
+				deleteRoom(roomNamee);
+				wsServer.sockets.in(roomNamee).emit("clear");
+			}
+			reduceParticipants(roomNamee);
+			console.log("exit-현재 존재하는 방들: ", socket.rooms);
+			console.log("scoreListOfRooms: ", scoreListOfRooms)
+			socket.to(roomNamee).emit("bye", socket.data.nickname, roomNamee, countRoom(roomNamee));
+		}
+	
+    });
+
+	socket.on("disconnect", () => {
     });
 });
 
