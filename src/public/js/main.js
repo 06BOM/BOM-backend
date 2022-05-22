@@ -49,7 +49,7 @@ let playingFlag = 0;
 
 function countBack() {
   clock.innerText = `00:${
-    timeRemaining < 10 ? `0${timeRemaining}` : timeRemaining
+    timeRemaining < 3 ? `0${timeRemaining}` : timeRemaining
   }`;
   timeRemaining--;
   if(timeRemaining<0){
@@ -59,7 +59,7 @@ function countBack() {
 
 function startClock() {
   if (clockInterval === null) {
-    timeRemaining = 10;
+    timeRemaining = 3;
     countBack();
     clockInterval = setInterval(countBack, 1000);
   }
@@ -144,16 +144,19 @@ function roundFinish(){
 let n;
 function allFinish(users){
     const resultList = gameFinish.querySelector("ul");
-    const rankList = [];
-    newMap = new Map(JSON.parse(users));
+    let rankList = [];
+    userss = JSON.parse(users);
+    newMap = new Map(userss);
     rankList[0] = 1;
     for(i=1; i < newMap.size; i++) {
-        if (users[i-1][1] === users[i][1]) {
+        console.log(userss[i-1][1], userss[i][1])
+        if (userss[i-1][1] === userss[i][1]) {
             rankList[i] = rankList[i-1]
         } else {
-            rankList[i] = i + 1;
+            rankList[i] = rankList[i-1] + 1;
         }
     }
+    
     i = 0;
     newMap.forEach((value, key) => {
         const li = document.createElement("li");
