@@ -46,6 +46,7 @@ let roundCnt = 10;
 let readyFlag = 0;
 let exitFlag = 0;
 let playingFlag = 0;
+let userCount = 0;
 
 function countBack() {
   clock.innerText = `00:${
@@ -105,6 +106,7 @@ function showBeforeStartRoom(roomName, newCount, playingFlag) {
         welcome.hidden = true;
         beforeStart.hidden = false;
         gameReady.hidden = false;
+        userCount = newCount;
         const h4 = beforeStart.querySelector("h4");
         h4.innerText = `방이름: ${roomName} ( 참여인원: ${newCount}/10 )`;
         const form = beforeStart.querySelector("form");
@@ -149,14 +151,13 @@ function allFinish(users){
     newMap = new Map(userss);
     rankList[0] = 1;
     for(i=1; i < newMap.size; i++) {
-        console.log(userss[i-1][1], userss[i][1])
         if (userss[i-1][1] === userss[i][1]) {
             rankList[i] = rankList[i-1]
         } else {
             rankList[i] = rankList[i-1] + 1;
         }
     }
-    
+
     i = 0;
     newMap.forEach((value, key) => {
         const li = document.createElement("li");
@@ -175,8 +176,10 @@ function allRoundFinish(){
    setTimeout(()=>{
        gameFinish.hidden = true;
        beforeStart.hidden = false;
+       gameReady.hidden = false;
        playingFlag = 0;
-    },5000);    
+    },5000);
+    //showBeforeStartRoom(roomName, userCount, 0)    
 }
 
 function addMessage(message) {
@@ -277,6 +280,7 @@ socket.on("ox", (payload) => {
 
 socket.on("welcome", (user, roomName, newCount) => {
     const h4 = beforeStart.querySelector("h4");
+    userCount = newCount;
     h4.innerText = `방이름: ${roomName} ( 참여인원: ${newCount}/10 )`;
     const ul = beforeStart.querySelector("ul");
     const li = document.createElement("li");
@@ -294,6 +298,7 @@ socket.on("already exist", ()=>{
 
 socket.on("bye", (user, roomName, newCount) => {
     const h4 = beforeStart.querySelector("h4");
+    userCount = newCount;
     h4.innerText = `방이름: ${roomName} ( 참여인원: ${newCount}/10 )`;
     const ul = beforeStart.querySelector("ul");
     const li = document.createElement("li");
