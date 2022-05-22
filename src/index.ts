@@ -286,7 +286,7 @@ wsServer.on("connection", socket => {
 		})
 	 })
 
-	 socket.on("exit_room", (roomName, done) => {
+	socket.on("exit_room", ({ roomName }) => {
 		let removeIdArr = readyStorage.get(roomName).filter((element) => element !== socket.id);
 		readyStorage.set(roomName, removeIdArr);
 		immMap = scoreListOfRooms.get(roomName);
@@ -304,8 +304,9 @@ wsServer.on("connection", socket => {
 		socket.leave(roomName);
 		console.log("exit-현재 존재하는 방들: ", socket.rooms);
 		console.log("scoreListOfRooms: ", scoreListOfRooms)
-		socket.to(roomName).emit("bye", socket.data.nickname, roomName, countRoom(roomName));
-        done();
+		// socket.to(roomName).emit("bye", socket.data.nickname, roomName, countRoom(roomName)); 버그유발
+		socket.emit("bye", socket.data.nickname, roomName, countRoom(roomName));
+        // done();
     });
 });
 
