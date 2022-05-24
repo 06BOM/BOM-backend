@@ -23,7 +23,7 @@ const createRoomForm = welcome.querySelector("#createroom");
 
 
 roomForm.addEventListener("submit", handleRoomSubmit);
-nameForm.addEventListener("submit", handleNicknameSubmit);
+// nameForm.addEventListener("submit", handleNicknameSubmit);
 createRoomForm.addEventListener("submit", handleMakeRoom);
 button_start.addEventListener("click", handleGameStart);
 button_exit.addEventListener("click", handleRoomExit);
@@ -40,16 +40,17 @@ gameFinish.hidden = true;
 gameReady.hidden = true;
 roundFinished.hidden = true;
 
-let roomName, timeRemaining;
+let roomName, timeRemaining, nickname;
 let clockInterval = null;
 let roundCnt = 10;
 let readyFlag = 0;
 let exitFlag = 0;
 let playingFlag = 0;
+let userCount = 0;
 
 function countBack() {
   clock.innerText = `00:${
-    timeRemaining < 10 ? `0${timeRemaining}` : timeRemaining
+    timeRemaining < 3 ? `0${timeRemaining}` : timeRemaining
   }`;
   timeRemaining--;
   if(timeRemaining<0){
@@ -59,7 +60,7 @@ function countBack() {
 
 function startClock() {
   if (clockInterval === null) {
-    timeRemaining = 10;
+    timeRemaining = 3;
     countBack();
     clockInterval = setInterval(countBack, 1000);
   }
@@ -80,6 +81,7 @@ function stopClock() {
         gameStart.hidden = true;
         roundStart.hidden = true;
         roundFinished.hidden = true;
+        exitFlag = 0;
     } 
     else {
         socket.emit("answer", roomName, showAnswer);
@@ -105,6 +107,7 @@ function showBeforeStartRoom(roomName, newCount, playingFlag) {
         welcome.hidden = true;
         beforeStart.hidden = false;
         gameReady.hidden = false;
+        userCount = newCount;
         const h4 = beforeStart.querySelector("h4");
         h4.innerText = `방이름: ${roomName} ( 참여인원: ${newCount}/10 )`;
         const form = beforeStart.querySelector("form");
@@ -144,16 +147,18 @@ function roundFinish(){
 let n;
 function allFinish(users){
     const resultList = gameFinish.querySelector("ul");
-    const rankList = [];
-    newMap = new Map(JSON.parse(users));
+    let rankList = [];
+    userss = JSON.parse(users);
+    newMap = new Map(userss);
     rankList[0] = 1;
     for(i=1; i < newMap.size; i++) {
-        if (users[i-1][1] === users[i][1]) {
+        if (userss[i-1][1] === userss[i][1]) {
             rankList[i] = rankList[i-1]
         } else {
-            rankList[i] = i + 1;
+            rankList[i] = rankList[i-1] + 1;
         }
     }
+
     i = 0;
     newMap.forEach((value, key) => {
         const li = document.createElement("li");
@@ -172,8 +177,11 @@ function allRoundFinish(){
    setTimeout(()=>{
        gameFinish.hidden = true;
        beforeStart.hidden = false;
+       gameReady.hidden = false;
        playingFlag = 0;
-    },5000);    
+       roundCnt = 10;
+    },5000);
+    //showBeforeStartRoom(roomName, userCount, 0)    
 }
 
 function addMessage(message) {
@@ -185,27 +193,31 @@ function addMessage(message) {
 
 function handleRoomSubmit(event) {
     event.preventDefault();
-    const input = welcome.querySelector("#room input");
-    socket.emit("enter_room", input.value, showBeforeStartRoom);
-    roomName = input.value;
-    input.value = "";
+    const roominput = welcome.querySelector("#room input");
+    const nickinput = welcome.querySelector("#name");
+    socket.emit("join_room", roominput.value, nickinput.value, showBeforeStartRoom);
+    nickname = nickinput.value;
+    roomName = roominput.value;
+    roominput.value = "";
+    // nickname = "";
 }
 
-function handleNicknameSubmit(event) {
-    event.preventDefault();
-    const nickinput = welcome.querySelector("#name input");
-    socket.emit("nickname", nickinput.value);
-    nickname = nickinput.value;
-    nickinput.value = "";
-};
+// function handleNicknameSubmit(event) {
+//     event.preventDefault();
+//     const nickinput = welcome.querySelector("#name input");
+//     socket.emit("nickname", nickinput.value);
+//     nickname = nickinput.value;
+//     nickinput.value = "";
+// };
 
 function handleMakeRoom(event){
     event.preventDefault();
-    const input = welcome.querySelector("#createroom input");
+    const roominput = welcome.querySelector("#createroom input");
+    const nickinput = welcome.querySelector("#name");
     //socket.emit("create room", roomName, kind, userId, grade, subject, secretMode, password);
-    socket.emit("create room", { roomName: input.value, kind: 0, userId: 1, grade: 3, subject: "과학", secretMode: false, password: null, participantsNum: 0}, nickname);
-    roomName = input.value;
-    input.value = "";
+    socket.emit("create_room", { roomName: roominput.value, kind: 0, userId: 1, grade: 3, subject: "과학", secretMode: false, password: null, participantsNum: 0}, nickinput.value);
+    roomName = roominput.value;
+    roominput.value = "";
 }
 
 function checkReady(){
@@ -216,19 +228,19 @@ function checkReady(){
 function handleRoomExit(event) {
     event.preventDefault();
     checkReady();
-    socket.emit("exit_room", roomName, nickname,showMainPage);
+    socket.emit("exit_room", roomName, showMainPage);
 }
 
 function handlePlayingRoomExit(event) {//게임 진행중 방을 나가는 경우, 패널티 제공 로직 생성 필요
     event.preventDefault();
     exitFlag = 1;
-    socket.emit("exit_room", roomName, nickname, showMainPage);
+    socket.emit("exit_room", roomName, showMainPage);
 }
 
 function handleGameStart(event) {   //방장인지 확인하는 로직 프론트쪽에서 구현해야해용
     event.preventDefault();
 	if (readyFlag) {
-    	socket.emit("gameStart", roomName); 
+    	socket.emit("gameStartFunction", roomName); 
 		socket.emit("question", roomName, showQuestion);
 	}
 }
@@ -270,6 +282,7 @@ socket.on("ox", (payload) => {
 
 socket.on("welcome", (user, roomName, newCount) => {
     const h4 = beforeStart.querySelector("h4");
+    userCount = newCount;
     h4.innerText = `방이름: ${roomName} ( 참여인원: ${newCount}/10 )`;
     const ul = beforeStart.querySelector("ul");
     const li = document.createElement("li");
@@ -277,7 +290,7 @@ socket.on("welcome", (user, roomName, newCount) => {
     ul.appendChild(li);
 });
 
-socket.on("create room", (roomName, newCount) => {
+socket.on("create_room", (roomName, newCount) => {
     showBeforeStartRoom(roomName, newCount, 0);
 })
 
@@ -287,6 +300,7 @@ socket.on("already exist", ()=>{
 
 socket.on("bye", (user, roomName, newCount) => {
     const h4 = beforeStart.querySelector("h4");
+    userCount = newCount;
     h4.innerText = `방이름: ${roomName} ( 참여인원: ${newCount}/10 )`;
     const ul = beforeStart.querySelector("ul");
     const li = document.createElement("li");

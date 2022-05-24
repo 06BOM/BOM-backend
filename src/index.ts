@@ -22,67 +22,140 @@ let readyStorage = new Map<string, string[]>();
 let checkQuestionsUsage = new Map<string, Number[]>();
 let firstQflag = new Map<string, Number>();
 let playingFlag = new Map<string, Number>();
+let starFlag = new Map<string, Number>();
 let answer, explanation;
 let scoreListOfRooms = new Map<string, Map<string, Number>>();
 let immMap, sortScores;
 let questionsOfRooms = new Map<string, {}>();
+let whereSocketIdIn = new Map<string, string>();
 
 async function createRoom(roomInfo) {
-	let room = await prisma.room.create({
-		data: roomInfo
-	})
+	try{
+		let room = await prisma.room.create({
+			data: roomInfo
+		})
+	} catch (error){
+		console.log(error);
+	}
+}
+
+async function increaseParticipants(roomName) {
+	try{
+		let roomInfo = await prisma.room.findFirst({
+			where: { roomName: roomName }
+		})
+
+		let room = await prisma.room.updateMany({
+			where: { roomName : roomName },
+			data: { participantsNum: (roomInfo.participantsNum + 1) }
+		})
+
+	} catch (error){
+		console.log(error);
+	}
+}
+
+async function reduceParticipants(roomName) {
+	try{
+		let roomInfo = await prisma.room.findFirst({
+			where: { roomName: roomName }
+		})
+
+		let room = await prisma.room.updateMany({
+			where: { roomName : roomName },
+			data: { participantsNum: (roomInfo.participantsNum - 1) }
+		})
+
+	} catch (error){
+		console.log(error);
+	}
 }
 
 async function deleteRoom(roomName) {
-	let room = await prisma.room.deleteMany({
-		where: { roomName : roomName}
-	})
+	try{
+		let room = await prisma.room.deleteMany({
+			where: { roomName : roomName}
+		})
+
+	} catch (error){
+		console.log(error);
+	}
 }
 
 async function checkRoomExist(roomName) {
-	let checkExist = await prisma.room.findFirst({
-		where: { roomName: roomName }
-	})
-	console.log("ddd: ", checkExist);
-	return checkExist;
+	try{
+		let checkExist = await prisma.room.findFirst({
+			where: { roomName: roomName }
+		})
+
+		console.log("ddd: ", checkExist);
+		return checkExist;
+
+	} catch (error){
+		console.log(error);
+	}
 }
 
 async function getRoomInfo(roomName) {
-	let roomInfo = await prisma.room.findFirst({
-		where: { roomName: roomName }
-	})
-	//console.log("roomInfo: ", roomInfo);
-	return roomInfo;
+	try{
+		let roomInfo = await prisma.room.findFirst({
+			where: { roomName: roomName }
+		})
+		//console.log("roomInfo: ", roomInfo);
+		return roomInfo;
+
+	} catch (error){
+		console.log(error);
+	}
 }
 
 async function set10Questions(roomName, subject, grade){
 	let allQuestionIds = [];
 	let questions = [];
 
-	let questionIds = await prisma.oXDB.findMany({
-		where: {
-			subject: subject,
-			grade: grade
-		},
-		select: { oxquestionId: true }
-	})
-
-	questionIds.map(question => {
-		allQuestionIds.push(question.oxquestionId);
-	});
-
-	for(let i=0; i < 10; i++){
-		let moveId = allQuestionIds.splice(Math.floor(Math.random() * allQuestionIds.length),1)[0]
-		let question = await prisma.oXDB.findUnique({
-			where: { oxquestionId: moveId }
+	try{
+		let questionIds = await prisma.oXDB.findMany({
+			where: {
+				subject: subject,
+				grade: grade
+			},
+			select: { oxquestionId: true }
+		})
+	
+		questionIds.map(question => {
+			allQuestionIds.push(question.oxquestionId);
 		});
-		questions.push(question);
+	
+		for(let i=0; i < 10; i++){
+			let moveId = allQuestionIds.splice(Math.floor(Math.random() * allQuestionIds.length),1)[0]
+			let question = await prisma.oXDB.findUnique({
+				where: { oxquestionId: moveId }
+			});
+			questions.push(question);
+		}
+		console.log("10개의 question id: ", questions);
+		questionsOfRooms.set(roomName, questions);
+		//let difference = allQuestionIds.filter(x => !questionIds.includes(x)); 추후 차집합 필요 시 사용
+	
+	} catch (error){
+		console.log(error);
 	}
-	console.log("10개의 question id: ", questions);
-	questionsOfRooms.set(roomName, questions);
-	//let difference = allQuestionIds.filter(x => !questionIds.includes(x)); 추후 차집합 필요 시 사용
 }
 
+async function throwStars(key, stars) {
+	try{
+		const user = await prisma.user.findFirst({
+			where: { userName: key }
+		});
+
+		const updateUser = await prisma.user.update({
+            where: { userId: user.userId },
+            data: { star : user.star + stars }
+        });		
+	} catch (error){
+		console.log(error);
+	}	
+}
 
 wsServer.on("connection", socket => {
 	socket.data.nickname = "Anon";
@@ -90,13 +163,10 @@ wsServer.on("connection", socket => {
 	socket.onAny((event) => {
 		console.log(`Socket Event:${event}`);
 	});
-
-	socket.on("nickname", (nickname) => {
-		socket.data.nickname = nickname;
-		//console.log("socket.data.nickname: ", socket.data.nickname);
-	});
     
-    socket.on("enter_room", (roomName, done) => {
+    socket.on("join_room", (roomName, nickname, done) => {
+		socket.data.nickname = nickname;
+		console.log("socket.data.nickname: ", socket.data.nickname);
 		let playingF = 0;
         if (playingFlag.get(roomName) === 1){	
 			console.log("게임중이어서 방 입장 불가😖");
@@ -104,6 +174,9 @@ wsServer.on("connection", socket => {
 		} else {
             socket.join(roomName);
             console.log("현재 존재하는 방들: ", socket.rooms);
+			whereSocketIdIn.set(socket.id, roomName);
+			increaseParticipants(roomName);
+			console.log("wherSocketIdIn: ", whereSocketIdIn);
             done(roomName, countRoom(roomName), playingF); 
 
 			let immScoreMap = new Map();
@@ -120,8 +193,9 @@ wsServer.on("connection", socket => {
         }
     });
 
-	socket.on("create room", ( payload, nickname ) => {
-		
+	socket.on("create_room", ( payload, nickname ) => {
+		console.log(nickname);
+		socket.data.nickname = nickname;
 		checkRoomExist(payload.roomName).then( checkExist => {
 			console.log("here checkExist: ", checkExist);
 			
@@ -129,12 +203,14 @@ wsServer.on("connection", socket => {
 				console.log("in here 1")
 				createRoom(payload).then( a => {
 					socket.join(payload.roomName);
+					increaseParticipants(payload.roomName);
             		console.log("현재 존재하는 방들: ", socket.rooms);
-					socket.emit("create room", payload.roomName, countRoom(payload.roomName)); 
+					socket.emit("create_room", payload.roomName, countRoom(payload.roomName));
 					
 					if (readyStorage.get(payload.roomName) === undefined) {
 						readyStorage.set(payload.roomName, []);
 					}
+					whereSocketIdIn.set(socket.id, payload.roomName);
 					let immScoreMap = new Map();
 					immScoreMap.set(nickname, 0);
 					scoreListOfRooms.set(payload.roomName, immScoreMap);
@@ -183,11 +259,16 @@ wsServer.on("connection", socket => {
 		}
 	});
 
-    socket.on("gameStart", (roomName) => {
+    socket.on("gameStartFunction", (roomName) => {
 		checkQuestionsUsage.set(roomName, [0,0,0,0,0,0,0,0,0,0]);
 		firstQflag.set(roomName, 0);
 		playingFlag.set(roomName, 1);
+		starFlag.set(roomName, 0);
 		immMap = new Map(scoreListOfRooms.get(roomName));
+		immMap.forEach((value, key) => {
+			immMap.set(key, 0); 
+		})	
+		scoreListOfRooms.set(roomName, immMap);
 		wsServer.sockets.in(roomName).emit("scoreboard display", JSON.stringify(Array.from(immMap)));
 		wsServer.sockets.in(roomName).emit("showGameRoom");
     });
@@ -250,42 +331,152 @@ wsServer.on("connection", socket => {
 		}
 	});
 
-	socket.on("all finish", (roomName, done) => {
+	socket.on("all finish", async (roomName, done) => {
+		immMap = new Map(scoreListOfRooms.get(roomName));
 		sortScores = new Map([...immMap.entries()].sort((a, b) => b[1] - a[1]));
 		done(JSON.stringify(Array.from(sortScores)));
 
+		if (starFlag.get(roomName) === 0) {	//flag 0: 가장 첫번째 실행한 사람만 아래 코드 실행
+			starFlag.set(roomName, 1);	
+		} else {
+			return;
+		}
+
+		let cnt = 3;
+		let checkTie = [];
+		const sortScoresArray = Array.from(sortScores);
+
+		for (let i = 0; i < sortScoresArray.length; i++) // 동점처리 <- 이 부분 수정필요
+		{
+			if (i === sortScoresArray.length - 1)
+			{
+				if (i === 0){
+					checkTie.push(1);
+					break;
+				}
+
+				if (cnt > 0 && sortScoresArray[i - 1][1] === sortScoresArray[i][1])
+				{
+					checkTie.push(checkTie[checkTie.length - 1]);
+				} else if (cnt === 2) {
+					checkTie.push(2);
+				} else if (cnt === 3) {
+					checkTie.push(3);
+				} else {
+					checkTie.push(0);
+				}
+				break;
+			}
+
+			if (cnt === 3 && sortScoresArray[i][1] !== sortScoresArray[i + 1][1])
+			{
+				checkTie.push(1);
+				cnt--;
+			} else if (cnt === 3 && sortScoresArray[i][1] === sortScoresArray[i + 1][1])
+			{
+				checkTie.push(1);
+			} else if (cnt === 2 && sortScoresArray[i][1] !== sortScoresArray[i + 1][1])
+			{
+				checkTie.push(2);
+				cnt--;
+			} else if (cnt === 2 && sortScoresArray[i][1] === sortScoresArray[i + 1][1])
+			{
+				checkTie.push(2);
+			} else if (cnt === 1 && sortScoresArray[i][1] !== sortScoresArray[i + 1][1])
+			{
+				checkTie.push(3);
+				cnt--;
+			} else if (cnt === 1 && sortScoresArray[i][1] === sortScoresArray[i + 1][1])
+			{
+				checkTie.push(3);
+			} else {
+				checkTie.push(0);
+			}
+		}
+		console.log("checkTie", checkTie);
+
+		for (let i = 0; i < sortScoresArray.length; i++) // 동점처리
+		{
+			if (checkTie[i] === 1) {
+				await throwStars(sortScoresArray[i][0], 5);
+			} else if (checkTie[i] === 2) {
+				await throwStars(sortScoresArray[i][0], 3);
+			} else if (checkTie[i] === 3) {
+				await throwStars(sortScoresArray[i][0], 1);
+			}
+			await throwStars(sortScoresArray[i][0], sortScoresArray[i][1] / 10);			
+		}
+
 		playingFlag.set(roomName, 0);
-		checkQuestionsUsage.set(roomName, [0,0,0,0,0,0,0,0,0,0]);	
-		immMap = new Map(scoreListOfRooms.get(roomName));
-		immMap.forEach((value, key) => {
-			immMap.set(key, 0); 
-		})	
-		scoreListOfRooms.set(roomName, immMap);
+		//checkQuestionsUsage.set(roomName, [0,0,0,0,0,0,0,0,0,0]);	
+		readyStorage.set(roomName, []);
+		wsServer.sockets.in(roomName).emit("ready check");
 		getRoomInfo(roomName).then(roomInfo => {
 			set10Questions(roomName, roomInfo.subject, roomInfo.grade);
 		})
 	 })
 
-	 socket.on("exit_room", (roomName, nickname, done) => {
-		let removeIdArr = readyStorage.get(roomName).filter((element) => element !== socket.id);
-		readyStorage.set(roomName, removeIdArr);
+	 socket.on("exit_room", (roomName, done) => {
+		if (readyStorage.get(roomName) != undefined){
+			let removeIdArr = readyStorage.get(roomName).filter((element) => element !== socket.id);
+			readyStorage.set(roomName, removeIdArr);
+		}
 		immMap = scoreListOfRooms.get(roomName);
-		immMap.delete(nickname);
+		immMap.delete(socket.data.nickname);
 		scoreListOfRooms.set(roomName, immMap);
+		whereSocketIdIn.delete(socket.id);
 
-		if (readyStorage.get(roomName).length === 0){
+		if (scoreListOfRooms.get(roomName).size === 0){
 			checkQuestionsUsage.delete(roomName);
 			firstQflag.delete(roomName);
+			starFlag.delete(roomName);
 			scoreListOfRooms.delete(roomName);
 			console.log("delete checkQuestionsUsage, firstQflag ", checkQuestionsUsage, firstQflag);
 			deleteRoom(roomName);
 			wsServer.sockets.in(roomName).emit("clear");
 		}
 		socket.leave(roomName);
+		reduceParticipants(roomName);
 		console.log("exit-현재 존재하는 방들: ", socket.rooms);
 		console.log("scoreListOfRooms: ", scoreListOfRooms)
 		socket.to(roomName).emit("bye", socket.data.nickname, roomName, countRoom(roomName));
         done();
+    });
+
+    socket.on("disconnecting", () => {
+		console.log(scoreListOfRooms.size);
+		
+		let roomNamee = whereSocketIdIn.get(socket.id);
+		console.log("roomNameee", roomNamee);
+		if (readyStorage.get(roomNamee) != undefined){
+			let removeIdArr = readyStorage.get(roomNamee).filter((element) => element !== socket.id);
+			readyStorage.set(roomNamee, removeIdArr);
+		}
+		immMap = scoreListOfRooms.get(roomNamee);
+		console.log("immMap: ", immMap);
+
+		if(immMap){
+			immMap.delete(socket.data.nickname);
+			scoreListOfRooms.set(roomNamee, immMap);
+
+			if (scoreListOfRooms.get(roomNamee).size === 0){
+				checkQuestionsUsage.delete(roomNamee);
+				firstQflag.delete(roomNamee);
+				starFlag.delete(roomNamee);
+				scoreListOfRooms.delete(roomNamee);
+				console.log("delete checkQuestionsUsage, firstQflag ", checkQuestionsUsage, firstQflag);
+				deleteRoom(roomNamee);
+				wsServer.sockets.in(roomNamee).emit("clear");
+			}
+			reduceParticipants(roomNamee);
+			console.log("exit-현재 존재하는 방들: ", socket.rooms);
+			console.log("scoreListOfRooms: ", scoreListOfRooms)
+			socket.to(roomNamee).emit("bye", socket.data.nickname, roomNamee, countRoom(roomNamee));
+		}
+	
+    });
+
+	socket.on("disconnect", () => {
     });
 });
 
