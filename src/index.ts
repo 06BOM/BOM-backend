@@ -157,7 +157,7 @@ async function throwStars(key, stars) {
 }
 
 wsServer.on("connection", socket => {
-	socket.data.nickname = "Anon";
+	// socket.data.nickname = "Anon";
 
 	socket.onAny((event) => {
 		console.log(`Socket Event:${event}`);
@@ -189,7 +189,8 @@ wsServer.on("connection", socket => {
 
             let users = [];
 			scoreListOfRooms.forEach((value, key, map) => value.forEach((value, key, map) => users.push(key)));
-			wsServer.to(roomName).emit("welcome", socket.data.nickname, roomName, countRoom(roomName));
+			// wsServer.to(roomName).emit("welcome", socket.data.nickname, roomName, countRoom(roomName));
+			wsServer.to(roomName).emit("welcome", roomName, countRoom(roomName), socket.data.nickname, users.findIndex(user => user == socket.data.nickname)); // index는 나갈때 문제 될 듯 -> 나갈때 dequeue?
         }
     });
 
@@ -205,7 +206,8 @@ wsServer.on("connection", socket => {
 					socket.join(payload.roomName);
 					increaseParticipants(payload.roomName);
             		console.log("현재 존재하는 방들: ", socket.rooms);
-					socket.emit("create_room", payload.roomName, countRoom(payload.roomName));
+					// socket.emit("create_room", payload.roomName, countRoom(payload.roomName));
+					socket.emit("create_room", payload.roomName, countRoom(payload.roomName), nickname, 0);
 					
 					if (readyStorage.get(payload.roomName) === undefined) {
 						readyStorage.set(payload.roomName, []);
@@ -233,7 +235,7 @@ wsServer.on("connection", socket => {
         done();
     });
 
-	socket.on("ready", (roomName) => {
+	socket.on("ready", ({roomName}) => {
 		let roomReadyArr = readyStorage.get(roomName);
 		if (!roomReadyArr.includes(socket.id)) {
 			roomReadyArr.push(socket.id);
@@ -245,21 +247,25 @@ wsServer.on("connection", socket => {
 
 		console.log("ready한 socket id들: ", readyStorage.get(roomName));
 		roomReadyArr = readyStorage.get(roomName);
+		// let idx = roomReadyArr.findIndex(element => element == socket.id);
+		// console.log(`ready한 socket의 index: ${idx}`);
 
 		if (roomReadyArr.length === wsServer.sockets.adapter.rooms.get(roomName)?.size) {
-			wsServer.sockets.in(roomName).emit("ready");
+			console.log(true);
+			wsServer.sockets.in(roomName).emit("ready", true);
 		} else {
 			wsServer.sockets.in(roomName).emit("ready check");
 		}
 	}); 
 
-	socket.on("ready check", (roomName) => {
+	socket.on("ready check", ({roomName}) => {
 		if ((readyStorage.get(roomName)).length === wsServer.sockets.adapter.rooms.get(roomName)?.size) {
-			wsServer.sockets.emit("ready");
+			console.log(true);
+			wsServer.sockets.emit("ready", true);
 		}
 	});
 
-    socket.on("gameStartFunction", (roomName) => {
+    socket.on("gameStartFunction", ({roomName}) => { // {} 제발
 		checkQuestionsUsage.set(roomName, [0,0,0,0,0,0,0,0,0,0]);
 		firstQflag.set(roomName, 0);
 		playingFlag.set(roomName, 1);
@@ -269,8 +275,12 @@ wsServer.on("connection", socket => {
 			immMap.set(key, 0); 
 		})	
 		scoreListOfRooms.set(roomName, immMap);
-		wsServer.sockets.in(roomName).emit("scoreboard display", JSON.stringify(Array.from(immMap)));
-		wsServer.sockets.in(roomName).emit("showGameRoom");
+		// wsServer.sockets.in(roomName).emit("scoreboard display", JSON.stringify(Array.from(immMap)));
+		// wsServer.sockets.in(roomName).emit("showGameRoom");
+		// wsServer.sockets.in(roomName).emit("timer", true);
+		wsServer.to(roomName).emit("scoreboard display", JSON.stringify(Array.from(immMap)));
+		wsServer.to(roomName).emit("showGameRoom");
+		wsServer.to(roomName).emit("timer", true);
     });
 
 	socket.on("question", (roomName) => {
@@ -441,7 +451,7 @@ wsServer.on("connection", socket => {
         // done();
     });
 
-    socket.on("disconnecting", () => {
+    socket.on("disconnecting", () => { // 연결이 끊길시
 		console.log(scoreListOfRooms.size);
 		
 		let roomNamee = whereSocketIdIn.get(socket.id);
