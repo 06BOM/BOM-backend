@@ -9,13 +9,13 @@ datasource db {
 
 model User {
   userId           Int            @id @default(autoincrement())
-  emailId          String         @unique @db.VarChar(45)
+  emailId          String?        @unique @db.VarChar(45)
   userName         String         @db.VarChar(45)
-  password         String         @db.VarChar(45)
+  password         String?        @db.VarChar(45)
   nickname         String         @db.VarChar(45)
-  birth            DateTime
-  phoneNum         String         @db.VarChar(45)
-  grade            Int
+  birth            DateTime?
+  phoneNum         String?        @db.VarChar(45)
+  grade            Int?
   star             Int            @default(0)
   timeItem         Int            @default(0)
   passItem         Int            @default(0)
@@ -106,7 +106,7 @@ model Message {
 }
 
 model Session {
-  sessionId Int      @id @default(autoincrement())
+  sessionId String      @id
   createdAt DateTime @default(now())
   userId    Int
   user      User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
