@@ -371,6 +371,7 @@ socket.on("ready check", () => {
 });
 
 socket.on("round",( question, id)=>{
+    console.log(`${question}, ${id} / socket on round`);
     roundStart.hidden = false;
     roundFinished.hidden = true;
     //ox.hidden = false;

@@ -283,7 +283,7 @@ wsServer.on("connection", socket => {
 		wsServer.to(roomName).emit("timer", true);
     });
 
-	socket.on("question", (roomName) => {
+	socket.on("question", ({roomName}) => {
 		let cnt = 0;
 		console.log("checkQuestionsUsage: ", checkQuestionsUsage);
 		console.log("firstQflag: ", firstQflag);
@@ -308,19 +308,21 @@ wsServer.on("connection", socket => {
         answer = questionsOfRooms.get(roomName)[index].oxanswer;
         explanation = questionsOfRooms.get(roomName)[index].explanation;
         
-        console.log("문제정보: ", answer, explanation, questionsOfRooms.get(roomName)[index].oxquestion);
-		wsServer.sockets.in(roomName).emit("round", questionsOfRooms.get(roomName)[index].oxquestion, index);
-		wsServer.sockets.in(roomName).emit("timer");
+        console.log("문제정보: ", answer, explanation, questionsOfRooms.get(roomName)[index].oxquestion, index);
+		wsServer.to(roomName).emit("round", questionsOfRooms.get(roomName)[index].oxquestion, index);
+		wsServer.to(roomName).emit("timer", true);
 	});
 
-	socket.on("ox", (payload) => {
-		socket.data.ox = payload.ox;
-		wsServer.sockets.emit("ox", { answer: payload.ox, userId: payload.userId });
+	socket.on("ox", ({userId, ox}) => {
+		socket.data.ox = ox;
+		wsServer.sockets.emit("ox", { answer: ox, userId: userId });
 	});
 
-	socket.on("answer", (roomName, done) => {
-		done(answer, explanation);
+	socket.on("answer", ({roomName}) => {
+		// done(answer, explanation);
 		firstQflag.set(roomName, 0);
+		console.log(`answer : ${answer}, ${explanation}`);
+		wsServer.to(roomName).emit("answer", answer, explanation);
 	});
 
 	socket.on("score", payload => {
@@ -334,7 +336,7 @@ wsServer.on("connection", socket => {
 			});
 			sortScores = new Map([...immMap.entries()].sort((a, b) => b[1] - a[1]));
 			console.log("sortScores: ", sortScores);
-            wsServer.sockets.in(payload.roomName).emit("score change", JSON.stringify(Array.from(sortScores)));
+            wsServer.to(payload.roomName).emit("score change", JSON.stringify(Array.from(sortScores)));
 		}
 	});
 
