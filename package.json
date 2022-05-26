@@ -10,8 +10,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.27.2",
     "express": "^4.17.3",
     "helmet": "^5.0.2",
+    "jsonwebtoken": "^8.5.1",
     "morgan": "^1.10.0",
     "pug": "^3.0.2",
     "ws": "^8.6.0"
@@ -19,6 +21,7 @@
   "devDependencies": {
     "@prisma/client": "^3.14.0-dev.16",
     "@types/express": "^4.17.13",
+    "@types/jsonwebtoken": "^8.5.8",
     "@types/morgan": "^1.9.3",
     "@types/node": "^17.0.24",
     "@types/tsc-watch": "^4.2.0",
