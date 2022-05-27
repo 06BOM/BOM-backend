@@ -21,15 +21,15 @@ const createHashedPassword = async (password) => {
 	const salt = await createSalt();
 	const key = await pbkdf2Promise(password, salt, 104906, 64, "sha512");
 	const hashedPassword = key.toString("base64");
-  
+	
 	return { hashedPassword: hashedPassword, salt: salt };
   };
 
   //일치: true, 불일치: false return
 const verifyPassword = async (password, userSalt, userPassword) => {
-	const key = await pbkdf2Promise(password, userSalt, 99999, 64, "sha512");
+	const key = await pbkdf2Promise(password, userSalt, 104906, 64, "sha512");
 	const hashedPassword = key.toString("base64");
-  
+
 	if (hashedPassword === userPassword) return true;
 	return false;
   };
@@ -54,7 +54,7 @@ export const signIn = async (req: Request, res: Response, next: NextFunction): P
 		const result = await prisma.user.create({
 			data: userInfo
 		})
-		return  res.json({ opcode: OPCODE.SUCCESS, result });;
+		return  res.json({ opcode: OPCODE.SUCCESS, result });
 		
 	} catch (error) {
 		console.log(error);
@@ -64,7 +64,28 @@ export const signIn = async (req: Request, res: Response, next: NextFunction): P
 
 export const logIn = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => { 
 	try {
+		const emailId = String(req.body.emailId);
+		const passwd = req.body.password;
 
+		const userData = await prisma.user.findUnique({
+			where: {
+				emailId : emailId
+			}
+		})
+
+		const verified = await verifyPassword(passwd, userData.salt, userData.password);
+
+		if(userData){
+			if(verified){
+				return res.json({ opcode: OPCODE.SUCCESS, userData });
+			}
+			else{
+				return res.json({ opcode: OPCODE.ERROR });
+			}
+		}
+
+		
+		/*
 		let existUser = true;
 	
 		const { kakaoAccessToken } = req.body;
@@ -113,7 +134,7 @@ export const logIn = async (req: Request, res: Response, next: NextFunction): Pr
 		} else {
 			return res.status(200).json({ accessToken, refreshToken});
 		}
-		
+		*/
     } catch(error) {
         console.log(error);
         next(error);
