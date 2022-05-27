@@ -84,8 +84,61 @@ export const logIn = async (req: Request, res: Response, next: NextFunction): Pr
 				return res.json({ opcode: OPCODE.ERROR });
 			}
 		}*/
-		
+
 		let existUser = true;
+   
+		const naverAccessToken = req.body.accessToken;
+  
+		const headers = {
+		   "Content-Type": "application/x-www-form-urlencoded",
+		   Authorization: "Bearer " + naverAccessToken
+		};
+  
+		const response = await axios.get("https://openapi.naver.com/v1/nid/me", {
+		   headers,
+		});
+		console.log("response: ", response.data.response);
+  
+		let user = await prisma.user.findFirst({
+		   where: {
+			  AND: [
+				 { platform: "naver" },
+				 { platformId: response.data.response.id }
+			  ]
+		   }
+		});
+  
+		if (!user) {
+		   let userContent = {
+			  platform: 'naver',
+			  platformId: String(response.data.response.id),
+			  nickname: String(response.data.response.name),
+			  userName: String(response.data.response.name)
+		   }
+		   
+		   user = await prisma.user.create({
+			  data: userContent
+		   });
+		   existUser = false;
+		}
+  
+		const sessionId = await Sessions.createSession(user);
+		const accessToken = Token.signJwt(
+		   {userId: user.userId, sessionId},
+		   "5s"
+		);
+		const refreshToken = Token.signJwt(
+		   { sessionId },
+		   "1d"
+		)
+  
+		if (existUser === true) {
+		   return res.status(201).json({ accessToken, refreshToken });
+		} else {
+		   return res.status(200).json({ accessToken, refreshToken });
+		}
+		
+		/*let existUser = true;
 	
 		const { kakaoAccessToken } = req.body;
 		const headers = {
@@ -132,7 +185,7 @@ export const logIn = async (req: Request, res: Response, next: NextFunction): Pr
 			return res.status(201).json({ accessToken, refreshToken});
 		} else {
 			return res.status(200).json({ accessToken, refreshToken});
-		}
+		}*/
 
     } catch(error) {
         console.log(error);
