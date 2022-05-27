@@ -310,7 +310,7 @@ wsServer.on("connection", socket => {
         
         console.log("문제정보: ", answer, explanation, questionsOfRooms.get(roomName)[index].oxquestion, index);
 		wsServer.to(roomName).emit("round", questionsOfRooms.get(roomName)[index].oxquestion, index);
-		wsServer.to(roomName).emit("timer", true);
+		// wsServer.to(roomName).emit("timer", true);
 	});
 
 	socket.on("ox", ({userId, ox}) => {
