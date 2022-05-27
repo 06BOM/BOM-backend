@@ -22,7 +22,7 @@
     "ws": "^8.6.0"
   },
   "devDependencies": {
-    "@prisma/client": "^3.14.0-dev.16",
+    "@prisma/client": "3.5.0",
     "@types/express": "^4.17.13",
     "@types/jsonwebtoken": "^8.5.8",
     "@types/morgan": "^1.9.3",

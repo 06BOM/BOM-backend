@@ -64,6 +64,7 @@ export const signIn = async (req: Request, res: Response, next: NextFunction): P
 
 export const logIn = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => { 
 	try {
+		/*
 		const emailId = String(req.body.emailId);
 		const passwd = req.body.password;
 
@@ -82,10 +83,8 @@ export const logIn = async (req: Request, res: Response, next: NextFunction): Pr
 			else{
 				return res.json({ opcode: OPCODE.ERROR });
 			}
-		}
-
+		}*/
 		
-		/*
 		let existUser = true;
 	
 		const { kakaoAccessToken } = req.body;
@@ -100,7 +99,7 @@ export const logIn = async (req: Request, res: Response, next: NextFunction): Pr
 			where: {
 				AND: [
 					{ platform: "kakao" },
-					{ platformId: response.data.id }
+					{ platformId: String(response.data.id) }
 				]
 			}
 		});
@@ -110,7 +109,7 @@ export const logIn = async (req: Request, res: Response, next: NextFunction): Pr
 				platform: 'kakao',
 				platformId: String(response.data.id),
 				nickname: String(response.data.properties.nickname),
-				userName: String(response.data.properties.userName)
+				userName: String(response.data.properties.nickName)
 			}
 			
 			user = await prisma.user.create({
@@ -134,7 +133,7 @@ export const logIn = async (req: Request, res: Response, next: NextFunction): Pr
 		} else {
 			return res.status(200).json({ accessToken, refreshToken});
 		}
-		*/
+
     } catch(error) {
         console.log(error);
         next(error);
