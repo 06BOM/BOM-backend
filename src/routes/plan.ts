@@ -26,19 +26,19 @@ import { authMiddleware } from "../middleware";
 const router = express.Router();
 
 router.post("/", authMiddleware, createPlan);
-router.get("/total", getDailyStudyTime);
-router.get("/week/average", getWeeklyAverageStudyTime);
-router.get("/month/average", getMonthlyAverageStudyTime);
-router.get("/statistic", getStatistic);
-router.get("/week/total",getWeeklyTime);
-router.get("/month/total",getMonthlyTime)
-router.route("/star").get(getDailyStar).post(authMiddleware, handleStar);
-router.get("/week/star", getWeeklyStar);
+router.get("/total", authMiddleware, getDailyStudyTime);
+router.get("/week/average", authMiddleware, getWeeklyAverageStudyTime);
+router.get("/month/average", authMiddleware, getMonthlyAverageStudyTime);
+router.get("/statistic", authMiddleware, getStatistic);
+router.get("/week/total", authMiddleware, getWeeklyTime);
+router.get("/month/total", authMiddleware, getMonthlyTime)
+router.route("/star").get(authMiddleware, getDailyStar).post(authMiddleware, handleStar);
+router.get("/week/star", authMiddleware, getWeeklyStar);
 router.get("/month/star", getMonthlyStar);
-router.get("/all", getAllPlans);
-router.get("/completed", getCompletedPlans);
-router.get("/incomplete", getIncompletePlans);
-router.get("/month/all/star", getAllMonthlyStars);
+router.get("/all", authMiddleware, getAllPlans);
+router.get("/completed", authMiddleware, getCompletedPlans);
+router.get("/incomplete", authMiddleware, getIncompletePlans);
+router.get("/month/all/star", authMiddleware, getAllMonthlyStars);
 router.route("/:planId").delete(authMiddleware, deletePlan).patch(authMiddleware, updatePlan).get(getUserId);
 router.get("/:planId/time", getPlanTime);
 router.get("/:planId/data",getPlanData);
