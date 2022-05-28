@@ -1,4 +1,6 @@
 import express from 'express';
+import { authMiddleware } from "../middleware";
+
 import { 
     createQuestQuestion,
     getQuestQuestion,
@@ -11,15 +13,16 @@ import {
     getQuestQuestionsByUserId
         } from "../controllers/mockController";
 
+
 const router = express.Router();
 
-router.post('', createQuestQuestion);
+router.post('', authMiddleware, createQuestQuestion);
 router.get('', getQuestQuestion);
-router.patch('/:id', updateQuestQuestion);
-router.delete('/:id', deleteQuestQuestion);
-router.patch('/:id/check', provisionCheckToTrue);
-router.patch('/:id/total', increaseTotalNumSolved);
-router.patch('/:id/correct', increaseCorrectNum);
+router.patch('/:id', authMiddleware, updateQuestQuestion);
+router.delete('/:id', authMiddleware, deleteQuestQuestion);
+router.patch('/:id/check', authMiddleware, provisionCheckToTrue);
+router.patch('/:id/total', authMiddleware, increaseTotalNumSolved);
+router.patch('/:id/correct', authMiddleware, increaseCorrectNum);
 router.get('/statistics', getQuestStats);
 router.get('/user/:userId', getQuestQuestionsByUserId);
 

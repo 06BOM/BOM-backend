@@ -11,7 +11,7 @@ model User {
   userId           Int            @id @default(autoincrement())
   emailId          String?        @unique @db.VarChar(45)
   userName         String         @db.VarChar(45)
-  password         String?        @db.VarChar(45)
+  password         String?        @db.VarChar(255)
   nickname         String         @db.VarChar(45)
   birth            DateTime?
   phoneNum         String?        @db.VarChar(45)
@@ -26,6 +26,7 @@ model User {
   lockFreeDate     DateTime?
   userType         Int            @default(0)
   characterId      Int            @default(1)
+  salt             String?        @db.VarChar(255)
   character        Character      @relation(fields: [characterId], references: [characterId])
   categories       Category[]
   collections      Collection[]
@@ -106,7 +107,7 @@ model Message {
 }
 
 model Session {
-  sessionId String      @id
+  sessionId String   @id @db.VarChar(255)
   createdAt DateTime @default(now())
   userId    Int
   user      User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
