@@ -1,4 +1,6 @@
 import express from 'express';
+import { authMiddleware } from "../middleware";
+
 import { createPlan, 
          deletePlan, 
          updatePlan, 
@@ -21,7 +23,7 @@ import { createPlan,
 		 getAllMonthlyStars,
          getRepititionValidity 
     } from "../controllers/planController";
-import { authMiddleware } from "../middleware";
+
 
 const router = express.Router();
 

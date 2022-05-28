@@ -1,11 +1,13 @@
 import express from 'express';
+import { authMiddleware } from "../middleware";
+
 import { 
 	createQuestAttempt,
 	getQuestAttempt,
 	updateQuestAttempt,
 	deleteQuestAttempt
         } from "../controllers/questController";
-import { authMiddleware } from "../middleware";
+
 
 const router = express.Router();
 

@@ -1,4 +1,6 @@
 import express from 'express';
+import { authMiddleware } from "../middleware";
+
 import { 
     createOxQuestion,
     getOxQuestion,
@@ -8,7 +10,7 @@ import {
     increaseTotalNumSolved,
     increaseCorrectNum
         } from "../controllers/oxController";
-import { authMiddleware } from "../middleware";
+
 		
 const router = express.Router();
 

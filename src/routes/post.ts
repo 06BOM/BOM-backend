@@ -1,4 +1,5 @@
 import express from 'express';
+import { authMiddleware } from "../middleware";
 
 import { deletePost,
          createPost,
@@ -9,7 +10,7 @@ import { deletePost,
          getMostLikePost,
          sortingByKind
 } from "../controllers/postController";
-import { authMiddleware } from "../middleware";
+
 
 const router = express.Router();
 
