@@ -314,7 +314,8 @@ wsServer.on("connection", socket => {
 	});
 
 	socket.on("score", payload => {
-		console.log("[payload.index].oxanswer: ", questionsOfRooms.get(payload.roomName)[payload.index].oxAnswer)
+		console.log(`payload : ${payload}`);
+		console.log("[payload.index].oxanswer: ", questionsOfRooms.get(payload.roomName)[payload.index].oxanswer);
 		console.log("socket.data.ox: ", socket.data.ox);
 		if (questionsOfRooms.get(payload.roomName)[payload.index].oxanswer === socket.data.ox) {	//정답
 			immMap = scoreListOfRooms.get(payload.roomName);
