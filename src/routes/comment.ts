@@ -1,4 +1,5 @@
 import express from 'express';
+import { authMiddleware } from "../middleware";
 import { createComment, 
          getCommentWithoutReply, 
          createReply, 
@@ -9,10 +10,10 @@ import { createComment,
 
 const router = express.Router();
 
-router.post('', createComment);
+router.post('', authMiddleware, createComment);
 router.get('', getCommentWithoutReply);
-router.post('/reply', createReply);
+router.post('/reply', authMiddleware, createReply);
 router.get('/reply', getCommentWithReply);
-router.route('/:commentId').patch(updateComment).delete(deleteComment)
+router.route('/:commentId').patch(authMiddleware, updateComment).delete(authMiddleware, deleteComment)
 
 export default router;

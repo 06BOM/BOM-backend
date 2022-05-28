@@ -21,24 +21,25 @@ import { createPlan,
 		 getAllMonthlyStars,
          getRepititionValidity 
     } from "../controllers/planController";
+import { authMiddleware } from "../middleware";
 
 const router = express.Router();
 
-router.post("/", createPlan);
+router.post("/", authMiddleware, createPlan);
 router.get("/total", getDailyStudyTime);
 router.get("/week/average", getWeeklyAverageStudyTime);
 router.get("/month/average", getMonthlyAverageStudyTime);
 router.get("/statistic", getStatistic);
 router.get("/week/total",getWeeklyTime);
 router.get("/month/total",getMonthlyTime)
-router.route("/star").get(getDailyStar).post(handleStar);
+router.route("/star").get(getDailyStar).post(authMiddleware, handleStar);
 router.get("/week/star", getWeeklyStar);
 router.get("/month/star", getMonthlyStar);
 router.get("/all", getAllPlans);
 router.get("/completed", getCompletedPlans);
 router.get("/incomplete", getIncompletePlans);
 router.get("/month/all/star", getAllMonthlyStars);
-router.route("/:planId").delete(deletePlan).patch(updatePlan).get(getUserId);
+router.route("/:planId").delete(authMiddleware, deletePlan).patch(authMiddleware, updatePlan).get(getUserId);
 router.get("/:planId/time", getPlanTime);
 router.get("/:planId/data",getPlanData);
 router.get("/:planId/validity", getRepititionValidity);

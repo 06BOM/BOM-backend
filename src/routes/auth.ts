@@ -1,13 +1,18 @@
 import express from 'express';
 import passport from 'passport';
 import { logIn,
-        signIn 
+		logOut,
+        signIn,
+		newToken 
         } from "../controllers/authController";
+import { authMiddleware } from "../middleware";
 
 const router = express.Router();
 
 router.post('/login', logIn);
+router.delete('/logout', authMiddleware, logOut);
 router.post('/signin', signIn);
+router.post('/new', newToken);
 // 네이버로 로그인하기 라우터 ***********************
 router.get('/naver', passport.authenticate('naver', { authType: 'reprompt' }));
  

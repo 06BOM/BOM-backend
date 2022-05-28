@@ -5,7 +5,6 @@ import { getRoomInformation,
          getAllRoom
 } from "../controllers/roomController";
 
-
 const router = express.Router();
 
 router.get("/", getRoomInformation);
