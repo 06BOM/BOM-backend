@@ -131,18 +131,18 @@ export const logIn = async (req: Request, res: Response, next: NextFunction): Pr
 				const sessionId = await Sessions.createSession(user);
 				const accessToken = Token.signJwt(
 					{userId: user.userId, sessionId},
-					"5s"
+					"1h"
 				);
 
 				const refreshToken = Token.signJwt(
 					{ sessionId },
-					"1d"
+					"1w"
 				);
-				
+		
 				if (existUser === true) {
-					return res.status(201).json({ accessToken, refreshToken });
+					return res.status(201).json({ opcode: OPCODE.SUCCESS, payload: {accessToken, refreshToken} });
 				} else {
-					return res.status(200).json({ accessToken, refreshToken });
+					return res.status(200).json({ opcode: OPCODE.SUCCESS, payload: {accessToken, refreshToken} });
 				}
 			}
 

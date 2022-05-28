@@ -57,7 +57,8 @@ export const createReply = async (req: Request, res: Response, next: NextFunctio
 		const reply = await prisma.comment.create({
 			data: {
 				postId: req.body.postId,
-				userId: req.body.userId,
+				// @ts-ignore
+				userId: req.user.userId,
 				content: req.body.content,
 				commentParent: req.body.parentId
 			}
@@ -77,7 +78,8 @@ export const updateComment = async (req: Request, res: Response, next: NextFunct
 		commentParent: req.body.commentParent,
 		createdAt: new Date(),
 		postId: req.body.postId,
-		userId: req.body.userId
+		// @ts-ignore
+		userId: req.user.userId
 	}
 	let commentId = parseInt(req.params.commentId);
 

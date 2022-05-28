@@ -10,6 +10,6 @@ const router = express.Router();
 
 router.post('', authMiddleware, createCategory);
 router.delete('/:categoryId', authMiddleware, deleteCategory);
-router.get('/user', getCategory);
+router.get('/user', authMiddleware, getCategory);
 
 export default router;
