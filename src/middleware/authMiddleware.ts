@@ -1,7 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { NextFunction, Request, Response } from 'express';
 import { Token } from "../tools/token";
-import { Sessions } from "../tools/sessions";
 import { DamoyeoError } from "../tools";
 const prisma = new PrismaClient();
 

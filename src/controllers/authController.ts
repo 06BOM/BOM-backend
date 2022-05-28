@@ -2,7 +2,6 @@ import { PrismaClient } from "@prisma/client";
 import { OPCODE, Sessions, Token, DamoyeoError } from "../tools";
 import { NextFunction, Request, Response } from 'express';
 import axios from 'axios';
-import { Strategy, Profile } from 'passport-naver-v2';
 import util from 'util';
 import crypto from 'crypto';
 
