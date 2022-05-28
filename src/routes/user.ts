@@ -7,10 +7,10 @@ import { signin,
          deleteUser, 
          modifyUser 
     } from '../controllers/userControllers';
+import { authMiddleware } from "../middleware";
 
 const router = express.Router();
 
-
-router.post("/signin", signin);
-router.route("/:userId").get(getUser).delete(deleteUser).patch(modifyUser);
+router.post("/signin", authMiddleware, signin);
+router.route("/:userId").get(getUser).delete(authMiddleware, deleteUser).patch(authMiddleware, modifyUser);
 export default router;

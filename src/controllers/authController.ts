@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { OPCODE, Sessions, Token } from "../tools";
+import { OPCODE, Sessions, Token, DamoyeoError } from "../tools";
 import { NextFunction, Request, Response } from 'express';
 import axios from 'axios';
 import { Strategy, Profile } from 'passport-naver-v2';
@@ -174,21 +174,66 @@ export const logIn = async (req: Request, res: Response, next: NextFunction): Pr
 		const sessionId = await Sessions.createSession(user);
 		const accessToken = Token.signJwt(
 			{userId: user.userId, sessionId},
-			"5s"
+			"1h"
 		);
 		const refreshToken = Token.signJwt(
 			{ sessionId },
-			"1d"
-		)
+			"1w"
+		);
 
 		if (existUser === true) {
-			return res.status(201).json({ accessToken, refreshToken});
+			return res.status(201).json({ opcode: OPCODE.SUCCESS, payload: {accessToken, refreshToken} });
 		} else {
-			return res.status(200).json({ accessToken, refreshToken});
+			return res.status(200).json({ opcode: OPCODE.SUCCESS, payload: {accessToken, refreshToken} });
 		}*/
 
     } catch(error) {
         console.log(error);
         next(error);
     }
+}
+
+export const logOut = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+	try {
+		await prisma.session.delete({
+            where:{
+				// @ts-ignore
+                sessionId: req.user.sessionId
+            }
+        });
+		return res.sendStatus(204);
+	} catch(error) {
+		console.error(error);
+        next(error);
+	}
+}
+
+export const newToken = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {	
+	try {
+		const refreshToken = req.body.refreshToken;
+		if (!refreshToken) {
+			throw new DamoyeoError('refresh token이 필요합니다.', 401);
+		}
+		const { payload } = Token.verifyJwt(refreshToken);
+		if (!payload) {
+			throw new DamoyeoError('refresh token이 필요합니다.', 401);
+		}
+
+		// @ts-ignore
+		const session = await Sessions.getSession(payload.sessionId);
+		if (!session) {
+			throw new DamoyeoError('access token을 발급할 수 없습니다.', 404);
+		}
+
+		const newAccessToken = Token.signJwt(
+			// @ts-ignore
+			{ sessionId: session.sessionId, userId: session.userId },
+			"1h"
+		);
+
+		return res.status(200).json({ accessToken: newAccessToken });
+	} catch(error) {
+		console.error(error);
+        next(error);		
+	}
 }
