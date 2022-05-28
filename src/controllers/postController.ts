@@ -12,7 +12,8 @@ export const createPost = async (req: Request, res: Response, next: NextFunction
         title: req.body.title,
         postKind: req.body.postKind,
         content: req.body.content,
-        userId: req.body.userId,
+		// @ts-ignore
+        userId: req.user.userId,
         categoryId: req.body.categoryId
     }
 
