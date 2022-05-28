@@ -309,7 +309,7 @@ wsServer.on("connection", socket => {
         explanation = questionsOfRooms.get(roomName)[index].explanation;
         
         console.log("문제정보: ", answer, explanation, questionsOfRooms.get(roomName)[index].oxquestion, index);
-		wsServer.to(roomName).emit("round", questionsOfRooms.get(roomName)[index].oxquestion, index);
+		wsServer.to(roomName).emit("round", questionsOfRooms.get(roomName)[index].oxquestion, index, false);
 		// wsServer.to(roomName).emit("timer", true);
 	});
 
@@ -322,7 +322,7 @@ wsServer.on("connection", socket => {
 		// done(answer, explanation);
 		firstQflag.set(roomName, 0);
 		console.log(`answer : ${answer}, ${explanation}`);
-		wsServer.to(roomName).emit("answer", answer, explanation);
+		wsServer.to(roomName).emit("answer", answer, explanation, true);
 	});
 
 	socket.on("score", payload => {
