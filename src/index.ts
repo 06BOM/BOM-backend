@@ -230,6 +230,7 @@ wsServer.on("connection", socket => {
 
 	socket.on("new_message", (msg, room, done) => {
         socket.to(room).emit("new_message", `${socket.data.nickname}: ${msg}`);
+		console.log(`msg : ${msg}`);
         done();
     });
 
@@ -314,7 +315,7 @@ wsServer.on("connection", socket => {
 	});
 
 	socket.on("score", payload => {
-		console.log(`payload : ${payload}`);
+		console.log(`payload : ${payload.index}`);
 		console.log("[payload.index].oxanswer: ", questionsOfRooms.get(payload.roomName)[payload.index].oxanswer);
 		console.log("socket.data.ox: ", socket.data.ox);
 		if (questionsOfRooms.get(payload.roomName)[payload.index].oxanswer === socket.data.ox) {	//정답

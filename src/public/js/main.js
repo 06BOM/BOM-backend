@@ -169,9 +169,11 @@ function allFinish(users){
 }
 
 function allRoundFinish(){
+    var index = question2.getAttribute('data-id');
    gameStart.hidden = true;
    roundStart.hidden = true;
    roundFinished.hidden = true;
+   socket.emit("score", { index: index, roomName: roomName });
    socket.emit("all finish", roomName, allFinish);
    gameFinish.hidden = false;
    setTimeout(()=>{
