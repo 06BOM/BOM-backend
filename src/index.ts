@@ -328,7 +328,7 @@ wsServer.on("connection", socket => {
 	});
 
 	socket.on("score", payload => {
-		console.log(`[payload.index].oxanswer: ${questionsOfRooms.get(payload.roomName)[payload.index].oxanswer} type - ${typeof questionsOfRooms.get(payload.roomName)[payload.index].oxanswer} / type - ${typeof socket.data.ox} socket.data.ox: ${socket.data.ox} / compare each result: ${questionsOfRooms.get(payload.roomName)[payload.index].oxanswer === socket.data.ox}`);
+		console.log(`[payload.index].oxanswer: ${questionsOfRooms.get(payload.roomName)[payload.index].oxanswer} type - ${typeof questionsOfRooms.get(payload.roomName)[payload.index].oxanswer} / type - ${typeof socket.data.ox} socket.data.ox: ${socket.data.ox} / compare each result: ${questionsOfRooms.get(payload.roomName)[payload.index].oxanswer === socket.data.ox} ${payload.index}`);
 		if (questionsOfRooms.get(payload.roomName)[payload.index].oxanswer === socket.data.ox) {	//정답
 			immMap = scoreListOfRooms.get(payload.roomName);
 			immMap.forEach((value, key) => {
@@ -343,10 +343,10 @@ wsServer.on("connection", socket => {
 		}
 	});
 
-	socket.on("all finish", async (roomName, done) => {
+	socket.on("all finish", async ({roomName}) => {
 		immMap = new Map(scoreListOfRooms.get(roomName));
 		sortScores = new Map([...immMap.entries()].sort((a, b) => b[1] - a[1]));
-		done(JSON.stringify(Array.from(sortScores)));
+		// done(JSON.stringify(Array.from(sortScores)));
 
 		if (starFlag.get(roomName) === 0) {	//flag 0: 가장 첫번째 실행한 사람만 아래 코드 실행
 			starFlag.set(roomName, 1);	
@@ -422,7 +422,7 @@ wsServer.on("connection", socket => {
 		playingFlag.set(roomName, 0);
 		//checkQuestionsUsage.set(roomName, [0,0,0,0,0,0,0,0,0,0]);	
 		readyStorage.set(roomName, []);
-		wsServer.sockets.in(roomName).emit("ready check");
+		wsServer.to(roomName).emit("ready check");
 		getRoomInfo(roomName).then(roomInfo => {
 			set10Questions(roomName, roomInfo.subject, roomInfo.grade);
 		})
