@@ -313,8 +313,10 @@ wsServer.on("connection", socket => {
 		// wsServer.to(roomName).emit("timer", true);
 	});
 
-	socket.on("ox", ({userId, ox}) => {
+	socket.on("ox", ({ userId, ox }) => {
+		console.log(`${ox} ${typeof ox}`);
 		socket.data.ox = ox;
+		console.log(`socket.data.ox: ${socket.data.ox} in "ox"`);
 		wsServer.sockets.emit("ox", { answer: ox, userId: userId });
 	});
 
@@ -326,7 +328,8 @@ wsServer.on("connection", socket => {
 	});
 
 	socket.on("score", payload => {
-		if (questionsOfRooms.get(payload.roomName)[payload.index].oxAnswer === socket.data.ox) {	//정답
+		console.log(`[payload.index].oxanswer: ${questionsOfRooms.get(payload.roomName)[payload.index].oxanswer} type - ${typeof questionsOfRooms.get(payload.roomName)[payload.index].oxanswer} / type - ${typeof socket.data.ox} socket.data.ox: ${socket.data.ox} / compare each result: ${questionsOfRooms.get(payload.roomName)[payload.index].oxanswer === socket.data.ox}`);
+		if (questionsOfRooms.get(payload.roomName)[payload.index].oxanswer === socket.data.ox) {	//정답
 			immMap = scoreListOfRooms.get(payload.roomName);
 			immMap.forEach((value, key) => {
 				if (key === socket.data.nickname) {
