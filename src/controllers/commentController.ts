@@ -9,7 +9,8 @@ export const createComment = async (req: Request, res: Response, next: NextFunct
 		content: String(req.body.content),
 		commentParent: req.body.commentParent? parseInt(String(req.body.commentParent)) : 0,
 		postId: parseInt(String(req.body.postId)),
-		userId: parseInt(String(req.body.userId))
+		// @ts-ignore
+		userId: parseInt(String(req.user.userId))
 	}
 
     try {
