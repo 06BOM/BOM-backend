@@ -62,3 +62,25 @@ export const modifyUser = async (req: Request, res: Response, next: NextFunction
 		next(error);
 	}
 };
+
+export const changeCharacter = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+	
+	const userId = Number(req.body.userId);
+	const newCharacterId = Number(req.body.characterId);
+
+	try {
+		const modifyUserResult = await prisma.user.update({
+            where:{
+                userId: userId
+            },
+            data: {
+				characterId : newCharacterId
+			}
+        });
+		return res.json({ opcode:OPCODE.SUCCESS, modifyUserResult });
+
+	} catch(error) {
+		console.log(error);
+		next(error);
+	}
+};
