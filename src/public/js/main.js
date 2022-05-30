@@ -212,10 +212,13 @@ function handleRoomSubmit(event) {
 
 function handleMakeRoom(event){
     event.preventDefault();
-    const roominput = welcome.querySelector("#createroom input");
+    const roominput = welcome.querySelector("#createroom #roomName");
+    const gradeinput = welcome.querySelector("#createroom #grade");
+    const subjectinput = welcome.querySelector("#createroom #subject");
     const nickinput = welcome.querySelector("#name");
-    //socket.emit("create room", roomName, kind, userId, grade, subject, secretMode, password);
-    socket.emit("create_room", { roomName: roominput.value, kind: 0, userId: 1, grade: 3, subject: "과학", secretMode: false, password: null, participantsNum: 0}, nickinput.value);
+
+    console.log(roominput.value, gradeinput.value, subjectinput.value, nickinput.value);
+    socket.emit("create_room", { roomName: roominput.value, kind: 0, userId: 1, grade: parseInt(gradeinput.value), subject: subjectinput.value, secretMode: false, password: null, participantsNum: 0}, nickinput.value);
     roomName = roominput.value;
     roominput.value = "";
 }
