@@ -34,26 +34,38 @@ const verifyPassword = async (password, userSalt, userPassword) => {
   };
 
 export const signIn = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => { 
-	let userInfo = {
-		emailId: String(req.body.emailId),
-		grade: req.body.grade,
-		password: "",
-		salt: "",
-		userName: String(req.body.userName),
-		phoneNum: String(req.body.phoneNum),
-		birth: new Date(req.body.birth),
-		nickname: String(req.body.nickname)
-	}
-
-	const hash =  await createHashedPassword(req.body.password);
-	userInfo.password = hash.hashedPassword;
-	userInfo.salt = hash.salt;
+	let emailId = String(req.body.emailId);
 	
 	try {
-		const result = await prisma.user.create({
-			data: userInfo
-		})
-		return  res.json({ opcode: OPCODE.SUCCESS, result });
+		let isExist = await prisma.user.findFirst({
+			where: { emailId: emailId }
+		}) 
+	
+		if ( !isExist ){
+			let userInfo = {
+				emailId: emailId,
+				grade: req.body.grade,
+				password: "",
+				salt: "",
+				userName: String(req.body.userName),
+				phoneNum: String(req.body.phoneNum),
+				birth: new Date(req.body.birth),
+				nickname: String(req.body.nickname)
+			}
+		
+			const hash =  await createHashedPassword(req.body.password);
+			userInfo.password = hash.hashedPassword;
+			userInfo.salt = hash.salt;
+
+			const result = await prisma.user.create({
+				data: userInfo
+			})
+
+			return  res.json({ opcode: OPCODE.SUCCESS, result });
+
+		} else {
+			return  res.json({ opcode: OPCODE.ERROR });
+		}
 		
 	} catch (error) {
 		console.log(error);
