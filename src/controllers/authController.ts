@@ -50,7 +50,9 @@ export const signIn = async (req: Request, res: Response, next: NextFunction): P
 				userName: String(req.body.userName),
 				phoneNum: String(req.body.phoneNum),
 				birth: new Date(req.body.birth),
-				nickname: String(req.body.nickname)
+				nickname: String(req.body.nickname),
+				userType: req.body.userType,
+				introduction: String(req.body.introduction)
 			}
 		
 			const hash =  await createHashedPassword(req.body.password);
