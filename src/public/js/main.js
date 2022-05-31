@@ -184,11 +184,20 @@ function allRoundFinish(){
     //showBeforeStartRoom(roomName, userCount, 0)    
 }
 
-function addMessage(message) {
-	const ul = beforeStart.querySelector("ul");
-    const li = document.createElement("li");
-    li.innerText = message;
-    ul.appendChild(li);
+function addMessage(messages) {
+	const items = beforeStart.getElementsByTagName('li');
+    console.log(items);
+	while(items.length != 0){
+        items[0].remove();
+    }
+	console.log("after", items);
+
+	messages.map(message => {
+		const ul = beforeStart.querySelector("ul");
+		const li = document.createElement("li");
+		li.innerText = message;
+		ul.appendChild(li);
+	});
 }
 
 function handleRoomSubmit(event) {
@@ -273,9 +282,7 @@ function handleMessageSubmit(event) {
 	event.preventDefault();
 	const input = beforeStart.querySelector("input");
 	const value = input.value;
-	socket.emit("new_message", input.value, roomName, () => {
-		addMessage(`You: ${value}`);
-	});
+	socket.emit("new_message", value, roomName);
 	input.value = "";
 }
 

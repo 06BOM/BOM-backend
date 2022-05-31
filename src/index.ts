@@ -28,6 +28,7 @@ let scoreListOfRooms = new Map<string, Map<string, Number>>();
 let immMap, sortScores;
 let questionsOfRooms = new Map<string, {}>();
 let whereSocketIdIn = new Map<string, string>();
+let chatting = new Map<string, string[]>(); // <방이름, 채팅 배열>
 
 async function createRoom(roomInfo) {
 	try{
@@ -228,9 +229,14 @@ wsServer.on("connection", socket => {
 		});
 	});
 
-	socket.on("new_message", (msg, room, done) => {
-        socket.to(room).emit("new_message", `${socket.data.nickname}: ${msg}`);
-        done();
+	socket.on("new_message", (msg, room) => {
+		let msgArray = [];
+		if (chatting.has(room)) {
+			msgArray = chatting.get(room);
+		}
+		msgArray.push(`${socket.data.nickname}: ${msg}`);
+		chatting.set(room, msgArray);
+		wsServer.to(room).emit("new_message", chatting.get(room));
     });
 
 	socket.on("ready", (roomName) => {
