@@ -2,7 +2,6 @@ import { PrismaClient } from "@prisma/client";
 import { OPCODE, Sessions, Token, DamoyeoError } from "../tools";
 import { NextFunction, Request, Response } from 'express';
 import axios from 'axios';
-import { Strategy, Profile } from 'passport-naver-v2';
 import util from 'util';
 import crypto from 'crypto';
 
@@ -35,26 +34,40 @@ const verifyPassword = async (password, userSalt, userPassword) => {
   };
 
 export const signIn = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => { 
-	let userInfo = {
-		emailId: String(req.body.emailId),
-		grade: req.body.grade,
-		password: "",
-		salt: "",
-		userName: String(req.body.userName),
-		phoneNum: String(req.body.phoneNum),
-		birth: new Date(req.body.birth),
-		nickname: String(req.body.nickname)
-	}
-
-	const hash =  await createHashedPassword(req.body.password);
-	userInfo.password = hash.hashedPassword;
-	userInfo.salt = hash.salt;
+	let emailId = String(req.body.emailId);
 	
 	try {
-		const result = await prisma.user.create({
-			data: userInfo
-		})
-		return  res.json({ opcode: OPCODE.SUCCESS, result });
+		let isExist = await prisma.user.findFirst({
+			where: { emailId: emailId }
+		}) 
+	
+		if ( !isExist ){
+			let userInfo = {
+				emailId: emailId,
+				grade: req.body.grade,
+				password: "",
+				salt: "",
+				userName: String(req.body.userName),
+				phoneNum: String(req.body.phoneNum),
+				birth: new Date(req.body.birth),
+				nickname: String(req.body.nickname),
+				userType: req.body.userType,
+				introduction: String(req.body.introduction)
+			}
+		
+			const hash =  await createHashedPassword(req.body.password);
+			userInfo.password = hash.hashedPassword;
+			userInfo.salt = hash.salt;
+
+			const result = await prisma.user.create({
+				data: userInfo
+			})
+
+			return  res.json({ opcode: OPCODE.SUCCESS, result });
+
+		} else {
+			return  res.json({ opcode: OPCODE.ERROR });
+		}
 		
 	} catch (error) {
 		console.log(error);
@@ -64,7 +77,8 @@ export const signIn = async (req: Request, res: Response, next: NextFunction): P
 
 export const logIn = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => { 
 	try {
-		const platform = String(req.body.platform)
+		const platform = String(req.body.platform);
+
 		switch(platform){
 			case "local" : {
 				const emailId = String(req.body.emailId);
@@ -123,18 +137,20 @@ export const logIn = async (req: Request, res: Response, next: NextFunction): Pr
 				user = await prisma.user.create({
 					data: userContent
 				});
+
 				existUser = false;
 				}
-		
+				
 				const sessionId = await Sessions.createSession(user);
 				const accessToken = Token.signJwt(
 					{userId: user.userId, sessionId},
 					"1h"
 				);
+
 				const refreshToken = Token.signJwt(
 					{ sessionId },
 					"1w"
-				)
+				);
 		
 				if (existUser === true) {
 					return res.status(201).json({ opcode: OPCODE.SUCCESS, payload: {accessToken, refreshToken} });
@@ -142,10 +158,10 @@ export const logIn = async (req: Request, res: Response, next: NextFunction): Pr
 					return res.status(200).json({ opcode: OPCODE.SUCCESS, payload: {accessToken, refreshToken} });
 				}
 			}
+
 			case "kakao" : {
 				let existUser = true;
-	
-				const { kakaoAccessToken } = req.body;
+				const kakaoAccessToken = req.body.accessToken;
 				const headers = {
 					"Content-Type": "application/x-www-form-urlencoded",
 					Authorization: "Bearer " + kakaoAccessToken
@@ -195,59 +211,6 @@ export const logIn = async (req: Request, res: Response, next: NextFunction): Pr
 				}
 			}
 		}
-		/*
-		*/
-
-		
-		
-		/*let existUser = true;
-	
-		const { kakaoAccessToken } = req.body;
-		const headers = {
-			"Content-Type": "application/x-www-form-urlencoded",
-			Authorization: "Bearer " + kakaoAccessToken
-		};
-		const response = await axios.get("https://kapi.kakao.com/v2/user/me", {
-			headers,
-		});
-		let user = await prisma.user.findFirst({
-			where: {
-				AND: [
-					{ platform: "kakao" },
-					{ platformId: String(response.data.id) }
-				]
-			}
-		});
-
-		if (!user) {
-			let userContent = {
-				platform: 'kakao',
-				platformId: String(response.data.id),
-				nickname: String(response.data.properties.nickname),
-				userName: String(response.data.properties.nickName)
-			}
-			
-			user = await prisma.user.create({
-				data: userContent
-			});
-			existUser = false;
-		}
-
-		const sessionId = await Sessions.createSession(user);
-		const accessToken = Token.signJwt(
-			{userId: user.userId, sessionId},
-			"1h"
-		);
-		const refreshToken = Token.signJwt(
-			{ sessionId },
-			"1w"
-		);
-
-		if (existUser === true) {
-			return res.status(201).json({ opcode: OPCODE.SUCCESS, payload: {accessToken, refreshToken} });
-		} else {
-			return res.status(200).json({ opcode: OPCODE.SUCCESS, payload: {accessToken, refreshToken} });
-		}*/
 
     } catch(error) {
         console.log(error);

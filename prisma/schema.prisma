@@ -183,7 +183,7 @@ model MockDB {
 
 model OXDB {
   oxquestionId   Int    @id @default(autoincrement())
-  oxquestion     String @db.VarChar(45)
+  oxquestion     String @db.VarChar(255)
   oxanswer       String @db.VarChar(45)
   subject        String @db.VarChar(45)
   grade          Int
@@ -191,7 +191,7 @@ model OXDB {
   totalNumSolved Int    @default(0)
   correctNum     Int    @default(0)
   provider       Int
-  explanation    String @db.VarChar(45)
+  explanation    String @db.VarChar(255)
   user           User   @relation(fields: [provider], references: [userId])
 
   @@index([provider], map: "OXDB_provider_fkey")

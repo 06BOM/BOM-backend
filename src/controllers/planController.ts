@@ -1,7 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { OPCODE } from "../tools";
 import { NextFunction, Request, Response } from 'express';
-import { Console, time } from "console";
 
 const prisma = new PrismaClient();
 

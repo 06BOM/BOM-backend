@@ -3,7 +3,7 @@ import { authMiddleware } from "../middleware";
 
 import { createCategory,
          deleteCategory,
-		 getCategory 
+	 getCategory 
         } from "../controllers/categoryController";
 
 const router = express.Router();
