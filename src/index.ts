@@ -277,6 +277,7 @@ wsServer.on("connection", socket => {
 		scoreListOfRooms.set(roomName, immMap);
 		wsServer.sockets.in(roomName).emit("scoreboard display", JSON.stringify(Array.from(immMap)));
 		wsServer.sockets.in(roomName).emit("showGameRoom");
+		chatting.delete(roomName);
     });
 
 	socket.on("question", (roomName) => {
