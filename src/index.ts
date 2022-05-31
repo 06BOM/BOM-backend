@@ -188,6 +188,13 @@ wsServer.on("connection", socket => {
 			scoreListOfRooms.set(roomName, immScoreMap);
 			console.log("enter room - scoreListOfRooms: ", scoreListOfRooms)
 
+			let msgArray = [];
+			if(chatting.has(roomName)) {
+				msgArray = chatting.get(roomName);
+			}
+			msgArray.push(`${socket.data.nickname}님 입장!`);
+			chatting.set(roomName, msgArray);
+
             let users = [];
 			scoreListOfRooms.forEach((value, key, map) => value.forEach((value, key, map) => users.push(key)));
 			wsServer.to(roomName).emit("welcome", socket.data.nickname, roomName, countRoom(roomName));
