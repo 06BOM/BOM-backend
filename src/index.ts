@@ -190,13 +190,17 @@ wsServer.on("connection", socket => {
             let users = [];
 			scoreListOfRooms.forEach((value, key, map) => value.forEach((value, key, map) => users.push(key)));
 			// wsServer.to(roomName).emit("welcome", socket.data.nickname, roomName, countRoom(roomName));
-			wsServer.to(roomName).emit("welcome", roomName, countRoom(roomName), socket.data.nickname, users.findIndex(user => user == socket.data.nickname)); // index는 나갈때 문제 될 듯 -> 나갈때 dequeue?
+			wsServer.to(roomName).emit("welcome", roomName, countRoom(roomName), JSON.stringify(users), users.findIndex(user => user == socket.data.nickname)); // index는 나갈때 문제 될 듯 -> 나갈때 dequeue?
+			wsServer.to(roomName).emit("update_players", JSON.stringify(users));
         }
     });
 
 	socket.on("create_room", ({ payload, nickname }) => {// {}추가
 		console.log(`create_room : ${payload} ${nickname}`);
 		socket.data.nickname = nickname;
+		let users = [nickname];
+		console.log(users);
+		console.log(typeof users);
 		checkRoomExist(payload.roomName).then( checkExist => {
 			console.log("here checkExist: ", checkExist);
 			
@@ -207,7 +211,7 @@ wsServer.on("connection", socket => {
 					increaseParticipants(payload.roomName);
             		console.log("현재 존재하는 방들: ", socket.rooms);
 					// socket.emit("create_room", payload.roomName, countRoom(payload.roomName));
-					socket.emit("create_room", payload.roomName, countRoom(payload.roomName), nickname, 0);
+					socket.emit("create_room", payload.roomName, countRoom(payload.roomName), JSON.stringify(users), 0);
 					
 					if (readyStorage.get(payload.roomName) === undefined) {
 						readyStorage.set(payload.roomName, []);
@@ -230,9 +234,10 @@ wsServer.on("connection", socket => {
 		});
 	});
 
-	socket.on("new_message", (msg, room, done) => {
-        socket.to(room).emit("new_message", `${socket.data.nickname}: ${msg}`);
-        done();
+	socket.on("new_message", ({ msg, room }) => {
+		console.log(`msg: ${msg} / room : ${room}`)
+    	wsServer.to(room).emit("new_message", `${socket.data.nickname}: ${msg}`);
+        // done();
     });
 
 	socket.on("ready", ({roomName}) => {
