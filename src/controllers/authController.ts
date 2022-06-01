@@ -161,7 +161,7 @@ export const logIn = async (req: Request, res: Response, next: NextFunction): Pr
 
 			case "kakao" : {
 				let existUser = true;
-				const { kakaoAccessToken } = req.body;
+				const kakaoAccessToken = req.body.accessToken;
 				const headers = {
 					"Content-Type": "application/x-www-form-urlencoded",
 					Authorization: "Bearer " + kakaoAccessToken
