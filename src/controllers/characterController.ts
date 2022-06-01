@@ -13,7 +13,7 @@ export const getCharacterInfomation = async (req: Request, res: Response, next: 
 				characterId
 			}
 		});
-		return res.status(201).json({ opcode: OPCODE.SUCCESS, character });
+		return res.json({ opcode: OPCODE.SUCCESS, character });
 
 	} catch(error) {
 		console.log(error);
@@ -35,7 +35,7 @@ export const getCharacterImageUrl = async (req: Request, res: Response, next: Ne
             }
 		});
 
-		return res.status(201).json({ opcode: OPCODE.SUCCESS, character});
+		return res.json({ opcode: OPCODE.SUCCESS, character});
 
 	} catch(error) {
 		console.log(error);
@@ -68,7 +68,7 @@ export const getAllCharacters = async (req: Request, res: Response, next: NextFu
             )  
         }
 
-		return res.status(201).json({ opcode: OPCODE.SUCCESS, characters});
+		return res.json({ opcode: OPCODE.SUCCESS, characters});
 
 	} catch(error) {
 		console.log(error);
