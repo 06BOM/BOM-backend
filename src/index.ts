@@ -28,7 +28,7 @@ let scoreListOfRooms = new Map<string, Map<string, Number>>();
 let immMap, sortScores;
 let questionsOfRooms = new Map<string, {}>();
 let whereSocketIdIn = new Map<string, string>();
-let chatting = new Map<string, string[]>(); // <방이름, 채팅 배열>
+let chatting = new Map<string, Map<string, string[]>>(); // <방이름, 채팅 배열>
 
 async function createRoom(roomInfo) {
 	try{
@@ -189,11 +189,27 @@ wsServer.on("connection", socket => {
 			console.log("enter room - scoreListOfRooms: ", scoreListOfRooms)
 
 			let msgArray = [];
+			let immChattingMap = new Map<string, string[]>();
+
+			immChattingMap = chatting.get(roomName);
+			immChattingMap.set(socket.data.nickname, []);
+			chatting.set(roomName, immChattingMap);
+
+			immChattingMap = new Map<string, string[]>();
+
 			if(chatting.has(roomName)) {
-				msgArray = chatting.get(roomName);
+				immChattingMap = chatting.get(roomName);
+				immChattingMap.forEach((value, key) => {
+					msgArray = immChattingMap.get(key);
+					msgArray.push(`${socket.data.nickname}님 입장!`);
+					immChattingMap.set(key, msgArray);
+					chatting.set(roomName, immChattingMap);
+				});
+			} else {
+				msgArray.push(`${socket.data.nickname}님 입장!`);
+				immChattingMap.set(socket.data.nickname, msgArray);
+				chatting.set(roomName, immChattingMap);
 			}
-			msgArray.push(`${socket.data.nickname}님 입장!`);
-			chatting.set(roomName, msgArray);
 
             let users = [];
 			scoreListOfRooms.forEach((value, key, map) => value.forEach((value, key, map) => users.push(key)));
@@ -213,6 +229,12 @@ wsServer.on("connection", socket => {
 					socket.join(payload.roomName);
 					increaseParticipants(payload.roomName);
             		console.log("현재 존재하는 방들: ", socket.rooms);
+					
+					let immChattingMap = new Map<string, string[]>();
+		
+					immChattingMap.set(socket.data.nickname, []);
+					chatting.set(payload.roomName, immChattingMap);
+
 					socket.emit("create_room", payload.roomName, countRoom(payload.roomName));
 					
 					if (readyStorage.get(payload.roomName) === undefined) {
@@ -238,12 +260,23 @@ wsServer.on("connection", socket => {
 
 	socket.on("new_message", (msg, room) => {
 		let msgArray = [];
+		let immChattingMap = new Map<string, string[]>();
+
 		if (chatting.has(room)) {
-			msgArray = chatting.get(room);
+			immChattingMap = chatting.get(room);
+			immChattingMap.forEach((value, key) => {
+				msgArray = immChattingMap.get(key);
+				msgArray.push(`${socket.data.nickname}: ${msg}`);
+				immChattingMap.set(key, msgArray);		
+				chatting.set(room, immChattingMap);
+			});
+		} else {
+			msgArray.push(`${socket.data.nickname}: ${msg}`);
+			immChattingMap.set(socket.data.nickname, msgArray);
+			chatting.set(room, immChattingMap);
 		}
-		msgArray.push(`${socket.data.nickname}: ${msg}`);
-		chatting.set(room, msgArray);
-		wsServer.to(room).emit("new_message", chatting.get(room));
+
+		wsServer.to(room).emit("new_message", JSON.stringify(Array.from(chatting.get(room))));
     });
 
 	socket.on("ready", (roomName) => {
