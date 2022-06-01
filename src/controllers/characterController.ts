@@ -13,7 +13,7 @@ export const getCharacterInfomation = async (req: Request, res: Response, next: 
 				characterId
 			}
 		});
-		return res.status(201).json({ opcode: OPCODE.SUCCESS, character });
+		return res.json({ opcode: OPCODE.SUCCESS, character });
 
 	} catch(error) {
 		console.log(error);
@@ -35,7 +35,7 @@ export const getCharacterImageUrl = async (req: Request, res: Response, next: Ne
             }
 		});
 
-		return res.status(201).json({ opcode: OPCODE.SUCCESS, character});
+		return res.json({ opcode: OPCODE.SUCCESS, character});
 
 	} catch(error) {
 		console.log(error);
@@ -46,17 +46,29 @@ export const getCharacterImageUrl = async (req: Request, res: Response, next: Ne
 export const getAllCharacters = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	// @ts-ignore
 	const userId = Number(req.user.userId);
+    let characters = [];
 
 	try {
-		const characters = await prisma.collection.findMany({
+		const userCharacters = await prisma.collection.findMany({
 			where: {
 				userId: userId
 			},
-            select:{
+            select: {
                 characterId : true
             }
 		});
-		return res.status(201).json({ opcode: OPCODE.SUCCESS, characters});
+
+        for(let i =0; i< userCharacters.length; i++){
+            characters.push(
+                await prisma.character.findUnique({
+                    where:{
+                        characterId : userCharacters[i].characterId
+                    }
+                })
+            )  
+        }
+
+		return res.json({ opcode: OPCODE.SUCCESS, characters});
 
 	} catch(error) {
 		console.log(error);
