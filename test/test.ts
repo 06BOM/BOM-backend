@@ -1,12 +1,12 @@
 //test.js
 const assert = require('assert');
 
-describe('controller test', () => {
-  describe('plan controller test', () => {
-    it('createPlan func test', () => {
+describe('plan controller test', () => {
+  describe('createPlan func test', () => {
+    it('should return ~', () => {
       //테스트 코드
     });
-    it('deletePlan func test', () => {
+    it('should return ~', () => {
       //테스트 코드
     })    
   });
