@@ -1,4 +1,6 @@
 import express from 'express';
+import { authMiddleware } from "../middleware";
+
 import { 
     createOxQuestion,
     getOxQuestion,
@@ -9,14 +11,15 @@ import {
     increaseCorrectNum
         } from "../controllers/oxController";
 
+		
 const router = express.Router();
 
-router.post('', createOxQuestion);
+router.post('', authMiddleware, createOxQuestion);
 router.get('', getOxQuestion);
-router.patch('/:id', updateOxQuestion);
-router.delete('/:id', deleteOxQuestion);
+router.patch('/:id', authMiddleware, updateOxQuestion);
+router.delete('/:id', authMiddleware, deleteOxQuestion);
 router.get('/statistics', getOxStats);
-router.patch('/:id/total', increaseTotalNumSolved);
-router.patch('/:id/correct', increaseCorrectNum);
+router.patch('/:id/total', authMiddleware, increaseTotalNumSolved);
+router.patch('/:id/correct', authMiddleware, increaseCorrectNum);
 
 export default router;

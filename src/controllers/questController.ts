@@ -9,7 +9,8 @@ export const createQuestAttempt = async (req: Request, res: Response, next: Next
         questionId: Number(req.body.questionId),
 		count: Number(req.body.count), 
 		date: new Date((req.body.date)),
-        userId: Number(req.body.userId)
+		// @ts-ignore
+        userId: Number(req.user.userId)
     }
     try {
         const resultQuestAttempt = await prisma.questAttempt.create({

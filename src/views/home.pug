@@ -18,7 +18,12 @@ html(lang="en")
 					button Enter Room
 				h6 방생성하기
 				form#createroom
-					input(placeholder="room name", required, type="text")
+					input#roomName(placeholder="room name", required, type="text")
+					br
+					input#grade(placeholder="grade", required, type="number")
+					br
+					input#subject(placeholder="subject", required, type="text")
+					br
 					button 생성
 				h4 Open Rooms: 
 				ul

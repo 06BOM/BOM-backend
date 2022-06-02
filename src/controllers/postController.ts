@@ -1,8 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { OPCODE } from "../tools";
 import { NextFunction, Request, Response } from 'express';
-import { ServerStreamFileResponseOptionsWithError } from "http2";
-import { NetConnectOpts } from "net";
 
 const prisma = new PrismaClient();
 
@@ -12,7 +10,8 @@ export const createPost = async (req: Request, res: Response, next: NextFunction
         title: req.body.title,
         postKind: req.body.postKind,
         content: req.body.content,
-        userId: req.body.userId,
+		// @ts-ignore
+        userId: req.user.userId,
         categoryId: req.body.categoryId
     }
 
