@@ -226,7 +226,7 @@ export const logOut = async (req: Request, res: Response, next: NextFunction): P
                 sessionId: req.user.sessionId
             }
         });
-		return res.sendStatus(204);
+		return res.sendStatus(200);
 	} catch(error) {
 		console.error(error);
         next(error);
