@@ -75,6 +75,18 @@ export const signIn = async (req: Request, res: Response, next: NextFunction): P
 	}
 }
 
+export const snsCallback = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => { 
+	const accessToken = req.query.code;
+
+	try {
+		return res.json({ opcode: OPCODE.ERROR, accessToken: accessToken });
+
+	} catch(error) {
+		console.error(error);
+        next(error);
+	}
+}
+
 export const logIn = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => { 
 	try {
 		const platform = String(req.body.platform);
