@@ -85,6 +85,23 @@ describe('plan controller test', () => {
 			.end(done);
 	});
   })
+
+  describe('POST /plan/star test', () => {
+	it('should return success json', (done) => {
+		request(app)
+			.post('/plan/star')
+			.send({
+				dailyId: 33
+			})
+			// @ts-ignore
+			.auth(auth.token, { type: 'bearer' })
+			.expect(res => {
+				should(res).have.property('statusCode', 200);
+				should(res._body).have.property('opcode', 0);
+			})
+			.end(done);
+	});
+  })
 });
 
 function loginUser() {
