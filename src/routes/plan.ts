@@ -36,7 +36,7 @@ router.get("/week/total", authMiddleware, getWeeklyTime);
 router.get("/month/total", authMiddleware, getMonthlyTime)
 router.route("/star").get(authMiddleware, getDailyStar).post(authMiddleware, handleStar);
 router.get("/week/star", authMiddleware, getWeeklyStar);
-router.get("/month/star", getMonthlyStar);
+router.get("/month/star", authMiddleware, getMonthlyStar);
 router.get("/all", authMiddleware, getAllPlans);
 router.get("/completed", authMiddleware, getCompletedPlans);
 router.get("/incomplete", authMiddleware, getIncompletePlans);

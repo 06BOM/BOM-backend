@@ -68,6 +68,23 @@ describe('plan controller test', () => {
 			.end(done);
 	});
   })
+
+  describe('GET /plan/month/star test', () => {
+	it('should return success json', (done) => {
+		request(app)
+			.get('/plan/month/star')
+			.query({ date: "2022-05-18"})
+			// @ts-ignore
+			.auth(auth.token, { type: 'bearer' })
+			.expect(res => {
+				should(res).have.property('statusCode', 200);
+				should(res._body).have.property('opcode', 0);
+				should(res._body).have.property('stars');
+				should(res._body).have.property('stars', 3);
+			})
+			.end(done);
+	});
+  })
 });
 
 function loginUser() {
