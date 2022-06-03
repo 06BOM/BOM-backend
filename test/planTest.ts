@@ -7,16 +7,112 @@ import request from 'supertest';
 let auth = {};
 
 describe('plan controller test', () => {
+
 	before(loginUser());
 
-	describe('createPlan func test', () => {
-    it('should return ~', () => {
-      //테스트 코드
-    });
-    it('should return ~', () => {
-      //테스트 코드
-    })    
-  });
+	//creatPlan, delete test는 주석처리하고 test 실행
+	//test 하고싶으면 새로 생긴 plan은 지워주고 delete는 존재하는 planId 넣어서 하세용 
+	describe('createPlan API test', () => {
+		it('should return success json', (done) => {
+			request(app)
+			.post('/plan')
+			.send({
+				date: "2022-06-05",
+				planName: "createPlan test",
+				categoryId: 1
+			})
+			// @ts-ignore
+			.auth(auth.token, { type: 'bearer' })
+			.expect(res => {
+				should(res).have.property('statusCode', 200);
+				should(res._body).have.property('opcode', 0);
+				should(res._body).have.property('resultPlan');
+				should(res._body.resultPlan).have.property('planName',"createPlan test");
+			})
+			.end(done);
+		});   
+  	});
+
+	
+	describe('deletePlan API test', () => {
+		it('should return success json', (done) => {
+			request(app)
+			.delete('/plan/379')
+			// @ts-ignore
+			.auth(auth.token, { type: 'bearer' })
+			.expect(res => {
+				should(res).have.property('statusCode', 200);
+			})
+			.end(done);
+		});   
+  	});
+
+	describe('getDailyStudyTime API test', () => {
+		it('should return success json', (done) => {
+			request(app)
+			.get('/plan/total')
+			.query({ date: "2022-06-05"})
+			// @ts-ignore
+			.auth(auth.token, { type: 'bearer' })
+			.expect(res => {
+				should(res).have.property('statusCode', 200);
+				should(res._body).have.property('opcode', 0);
+				should(res._body).have.property('totalTime');
+				should(res._body).have.property('totalTime', 200);
+			})
+			.end(done);
+		});   
+  	});
+
+	describe('getWeeklyAverageStudyTime API test', () => {
+		it('should return success json', (done) => {
+			request(app)
+			.get('/plan/week/average')
+			.query({ date: "2022-06-02"})
+			// @ts-ignore
+			.auth(auth.token, { type: 'bearer' })
+			.expect(res => {
+				should(res).have.property('statusCode', 200);
+				should(res._body).have.property('opcode', 0);
+				should(res._body).have.property('averageTime');
+				should(res._body).have.property('averageTime', 57);
+			})
+			.end(done);
+		});   
+  	});
+
+	describe('getMonthlyAverageStudyTime API test', () => {
+		it('should return success json', (done) => {
+			request(app)
+			.get('/plan/month/average')
+			.query({ date: "2022-06-02"})
+			// @ts-ignore
+			.auth(auth.token, { type: 'bearer' })
+			.expect(res => {
+				should(res).have.property('statusCode', 200);
+				should(res._body).have.property('opcode', 0);
+				should(res._body).have.property('averageTime');
+				should(res._body).have.property('averageTime', 13);
+			})
+			.end(done);
+		});   
+  	});
+
+	describe('getPlanTime API test', () => {
+		it('should return success json', (done) => {
+			request(app)
+			.get('/plan/373/time')
+			// @ts-ignore
+			.auth(auth.token, { type: 'bearer' })
+			.expect(res => {
+				should(res).have.property('statusCode', 200);
+				should(res._body).have.property('opcode', 0);
+				should(res._body).have.property('time');
+				should(res._body).have.property('time', 100);
+			})
+			.end(done);
+		});   
+  	});
  
   describe('GET /plan/star test', () => {
 	it('should return success json', (done) => {
@@ -119,6 +215,7 @@ describe('plan controller test', () => {
 			.end(done);
 	});
   })
+
 });
 
 function loginUser() {
