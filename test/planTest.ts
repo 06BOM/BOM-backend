@@ -102,6 +102,23 @@ describe('plan controller test', () => {
 			.end(done);
 	});
   })
+
+  describe('GET /plan/month/all/star test', () => {
+	it('should return success json', (done) => {
+		request(app)
+			.get('/plan/month/all/star')
+			.query({ date: "2022-05-18" })
+			// @ts-ignore
+			.auth(auth.token, { type: 'bearer' })
+			.expect(res => {
+				should(res).have.property('statusCode', 200);
+				should(res._body).have.property('opcode', 0);
+				should(res._body).have.property('allMonthlyStars');
+				should(res._body.allMonthlyStars).be.an.instanceOf(Array);
+			})
+			.end(done);
+	});
+  })
 });
 
 function loginUser() {
