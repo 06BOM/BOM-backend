@@ -26,8 +26,9 @@ describe('plan controller test', () => {
 			// @ts-ignore
 			.auth(auth.token, { type: 'bearer' })
 			.expect(res => {
-				console.log(res);
-				//should(res).have.property('statusCode', 200);
+				should(res).have.property('statusCode', 200);
+				should(res._body).have.property('opcode', 0);
+				should(res._body).have.property('star', 3);
 			})
 			.end(done);
 	});
