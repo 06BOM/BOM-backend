@@ -7,7 +7,7 @@ import request from 'supertest';
 let auth = {};
 
 describe('plan controller test', () => {
-	before(loginUser(auth));
+	before(loginUser());
 
 	describe('createPlan func test', () => {
     it('should return ~', () => {
@@ -17,34 +17,24 @@ describe('plan controller test', () => {
       //테스트 코드
     })    
   });
-
-  describe('pr', () => {
-	it('should return success json', (done) => {
-		request(app)
-			.get('/')
-			.expect(res => {
-				should(res).have.property('statusCode', 200);
-			}).end(done);
-	});
-  })
-
-  /* 
+ 
   describe('getDailyStar func test', () => {
 	it('should return success json', (done) => {
 		request(app)
 			.get('/plan/star')
+			.query({ date: "2022-05-18"})
 			// @ts-ignore
-			.set('Authorization', 'bearer ' + auth.token)
-			.expect(200)
-			.end((err, res) => {
-				if (err) throw err;
-				done();
-			});	
+			.auth(auth.token, { type: 'bearer' })
+			.expect(res => {
+				console.log(res);
+				//should(res).have.property('statusCode', 200);
+			})
+			.end(done);
 	});
-  })*/
+  })
 });
 
-function loginUser(auth) {
+function loginUser() {
 	return function(done) {
 		request(app)
 		.post('/auth/login')
@@ -55,20 +45,12 @@ function loginUser(auth) {
 		})
 		.expect(res => {
 			should(res).have.property('statusCode', 200);
-		}).end(done);
-            /*.send({
-				platform: 'local',
-                email: 'test@bombomtest.com',
-                password: 'Qlalfqjsgh06@'
-            })
-            //.end(onResponse);
-
-			done();
+		}).end(onResponse);
 
         function onResponse(err, res) {
-			//console.log(res);
-            //auth.token = res.body.accessToken;
-            return done();
-        }*/
+            // @ts-ignore
+			auth.token = res._body.payload.accessToken;
+			return done();
+        }
     }
 }
