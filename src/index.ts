@@ -512,7 +512,6 @@ wsServer.on("connection", socket => {
 		immMap.delete(socket.data.nickname);
 		scoreListOfRooms.set(roomName, immMap);
 		whereSocketIdIn.delete(socket.id);
-		reduceParticipants(roomName);
 
 		if (scoreListOfRooms.get(roomName).size === 0){
 			checkQuestionsUsage.delete(roomName);
@@ -525,6 +524,7 @@ wsServer.on("connection", socket => {
 			deleteRoom(roomName);
 			wsServer.sockets.in(roomName).emit("clear");
 		}
+		reduceParticipants(roomName);
 		socket.leave(roomName);
 		console.log("exit-현재 존재하는 방들: ", socket.rooms);
 		console.log("scoreListOfRooms: ", scoreListOfRooms)
