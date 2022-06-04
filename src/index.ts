@@ -72,6 +72,38 @@ async function reduceParticipants(roomName) {
 	}
 }
 
+async function playing(roomName) {
+	try{
+		let roomInfo = await prisma.room.findFirst({
+			where: { roomName: roomName }
+		})
+
+		let room = await prisma.room.updateMany({
+			where: { roomName : roomName },
+			data: { playingFlag : true }
+		})
+
+	} catch (error){
+		console.log(error);
+	}
+}
+
+async function notPlaying(roomName) {
+	try{
+		let roomInfo = await prisma.room.findFirst({
+			where: { roomName: roomName }
+		})
+
+		let room = await prisma.room.updateMany({
+			where: { roomName : roomName },
+			data: { playingFlag : false }
+		})
+
+	} catch (error){
+		console.log(error);
+	}
+}
+
 async function deleteRoom(roomName) {
 	try{
 		let room = await prisma.room.deleteMany({
@@ -194,6 +226,7 @@ wsServer.on("connection", socket => {
 			immChattingMap = chatting.get(roomName);
 			immChattingMap.set(socket.data.nickname, []);
 			chatting.set(roomName, immChattingMap);
+			console.log("chatting: ", chatting);
 
 			immChattingMap = new Map<string, string[]>();
 
@@ -275,6 +308,7 @@ wsServer.on("connection", socket => {
 			immChattingMap.set(socket.data.nickname, msgArray);
 			chatting.set(room, immChattingMap);
 		}
+		console.log("chatting: ", chatting);
 
 		wsServer.to(room).emit("new_message", JSON.stringify(Array.from(chatting.get(room))));
     });
@@ -309,6 +343,7 @@ wsServer.on("connection", socket => {
 		checkQuestionsUsage.set(roomName, [0,0,0,0,0,0,0,0,0,0]);
 		firstQflag.set(roomName, 0);
 		playingFlag.set(roomName, 1);
+		playing(roomName);
 		starFlag.set(roomName, 0);
 		immMap = new Map(scoreListOfRooms.get(roomName));
 		immMap.forEach((value, key) => {
@@ -326,9 +361,11 @@ wsServer.on("connection", socket => {
 		console.log("firstQflag: ", firstQflag);
 
 		for (let i = 0; i < 10; i++){
+			if (checkQuestionsUsage.has(roomName) === false ) return;
 			if (checkQuestionsUsage.get(roomName)[i] === 1) cnt++;
 			if (cnt >= 10) return; 
 		}
+		if (checkQuestionsUsage.has(roomName) === false ) return;
 
 		if (firstQflag.get(roomName) === 0) {	//flag 0: 가장 첫번째 실행한 사람만 아래 코드 실행
 			firstQflag.set(roomName, 1);	
@@ -456,6 +493,7 @@ wsServer.on("connection", socket => {
 		}
 
 		playingFlag.set(roomName, 0);
+		notPlaying(roomName);
 		//checkQuestionsUsage.set(roomName, [0,0,0,0,0,0,0,0,0,0]);	
 		readyStorage.set(roomName, []);
 		wsServer.sockets.in(roomName).emit("ready check");
@@ -478,6 +516,7 @@ wsServer.on("connection", socket => {
 			checkQuestionsUsage.delete(roomName);
 			firstQflag.delete(roomName);
 			starFlag.delete(roomName);
+			playingFlag.delete(roomName);
 			scoreListOfRooms.delete(roomName);
 			console.log("delete checkQuestionsUsage, firstQflag ", checkQuestionsUsage, firstQflag);
 			deleteRoom(roomName);
@@ -511,6 +550,7 @@ wsServer.on("connection", socket => {
 				checkQuestionsUsage.delete(roomNamee);
 				firstQflag.delete(roomNamee);
 				starFlag.delete(roomNamee);
+				playingFlag.delete(roomNamee);
 				scoreListOfRooms.delete(roomNamee);
 				console.log("delete checkQuestionsUsage, firstQflag ", checkQuestionsUsage, firstQflag);
 				deleteRoom(roomNamee);

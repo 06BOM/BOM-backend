@@ -75,6 +75,18 @@ export const signIn = async (req: Request, res: Response, next: NextFunction): P
 	}
 }
 
+export const snsCallback = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => { 
+	const accessToken = req.query.code;
+
+	try {
+		return res.json({ opcode: OPCODE.ERROR, accessToken: accessToken });
+
+	} catch(error) {
+		console.error(error);
+        next(error);
+	}
+}
+
 export const logIn = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => { 
 	try {
 		const platform = String(req.body.platform);
@@ -94,7 +106,17 @@ export const logIn = async (req: Request, res: Response, next: NextFunction): Pr
 
 				if(userData){
 					if(verified){
-						return res.json({ opcode: OPCODE.SUCCESS, userData });
+						const sessionId = await Sessions.createSession(userData);
+						const accessToken = Token.signJwt(
+							{userId: userData.userId, sessionId},
+							"1h"
+						);
+						const refreshToken = Token.signJwt(
+							{ sessionId },
+							"1w"
+						);
+
+						return res.status(200).json({ opcode: OPCODE.SUCCESS, payload: {accessToken, refreshToken} });
 					}
 					else{
 						return res.json({ opcode: OPCODE.ERROR });
@@ -226,7 +248,7 @@ export const logOut = async (req: Request, res: Response, next: NextFunction): P
                 sessionId: req.user.sessionId
             }
         });
-		return res.sendStatus(204);
+		return res.sendStatus(200);
 	} catch(error) {
 		console.error(error);
         next(error);
