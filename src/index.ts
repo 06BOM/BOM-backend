@@ -226,6 +226,7 @@ wsServer.on("connection", socket => {
 			immChattingMap = chatting.get(roomName);
 			immChattingMap.set(socket.data.nickname, []);
 			chatting.set(roomName, immChattingMap);
+			console.log("chatting: ", chatting);
 
 			immChattingMap = new Map<string, string[]>();
 
@@ -307,6 +308,7 @@ wsServer.on("connection", socket => {
 			immChattingMap.set(socket.data.nickname, msgArray);
 			chatting.set(room, immChattingMap);
 		}
+		console.log("chatting: ", chatting);
 
 		wsServer.to(room).emit("new_message", JSON.stringify(Array.from(chatting.get(room))));
     });
@@ -359,9 +361,11 @@ wsServer.on("connection", socket => {
 		console.log("firstQflag: ", firstQflag);
 
 		for (let i = 0; i < 10; i++){
+			if (checkQuestionsUsage.has(roomName) === false ) return;
 			if (checkQuestionsUsage.get(roomName)[i] === 1) cnt++;
 			if (cnt >= 10) return; 
 		}
+		if (checkQuestionsUsage.has(roomName) === false ) return;
 
 		if (firstQflag.get(roomName) === 0) {	//flag 0: 가장 첫번째 실행한 사람만 아래 코드 실행
 			firstQflag.set(roomName, 1);	
