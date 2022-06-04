@@ -198,6 +198,10 @@ wsServer.on("connection", socket => {
 	});
     
     socket.on("join_room", (roomName, nickname, done) => {
+		if (nickname === "") {
+			console.log("nickname이 빈 문자열이어서 방 입장 불가😖");
+			return;
+		}
 		socket.data.nickname = nickname;
 		console.log("socket.data.nickname: ", socket.data.nickname);
 		let playingF = 0;
@@ -253,7 +257,10 @@ wsServer.on("connection", socket => {
     });
 
 	socket.on("create_room", ( payload, nickname ) => {
-		console.log(nickname);
+		if (nickname === "") {
+			console.log("nickname이 빈 문자열이어서 방 입장 불가😖");
+			return;
+		}
 		socket.data.nickname = nickname;	
 		checkRoomExist(payload.roomName).then( checkExist => {
 			console.log("here checkExist: ", checkExist);
