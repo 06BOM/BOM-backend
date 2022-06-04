@@ -316,7 +316,7 @@ wsServer.on("connection", socket => {
 		console.log("chatting: ", chatting);
 
 		wsServer.to(room).emit("new_message", JSON.stringify(Array.from(chatting.get(room))));
-
+	});
 		socket.on("ready", ({ roomName }) => {
 			let roomReadyArr = readyStorage.get(roomName);
 			if (!roomReadyArr.includes(socket.id)) {
