@@ -136,7 +136,6 @@ async function getRoomInfo(roomName) {
 		})
 		//console.log("roomInfo: ", roomInfo);
 		return roomInfo;
-
 	} catch (error){
 		console.log(error);
 	}
@@ -191,18 +190,19 @@ async function throwStars(key, stars) {
 }
 
 wsServer.on("connection", socket => {
-	socket.data.nickname = "Anon";
+	// socket.data.nickname = "Anon";
 
 	socket.onAny((event) => {
 		console.log(`Socket Event:${event}`);
 	});
     
-    socket.on("join_room", (roomName, nickname, done) => {
+    socket.on("join_room", ({roomName, nickname}) => { // {} 추가
 		socket.data.nickname = nickname;
 		console.log("socket.data.nickname: ", socket.data.nickname);
 		let playingF = 0;
         if (playingFlag.get(roomName) === 1){	
 			console.log("게임중이어서 방 입장 불가😖");
+			socket.emit("already start", "게임중이어서 방 입장이 불가능합니다😅"); // 추가
             playingF = 1;
 		} else {
             socket.join(roomName);
@@ -210,7 +210,7 @@ wsServer.on("connection", socket => {
 			whereSocketIdIn.set(socket.id, roomName);
 			increaseParticipants(roomName);
 			console.log("wherSocketIdIn: ", whereSocketIdIn);
-            done(roomName, countRoom(roomName), playingF); 
+            // done(roomName, countRoom(roomName), playingF); 
 
 			let immScoreMap = new Map();
 			if (scoreListOfRooms.has(roomName)) {
@@ -218,7 +218,7 @@ wsServer.on("connection", socket => {
 			}
 			immScoreMap.set(socket.data.nickname, 0);
 			scoreListOfRooms.set(roomName, immScoreMap);
-			console.log("enter room - scoreListOfRooms: ", scoreListOfRooms)
+			console.log("scoreListOfRooms: ", scoreListOfRooms)
 
 			let msgArray = [];
 			let immChattingMap = new Map<string, string[]>();
@@ -246,13 +246,18 @@ wsServer.on("connection", socket => {
 
             let users = [];
 			scoreListOfRooms.forEach((value, key, map) => value.forEach((value, key, map) => users.push(key)));
-			wsServer.to(roomName).emit("welcome", socket.data.nickname, roomName, countRoom(roomName));
+			// wsServer.to(roomName).emit("welcome", socket.data.nickname, roomName, countRoom(roomName));
+			wsServer.to(roomName).emit("welcome", roomName, countRoom(roomName), JSON.stringify(users), users.findIndex(user => user == socket.data.nickname)); // index는 나갈때 문제 될 듯 -> 나갈때 dequeue?
+			wsServer.to(roomName).emit("update_players", JSON.stringify(users));
         }
     });
 
-	socket.on("create_room", ( payload, nickname ) => {
-		console.log(nickname);
+	socket.on("create_room", ({ payload, nickname }) => {// {}추가
+		console.log(`create_room : ${payload} ${nickname}`);
 		socket.data.nickname = nickname;
+		let users = [nickname];
+		console.log(users);
+		console.log(typeof users);
 		checkRoomExist(payload.roomName).then( checkExist => {
 			console.log("here checkExist: ", checkExist);
 			
@@ -262,6 +267,7 @@ wsServer.on("connection", socket => {
 					socket.join(payload.roomName);
 					increaseParticipants(payload.roomName);
             		console.log("현재 존재하는 방들: ", socket.rooms);
+<<<<<<< HEAD
 					
 					let immChattingMap = new Map<string, string[]>();
 		
@@ -269,6 +275,10 @@ wsServer.on("connection", socket => {
 					chatting.set(payload.roomName, immChattingMap);
 
 					socket.emit("create_room", payload.roomName, countRoom(payload.roomName));
+=======
+					// socket.emit("create_room", payload.roomName, countRoom(payload.roomName));
+					socket.emit("create_room", payload.roomName, countRoom(payload.roomName), JSON.stringify(users), 0);
+>>>>>>> flutter_dev
 					
 					if (readyStorage.get(payload.roomName) === undefined) {
 						readyStorage.set(payload.roomName, []);
@@ -277,7 +287,7 @@ wsServer.on("connection", socket => {
 					let immScoreMap = new Map();
 					immScoreMap.set(nickname, 0);
 					scoreListOfRooms.set(payload.roomName, immScoreMap);
-					console.log("create room - scoreListOfRooms: ", scoreListOfRooms);
+					console.log("scoreListOfRooms: ", scoreListOfRooms);
 
 					getRoomInfo(payload.roomName).then(roomInfo => {
 						set10Questions(payload.roomName, roomInfo.subject, roomInfo.grade);
@@ -286,11 +296,12 @@ wsServer.on("connection", socket => {
 
 			} else {
 				console.log("in here 2");
-				socket.emit("already exist");
+				socket.emit("already exist", "이미 같은 이름의 방이 존재! 다른 방이름으로 생성하시오!"); // 추가
 			}
 		});
 	});
 
+<<<<<<< HEAD
 	socket.on("new_message", (msg, room) => {
 		let msgArray = [];
 		let immChattingMap = new Map<string, string[]>();
@@ -311,9 +322,15 @@ wsServer.on("connection", socket => {
 		console.log("chatting: ", chatting);
 
 		wsServer.to(room).emit("new_message", JSON.stringify(Array.from(chatting.get(room))));
+=======
+	socket.on("new_message", ({ msg, room }) => {
+		console.log(`msg: ${msg} / room : ${room}`)
+    	wsServer.to(room).emit("new_message", `${socket.data.nickname}: ${msg}`);
+        // done();
+>>>>>>> flutter_dev
     });
 
-	socket.on("ready", (roomName) => {
+	socket.on("ready", ({roomName}) => {
 		let roomReadyArr = readyStorage.get(roomName);
 		if (!roomReadyArr.includes(socket.id)) {
 			roomReadyArr.push(socket.id);
@@ -325,21 +342,25 @@ wsServer.on("connection", socket => {
 
 		console.log("ready한 socket id들: ", readyStorage.get(roomName));
 		roomReadyArr = readyStorage.get(roomName);
+		// let idx = roomReadyArr.findIndex(element => element == socket.id);
+		// console.log(`ready한 socket의 index: ${idx}`);
 
 		if (roomReadyArr.length === wsServer.sockets.adapter.rooms.get(roomName)?.size) {
-			wsServer.sockets.in(roomName).emit("ready");
+			console.log(true);
+			wsServer.sockets.in(roomName).emit("ready", true);
 		} else {
 			wsServer.sockets.in(roomName).emit("ready check");
 		}
 	}); 
 
-	socket.on("ready check", (roomName) => {
+	socket.on("ready check", ({roomName}) => {
 		if ((readyStorage.get(roomName)).length === wsServer.sockets.adapter.rooms.get(roomName)?.size) {
-			wsServer.sockets.emit("ready");
+			console.log(true);
+			wsServer.sockets.emit("ready", true);
 		}
 	});
 
-    socket.on("gameStartFunction", (roomName) => {
+    socket.on("gameStartFunction", ({roomName}) => { // {} 제발
 		checkQuestionsUsage.set(roomName, [0,0,0,0,0,0,0,0,0,0]);
 		firstQflag.set(roomName, 0);
 		playingFlag.set(roomName, 1);
@@ -350,12 +371,21 @@ wsServer.on("connection", socket => {
 			immMap.set(key, 0); 
 		})	
 		scoreListOfRooms.set(roomName, immMap);
+<<<<<<< HEAD
 		wsServer.sockets.in(roomName).emit("scoreboard display", JSON.stringify(Array.from(immMap)));
 		wsServer.sockets.in(roomName).emit("showGameRoom");
 		chatting.delete(roomName);
+=======
+		// wsServer.sockets.in(roomName).emit("scoreboard display", JSON.stringify(Array.from(immMap)));
+		// wsServer.sockets.in(roomName).emit("showGameRoom");
+		// wsServer.sockets.in(roomName).emit("timer", true);
+		wsServer.to(roomName).emit("scoreboard display", JSON.stringify(Array.from(immMap)));
+		wsServer.to(roomName).emit("showGameRoom");
+		wsServer.to(roomName).emit("timer", true);
+>>>>>>> flutter_dev
     });
 
-	socket.on("question", (roomName) => {
+	socket.on("question", ({roomName}) => {
 		let cnt = 0;
 		console.log("checkQuestionsUsage: ", checkQuestionsUsage);
 		console.log("firstQflag: ", firstQflag);
@@ -382,25 +412,33 @@ wsServer.on("connection", socket => {
         answer = questionsOfRooms.get(roomName)[index].oxanswer;
         explanation = questionsOfRooms.get(roomName)[index].explanation;
         
-        //console.log("문제정보: ", answer, explanation, questionsOfRooms.get(roomName)[index].oxquestion);
-		wsServer.sockets.in(roomName).emit("round", questionsOfRooms.get(roomName)[index].oxquestion, index);
-		wsServer.sockets.in(roomName).emit("timer");
+        console.log("문제정보: ", answer, explanation, questionsOfRooms.get(roomName)[index].oxquestion, index);
+		wsServer.to(roomName).emit("round", questionsOfRooms.get(roomName)[index].oxquestion, index, false);
+		// wsServer.to(roomName).emit("timer", true);
 	});
 
-	socket.on("ox", (payload) => {
-		socket.data.ox = payload.ox;
-		wsServer.sockets.emit("ox", { answer: payload.ox, userId: payload.userId });
+	socket.on("ox", ({ userId, ox }) => {
+		console.log(`${ox} ${typeof ox}`);
+		socket.data.ox = ox;
+		console.log(`socket.data.ox: ${socket.data.ox} in "ox"`);
+		wsServer.sockets.emit("ox", { answer: ox, userId: userId });
 	});
 
-	socket.on("answer", (roomName, done) => {
-		done(answer, explanation);
+	socket.on("answer", ({roomName}) => {
+		// done(answer, explanation);
 		firstQflag.set(roomName, 0);
+		console.log(`answer : ${answer}, ${explanation}`);
+		wsServer.to(roomName).emit("answer", answer, explanation, true);
 	});
 
 	socket.on("score", payload => {
+<<<<<<< HEAD
 		console.log(`payload : ${payload.index}`);
 		console.log("[payload.index].oxanswer: ", questionsOfRooms.get(payload.roomName)[payload.index].oxanswer);
 		console.log("socket.data.ox: ", socket.data.ox);
+=======
+		console.log(`[payload.index].oxanswer: ${questionsOfRooms.get(payload.roomName)[payload.index].oxanswer} type - ${typeof questionsOfRooms.get(payload.roomName)[payload.index].oxanswer} / type - ${typeof socket.data.ox} socket.data.ox: ${socket.data.ox} / compare each result: ${questionsOfRooms.get(payload.roomName)[payload.index].oxanswer === socket.data.ox} ${payload.index}`);
+>>>>>>> flutter_dev
 		if (questionsOfRooms.get(payload.roomName)[payload.index].oxanswer === socket.data.ox) {	//정답
 			immMap = scoreListOfRooms.get(payload.roomName);
 			immMap.forEach((value, key) => {
@@ -410,16 +448,15 @@ wsServer.on("connection", socket => {
 				}
 			});
 			sortScores = new Map([...immMap.entries()].sort((a, b) => b[1] - a[1]));
-			scoreListOfRooms.set(payload.roomName, sortScores);
 			console.log("sortScores: ", sortScores);
-            wsServer.sockets.in(payload.roomName).emit("score change", JSON.stringify(Array.from(sortScores)));
+            wsServer.to(payload.roomName).emit("score change", JSON.stringify(Array.from(sortScores)));
 		}
 	});
 
-	socket.on("all finish", async (roomName, done) => {
+	socket.on("all finish", async ({roomName}) => {
 		immMap = new Map(scoreListOfRooms.get(roomName));
 		sortScores = new Map([...immMap.entries()].sort((a, b) => b[1] - a[1]));
-		done(JSON.stringify(Array.from(sortScores)));
+		// done(JSON.stringify(Array.from(sortScores)));
 
 		if (starFlag.get(roomName) === 0) {	//flag 0: 가장 첫번째 실행한 사람만 아래 코드 실행
 			starFlag.set(roomName, 1);	
@@ -496,13 +533,13 @@ wsServer.on("connection", socket => {
 		notPlaying(roomName);
 		//checkQuestionsUsage.set(roomName, [0,0,0,0,0,0,0,0,0,0]);	
 		readyStorage.set(roomName, []);
-		wsServer.sockets.in(roomName).emit("ready check");
+		wsServer.to(roomName).emit("ready check");
 		getRoomInfo(roomName).then(roomInfo => {
 			set10Questions(roomName, roomInfo.subject, roomInfo.grade);
 		})
 	 })
 
-	 socket.on("exit_room", (roomName, done) => {
+	 socket.on("exit_room", ({roomName}) => {
 		if (readyStorage.get(roomName) != undefined){
 			let removeIdArr = readyStorage.get(roomName).filter((element) => element !== socket.id);
 			readyStorage.set(roomName, removeIdArr);
@@ -526,11 +563,12 @@ wsServer.on("connection", socket => {
 		reduceParticipants(roomName);
 		console.log("exit-현재 존재하는 방들: ", socket.rooms);
 		console.log("scoreListOfRooms: ", scoreListOfRooms)
-		socket.to(roomName).emit("bye", socket.data.nickname, roomName, countRoom(roomName));
-        done();
+		// socket.to(roomName).emit("bye", socket.data.nickname, roomName, countRoom(roomName)); 버그유발
+		socket.emit("bye", socket.data.nickname, roomName, countRoom(roomName));
+        // done();
     });
 
-    socket.on("disconnecting", () => {
+    socket.on("disconnecting", () => { // 연결이 끊길시
 		console.log(scoreListOfRooms.size);
 		
 		let roomNamee = whereSocketIdIn.get(socket.id);
