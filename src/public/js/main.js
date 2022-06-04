@@ -104,6 +104,12 @@ function showMainPage(){
 
 function showBeforeStartRoom(roomName, newCount, playingFlag) {
     if (playingFlag === 0) {
+		const beforeStartul = beforeStart.querySelector("ul");
+    	const items = beforeStartul.getElementsByTagName('li');
+    	while(items.length != 0){
+        	items[0].remove();
+    	}
+		
         welcome.hidden = true;
         beforeStart.hidden = false;
         gameReady.hidden = false;
