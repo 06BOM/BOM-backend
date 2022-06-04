@@ -214,6 +214,7 @@ model Room {
   subject         String       @db.VarChar(45)
   userId          Int
   grade           Int
+  playingFlag     Boolean      @default(false)
   user            User         @relation(fields: [userId], references: [userId])
   oxUnitRange     OXUnitRange?
 

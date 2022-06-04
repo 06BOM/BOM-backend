@@ -72,6 +72,38 @@ async function reduceParticipants(roomName) {
 	}
 }
 
+async function playing(roomName) {
+	try{
+		let roomInfo = await prisma.room.findFirst({
+			where: { roomName: roomName }
+		})
+
+		let room = await prisma.room.updateMany({
+			where: { roomName : roomName },
+			data: { playingFlag : true }
+		})
+
+	} catch (error){
+		console.log(error);
+	}
+}
+
+async function notPlaying(roomName) {
+	try{
+		let roomInfo = await prisma.room.findFirst({
+			where: { roomName: roomName }
+		})
+
+		let room = await prisma.room.updateMany({
+			where: { roomName : roomName },
+			data: { playingFlag : false }
+		})
+
+	} catch (error){
+		console.log(error);
+	}
+}
+
 async function deleteRoom(roomName) {
 	try{
 		let room = await prisma.room.deleteMany({
@@ -309,6 +341,7 @@ wsServer.on("connection", socket => {
 		checkQuestionsUsage.set(roomName, [0,0,0,0,0,0,0,0,0,0]);
 		firstQflag.set(roomName, 0);
 		playingFlag.set(roomName, 1);
+		playing(roomName);
 		starFlag.set(roomName, 0);
 		immMap = new Map(scoreListOfRooms.get(roomName));
 		immMap.forEach((value, key) => {
@@ -455,6 +488,7 @@ wsServer.on("connection", socket => {
 		}
 
 		playingFlag.set(roomName, 0);
+		notPlaying(roomName);
 		//checkQuestionsUsage.set(roomName, [0,0,0,0,0,0,0,0,0,0]);	
 		readyStorage.set(roomName, []);
 		wsServer.sockets.in(roomName).emit("ready check");
@@ -477,6 +511,7 @@ wsServer.on("connection", socket => {
 			checkQuestionsUsage.delete(roomName);
 			firstQflag.delete(roomName);
 			starFlag.delete(roomName);
+			playingFlag.delete(roomName);
 			scoreListOfRooms.delete(roomName);
 			console.log("delete checkQuestionsUsage, firstQflag ", checkQuestionsUsage, firstQflag);
 			deleteRoom(roomName);
@@ -510,6 +545,7 @@ wsServer.on("connection", socket => {
 				checkQuestionsUsage.delete(roomNamee);
 				firstQflag.delete(roomNamee);
 				starFlag.delete(roomNamee);
+				playingFlag.delete(roomNamee);
 				scoreListOfRooms.delete(roomNamee);
 				console.log("delete checkQuestionsUsage, firstQflag ", checkQuestionsUsage, firstQflag);
 				deleteRoom(roomNamee);
