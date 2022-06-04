@@ -223,7 +223,9 @@ wsServer.on("connection", socket => {
 			let msgArray = [];
 			let immChattingMap = new Map<string, string[]>();
 
-			immChattingMap = chatting.get(roomName);
+			if (immChattingMap.has(roomName)) {
+				immChattingMap = chatting.get(roomName);
+			}
 			immChattingMap.set(socket.data.nickname, []);
 			chatting.set(roomName, immChattingMap);
 			console.log("chatting: ", chatting);
