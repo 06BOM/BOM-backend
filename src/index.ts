@@ -223,7 +223,9 @@ wsServer.on("connection", socket => {
 			let msgArray = [];
 			let immChattingMap = new Map<string, string[]>();
 
-			immChattingMap = chatting.get(roomName);
+			if (immChattingMap.has(roomName)) {
+				immChattingMap = chatting.get(roomName);
+			}
 			immChattingMap.set(socket.data.nickname, []);
 			chatting.set(roomName, immChattingMap);
 			console.log("chatting: ", chatting);
@@ -252,7 +254,7 @@ wsServer.on("connection", socket => {
 
 	socket.on("create_room", ( payload, nickname ) => {
 		console.log(nickname);
-		socket.data.nickname = nickname;
+		socket.data.nickname = nickname;	
 		checkRoomExist(payload.roomName).then( checkExist => {
 			console.log("here checkExist: ", checkExist);
 			
@@ -516,6 +518,7 @@ wsServer.on("connection", socket => {
 			firstQflag.delete(roomName);
 			starFlag.delete(roomName);
 			playingFlag.delete(roomName);
+			chatting.delete(roomName);
 			scoreListOfRooms.delete(roomName);
 			console.log("delete checkQuestionsUsage, firstQflag ", checkQuestionsUsage, firstQflag);
 			deleteRoom(roomName);
