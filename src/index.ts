@@ -525,6 +525,7 @@ wsServer.on("connection", socket => {
 				firstQflag.delete(roomName);
 				starFlag.delete(roomName);
 				playingFlag.delete(roomName);
+				chatting.delete(roomName);
 				scoreListOfRooms.delete(roomName);
 				console.log("delete checkQuestionsUsage, firstQflag ", checkQuestionsUsage, firstQflag);
 				deleteRoom(roomName);
