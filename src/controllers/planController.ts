@@ -1122,7 +1122,7 @@ export const getStatistic = async (req: Request, res: Response, next: NextFuncti
 }
 
 export const getWeeklyAverageStudyTime = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
-	const toDate = new Date(String(req.query.date));
+	let toDate = new Date(String(req.query.date));
 	// @ts-ignore
 	const userId = parseInt(String(req.user.userId));
 	const day = toDate.getDay();	// [0:SUN, 1:MON, 2:TUS, 3:WED, 4:THU, 5:FRI, 6: SAT]
@@ -1132,7 +1132,7 @@ export const getWeeklyAverageStudyTime = async (req: Request, res: Response, nex
 	try {
 		if(day === 0) {
 			fromDate.setDate(fromDate.getDate() - 6);
-			console.log("fromDate1: ", fromDate);
+
 			weeklyDailyIds = await prisma.daily.findMany({
 				where: {
 					AND: [
@@ -1147,7 +1147,8 @@ export const getWeeklyAverageStudyTime = async (req: Request, res: Response, nex
 
 		} else {
 			fromDate.setDate(fromDate.getDate() - (day - 1));
-			console.log("fromDate2: ", fromDate);
+			toDate.setDate(toDate.getDate() + (7 - day)); 
+
 			weeklyDailyIds = await prisma.daily.findMany({
 				where: {
 					AND: [
@@ -1172,7 +1173,7 @@ export const getWeeklyAverageStudyTime = async (req: Request, res: Response, nex
 			})
 		}
 
-		averageTime = totalTime / 7;
+		averageTime = parseInt(String(totalTime / 7));
 		return res.json({ opcode: OPCODE.SUCCESS, averageTime: averageTime });
 
 	} catch(error) {
@@ -1182,10 +1183,10 @@ export const getWeeklyAverageStudyTime = async (req: Request, res: Response, nex
 }
 
 export const getMonthlyAverageStudyTime = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
-	const toDate = new Date(String(req.query.date));
+	let toDate = new Date(String(req.query.date));
 	// @ts-ignore
 	const userId = parseInt(String(req.user.userId));
-	const fromDate = new Date(String(req.query.date));
+	let fromDate = new Date(String(req.query.date));
 	let i: number, totalTime: number = 0, monthlyDailyIds, monthlyPlanTimes, averageTime;
 
 	const year = toDate.getFullYear();
@@ -1194,6 +1195,8 @@ export const getMonthlyAverageStudyTime = async (req: Request, res: Response, ne
 
 	try { 
 		fromDate.setDate(1);
+		toDate.setDate(numDays);
+
 		monthlyDailyIds = await prisma.daily.findMany({
 			where: {
 				AND: [
@@ -1205,7 +1208,7 @@ export const getMonthlyAverageStudyTime = async (req: Request, res: Response, ne
 			]},
 			select: { dailyId: true }
 		});
-
+	
 		for(i = 0; i < monthlyDailyIds.length; i++){
 			monthlyPlanTimes = await prisma.plan.findMany({
 				where: { dailyId: monthlyDailyIds[i].dailyId },
@@ -1217,7 +1220,7 @@ export const getMonthlyAverageStudyTime = async (req: Request, res: Response, ne
 			})
 		}
 		
-		averageTime = totalTime / numDays;
+		averageTime = parseInt(String(totalTime / numDays));
 		return res.json({ opcode: OPCODE.SUCCESS, averageTime: averageTime });
 
 	} catch(error) {

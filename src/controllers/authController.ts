@@ -106,7 +106,17 @@ export const logIn = async (req: Request, res: Response, next: NextFunction): Pr
 
 				if(userData){
 					if(verified){
-						return res.json({ opcode: OPCODE.SUCCESS, userData });
+						const sessionId = await Sessions.createSession(userData);
+						const accessToken = Token.signJwt(
+							{userId: userData.userId, sessionId},
+							"1h"
+						);
+						const refreshToken = Token.signJwt(
+							{ sessionId },
+							"1w"
+						);
+
+						return res.status(200).json({ opcode: OPCODE.SUCCESS, payload: {accessToken, refreshToken} });
 					}
 					else{
 						return res.json({ opcode: OPCODE.ERROR });
