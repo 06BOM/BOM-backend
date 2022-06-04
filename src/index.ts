@@ -219,7 +219,7 @@ wsServer.on("connection", socket => {
 
 	socket.on("create_room", ( payload, nickname ) => {
 		console.log(nickname);
-		socket.data.nickname = nickname;
+		socket.data.nickname = nickname;	
 		checkRoomExist(payload.roomName).then( checkExist => {
 			console.log("here checkExist: ", checkExist);
 			
@@ -477,6 +477,7 @@ wsServer.on("connection", socket => {
 			checkQuestionsUsage.delete(roomName);
 			firstQflag.delete(roomName);
 			starFlag.delete(roomName);
+			chatting.delete(roomName);
 			scoreListOfRooms.delete(roomName);
 			console.log("delete checkQuestionsUsage, firstQflag ", checkQuestionsUsage, firstQflag);
 			deleteRoom(roomName);
