@@ -42,7 +42,8 @@ export const modifyUser = async (req: Request, res: Response, next: NextFunction
 		nickname: req.body.nickname,
 		phoneNum: req.body.phoneNum,
 		introduction: req.body.introduction,
-		grade: req.body.grade
+		grade: req.body.grade,
+		birth: req.body.birth,
 	}
 
 	let userId = Number(req.params.userId);
