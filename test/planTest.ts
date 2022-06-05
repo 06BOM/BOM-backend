@@ -9,7 +9,7 @@ let auth = {};
 describe('plan controller test', () => {
 
 	before(loginUser());
-/*
+
 	//creatPlan, delete test는 주석처리하고 test 실행
 	//test 하고싶으면 새로 생긴 plan은 지워주고 delete는 존재하는 planId 넣어서 하세용 
 	
@@ -37,7 +37,7 @@ describe('plan controller test', () => {
 	describe('deletePlan API test', () => {
 		it('should return success json', (done) => {
 			request(app)
-			.delete('/plan/379')
+			.delete('/plan/1837')
 			// @ts-ignore
 			.auth(auth.token, { type: 'bearer' })
 			.expect(res => {
@@ -216,23 +216,6 @@ describe('plan controller test', () => {
 		});
 	})
 
-	describe('PATCH /plan/:planId test', () => {
-		it('should return success json', (done) => {
-			request(app)
-				.patch('/plan/1')
-				.send({
-
-				})
-				// @ts-ignore
-				.auth(auth.token, { type: 'bearer' })
-				.expect(res => {
-					should(res).have.property('statusCode', 200);
-					should(res._body).have.property('opcode', 0);
-				})
-				.end(done);
-		});
-	})
-
 	describe('GET /plan/statistic', () => {
 		it('should return success json', (done) => {
 			request(app)
@@ -266,7 +249,6 @@ describe('plan controller test', () => {
 				.end(done);
 		});
 	})
-*/
 
 	describe('GET /plan/month/total', () => {
 		it('should return success json', (done) => {
@@ -291,6 +273,57 @@ describe('plan controller test', () => {
 				})
 				.end(done);
 		});
+	})
+
+	describe('PATCH /plan/:planId test', () => {
+		it('patch one data should return success json', (done) => {
+			request(app)
+				.patch('/plan/1838')
+				.send({
+					planName : "PATCH check"
+				})
+				// @ts-ignore
+				.auth(auth.token, { type: 'bearer' })
+				.expect(res => {
+					should(res).have.property('statusCode', 200);
+					should(res._body).have.property('opcode', 0);
+				})
+				.end(done);
+		});
+
+		it('patch two data should return success json', (done) => {
+			request(app)
+				.patch('/plan/1838')
+				.send({
+					planName : "PATCH check",
+					categoryId : 1
+				})
+				// @ts-ignore
+				.auth(auth.token, { type: 'bearer' })
+				.expect(res => {
+					should(res).have.property('statusCode', 200);
+					should(res._body).have.property('opcode', 0);
+				})
+				.end(done);
+		});
+
+		it('patch multiple data should return success json', (done) => {
+			request(app)
+				.patch('/plan/1838')
+				.send({
+					planName : "multiple PATCH check",
+					categoryId : 1,
+					check : true
+				})
+				// @ts-ignore
+				.auth(auth.token, { type: 'bearer' })
+				.expect(res => {
+					should(res).have.property('statusCode', 200);
+					should(res._body).have.property('opcode', 0);
+				})
+				.end(done);
+		});
+		
 	})
 
 });

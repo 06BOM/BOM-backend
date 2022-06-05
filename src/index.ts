@@ -196,7 +196,15 @@ wsServer.on("connection", socket => {
 		console.log(`Socket Event:${event}`);
 	});
     
+<<<<<<< HEAD
 	socket.on("join_room", ({ roomName, nickname }) => { // {} 추가
+=======
+    socket.on("join_room", (roomName, nickname, done) => {
+		if (nickname === "") {
+			console.log("nickname이 빈 문자열이어서 방 입장 불가😖");
+			return;
+		}
+>>>>>>> dev
 		socket.data.nickname = nickname;
 		console.log("socket.data.nickname: ", socket.data.nickname);
 		let playingF = 0;
@@ -205,6 +213,7 @@ wsServer.on("connection", socket => {
 			socket.emit("already start", "게임중이어서 방 입장이 불가능합니다😅"); // 추가
 			playingF = 1;
 		} else {
+<<<<<<< HEAD
 			socket.join(roomName);
 			console.log("현재 존재하는 방들: ", socket.rooms);
 			whereSocketIdIn.set(socket.id, roomName);
@@ -236,14 +245,52 @@ wsServer.on("connection", socket => {
 					msgArray = immChattingMap.get(key);
 					msgArray.push(`${socket.data.nickname}님 입장!`);
 					immChattingMap.set(key, msgArray);
-					chatting.set(roomName, immChattingMap);
-				});
-			} else {
-				msgArray.push(`${socket.data.nickname}님 입장!`);
-				immChattingMap.set(socket.data.nickname, msgArray);
-				chatting.set(roomName, immChattingMap);
-			}
+=======
+			checkRoomExist(roomName).then(checkExist => {
+				if (checkExist !== null) {
+					socket.join(roomName);
+					console.log("현재 존재하는 방들: ", socket.rooms);
+					whereSocketIdIn.set(socket.id, roomName);
+					increaseParticipants(roomName);
+					console.log("wherSocketIdIn: ", whereSocketIdIn);
+					done(roomName, countRoom(roomName), playingF); 
 
+					let immScoreMap = new Map();
+					if (scoreListOfRooms.has(roomName)) {
+						immScoreMap = scoreListOfRooms.get(roomName);
+					}
+					immScoreMap.set(socket.data.nickname, 0);
+					scoreListOfRooms.set(roomName, immScoreMap);
+					console.log("enter room - scoreListOfRooms: ", scoreListOfRooms)
+
+					let msgArray = [];
+					let immChattingMap = new Map<string, string[]>();
+
+					if (immChattingMap.has(roomName)) {
+						immChattingMap = chatting.get(roomName);
+					}
+					immChattingMap.set(socket.data.nickname, []);
+>>>>>>> dev
+					chatting.set(roomName, immChattingMap);
+					console.log("chatting: ", chatting);
+
+					immChattingMap = new Map<string, string[]>();
+
+					if(chatting.has(roomName)) {
+						immChattingMap = chatting.get(roomName);
+						immChattingMap.forEach((value, key) => {
+							msgArray = immChattingMap.get(key);
+							msgArray.push(`${socket.data.nickname}님 입장!`);
+							immChattingMap.set(key, msgArray);
+							chatting.set(roomName, immChattingMap);
+						});
+					} else {
+						msgArray.push(`${socket.data.nickname}님 입장!`);
+						immChattingMap.set(socket.data.nickname, msgArray);
+						chatting.set(roomName, immChattingMap);
+					}
+
+<<<<<<< HEAD
 			let users = [];
 			scoreListOfRooms.forEach((value, key, map) => value.forEach((value, key, map) => users.push(key)));
 			// wsServer.to(roomName).emit("welcome", socket.data.nickname, roomName, countRoom(roomName));
@@ -259,6 +306,25 @@ wsServer.on("connection", socket => {
 		console.log(users);
 		console.log(typeof users);
 		checkRoomExist(payload.roomName).then(checkExist => {
+=======
+					let users = [];
+					scoreListOfRooms.forEach((value, key, map) => value.forEach((value, key, map) => users.push(key)));
+					wsServer.to(roomName).emit("welcome", socket.data.nickname, roomName, countRoom(roomName));
+				} else {
+					console.log("방이 존재하지 않아서 방 입장 불가😖");
+				}
+			});
+        }
+    });
+
+	socket.on("create_room", ( payload, nickname ) => {
+		if (nickname === "") {
+			console.log("nickname이 빈 문자열이어서 방 입장 불가😖");
+			return;
+		}
+		socket.data.nickname = nickname;	
+		checkRoomExist(payload.roomName).then( checkExist => {
+>>>>>>> dev
 			console.log("here checkExist: ", checkExist);
 			
 			if (checkExist === null) {
@@ -509,6 +575,51 @@ wsServer.on("connection", socket => {
 				set10Questions(roomName, roomInfo.subject, roomInfo.grade);
 			})
 		})
+<<<<<<< HEAD
+=======
+	 })
+
+	 socket.on("exit_room", (roomName, done) => {
+		if (readyStorage.get(roomName) != undefined){
+			let removeIdArr = readyStorage.get(roomName).filter((element) => element !== socket.id);
+			readyStorage.set(roomName, removeIdArr);
+		}
+		immMap = scoreListOfRooms.get(roomName);
+		immMap.delete(socket.data.nickname);
+		scoreListOfRooms.set(roomName, immMap);
+		whereSocketIdIn.delete(socket.id);
+
+		if (scoreListOfRooms.get(roomName).size === 0){
+			checkQuestionsUsage.delete(roomName);
+			firstQflag.delete(roomName);
+			starFlag.delete(roomName);
+			playingFlag.delete(roomName);
+			chatting.delete(roomName);
+			scoreListOfRooms.delete(roomName);
+			console.log("delete checkQuestionsUsage, firstQflag ", checkQuestionsUsage, firstQflag);
+			deleteRoom(roomName);
+			wsServer.sockets.in(roomName).emit("clear");
+		}
+		reduceParticipants(roomName);
+		socket.leave(roomName);
+		console.log("exit-현재 존재하는 방들: ", socket.rooms);
+		console.log("scoreListOfRooms: ", scoreListOfRooms)
+		socket.to(roomName).emit("bye", socket.data.nickname, roomName, countRoom(roomName));
+        done();
+    });
+
+    socket.on("disconnecting", () => {
+		console.log(scoreListOfRooms.size);
+		
+		let roomNamee = whereSocketIdIn.get(socket.id);
+		console.log("roomNameee", roomNamee);
+		if (readyStorage.get(roomNamee) != undefined){
+			let removeIdArr = readyStorage.get(roomNamee).filter((element) => element !== socket.id);
+			readyStorage.set(roomNamee, removeIdArr);
+		}
+		immMap = scoreListOfRooms.get(roomNamee);
+		console.log("immMap: ", immMap);
+>>>>>>> dev
 
 		socket.on("exit_room", ({ roomName }) => {
 			if (readyStorage.get(roomName) != undefined) {
