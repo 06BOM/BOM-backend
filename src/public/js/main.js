@@ -104,6 +104,12 @@ function showMainPage(){
 
 function showBeforeStartRoom(roomName, newCount, playingFlag) {
     if (playingFlag === 0) {
+		const beforeStartul = beforeStart.querySelector("ul");
+    	const items = beforeStartul.getElementsByTagName('li');
+    	while(items.length != 0){
+        	items[0].remove();
+    	}
+		
         welcome.hidden = true;
         beforeStart.hidden = false;
         gameReady.hidden = false;
@@ -169,9 +175,11 @@ function allFinish(users){
 }
 
 function allRoundFinish(){
+    var index = question2.getAttribute('data-id');
    gameStart.hidden = true;
    roundStart.hidden = true;
    roundFinished.hidden = true;
+   socket.emit("score", { index: index, roomName: roomName });
    socket.emit("all finish", roomName, allFinish);
    gameFinish.hidden = false;
    setTimeout(()=>{
@@ -389,6 +397,7 @@ socket.on("ready check", () => {
 });
 
 socket.on("round",( question, id)=>{
+    console.log(`${question}, ${id} / socket on round`);
     roundStart.hidden = false;
     roundFinished.hidden = true;
     //ox.hidden = false;
