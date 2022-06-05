@@ -9,8 +9,7 @@ export const createCategory = async (req: Request, res: Response, next: NextFunc
         categoryName: String(req.body.categoryName), 
         color: String(req.body.color), 
         type: req.body.type, 
-		// @ts-ignore
-        userId: Number(req.user.userId)
+        userId: Number(req.body.userId)
     }
     try {
         const resultCategory = await prisma.category.create({
@@ -45,8 +44,7 @@ export const deleteCategory = async (req: Request, res: Response, next: NextFunc
 }
 
 export const getCategory = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
-	// @ts-ignore
-	const userId = parseInt(String(req.user.userId));
+	const userId = parseInt(String(req.query.userId));
 
 	try {
 		const category = await prisma.category.findMany({

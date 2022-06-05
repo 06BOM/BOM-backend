@@ -174,8 +174,7 @@ export const getPlanData = async (req: Request, res: Response, next: NextFunctio
 }
 
 export const createPlan = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
-	// @ts-ignore
-	const userId = Number(req.user.userId);
+	const userId = Number(req.body.userId);
 	const date = new Date((req.body.date));
 	let today = new Date(JSON.parse(JSON.stringify(date)));
 	let currentDay = new Date(JSON.parse(JSON.stringify(date)));
@@ -1033,8 +1032,7 @@ export const deletePlan = async (req: Request, res: Response, next: NextFunction
 
 export const getDailyStudyTime = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	const date = new Date(String(req.query.date));
-	// @ts-ignore
-	const userId = parseInt(String(req.user.userId));
+	const userId = parseInt(String(req.query.userId));
 	let totalTime = 0;
 
 	try {
@@ -1066,8 +1064,7 @@ export const getDailyStudyTime = async (req: Request, res: Response, next: NextF
 
 export const getStatistic = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	const date = new Date(String(req.query.date));
-	// @ts-ignore
-	const userId = parseInt(String(req.user.userId));
+	const userId = parseInt(String(req.query.userId));
 
 	console.log(date);
 
@@ -1123,8 +1120,7 @@ export const getStatistic = async (req: Request, res: Response, next: NextFuncti
 
 export const getWeeklyAverageStudyTime = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	let toDate = new Date(String(req.query.date));
-	// @ts-ignore
-	const userId = parseInt(String(req.user.userId));
+	const userId = parseInt(String(req.query.userId));
 	const day = toDate.getDay();	// [0:SUN, 1:MON, 2:TUS, 3:WED, 4:THU, 5:FRI, 6: SAT]
 	let fromDate = new Date(String(req.query.date));
 	let i: number, weeklyDailyIds, totalTime = 0, weeklyPlanTimes, averageTime: number;
@@ -1184,8 +1180,7 @@ export const getWeeklyAverageStudyTime = async (req: Request, res: Response, nex
 
 export const getMonthlyAverageStudyTime = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	let toDate = new Date(String(req.query.date));
-	// @ts-ignore
-	const userId = parseInt(String(req.user.userId));
+	const userId = parseInt(String(req.query.userId));
 	let fromDate = new Date(String(req.query.date));
 	let i: number, totalTime: number = 0, monthlyDailyIds, monthlyPlanTimes, averageTime;
 
@@ -1230,8 +1225,7 @@ export const getMonthlyAverageStudyTime = async (req: Request, res: Response, ne
 }
 
 export const handleStar = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
-	// @ts-ignore
-	const userId = req.user.userId;
+	const userId = req.body.userId;
 	const dailyId = req.body.dailyId;
 
 	try {
@@ -1266,8 +1260,7 @@ export const handleStar = async (req: Request, res: Response, next: NextFunction
 
 export const getDailyStar = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	const date = new Date(String(req.query.date));
-	// @ts-ignore
-	const userId = parseInt(String(req.user.userId));
+	const userId = parseInt(String(req.query.userId));
 
 	try {
 		const { obtainedStar } = await prisma.daily.findFirst({
@@ -1288,8 +1281,7 @@ export const getDailyStar = async (req: Request, res: Response, next: NextFuncti
 
 export const getWeeklyStar = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	const date = new Date(String(req.query.date));
-	// @ts-ignore
-	const userId = parseInt(String(req.user.userId));
+	const userId = parseInt(String(req.query.userId));
 	const flag = date.getDay();
 	// const WEEKDAY = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']; // [0, 1, 2, 3, 4, 5, 6]
 
@@ -1348,8 +1340,7 @@ export const getWeeklyStar = async (req: Request, res: Response, next: NextFunct
 
 export const getWeeklyTime = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	const date = new Date(String(req.query.date));
-	// @ts-ignore
-	const userId = parseInt(String(req.user.userId));
+	const userId = parseInt(String(req.query.userId));
 	const flag = date.getDay();
 
 	let date2 = new Date(String(req.query.date));
@@ -1433,8 +1424,7 @@ export const getWeeklyTime = async (req: Request, res: Response, next: NextFunct
 
 export const getMonthlyStar = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	const date = new Date(String(req.query.date));
-	// @ts-ignore
-	const userId = parseInt(String(req.user.userId));
+	const userId = parseInt(String(req.query.userId));
 
 	let date2 = new Date(String(req.query.date));
 	let sum = 0;
@@ -1471,8 +1461,7 @@ export const getMonthlyStar = async (req: Request, res: Response, next: NextFunc
 export const getMonthlyTime = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	const toDate = new Date(String(req.query.date));
 	const fromDate = new Date(String(req.query.date));
-	// @ts-ignore
-	const userId = parseInt(String(req.user.userId));
+	const userId = parseInt(String(req.query.userId));
 
 	let monthPlanDailyId, monthPlanTime, j, i;
 	let timeSum = new Array(monthPlanDailyId);
@@ -1534,8 +1523,7 @@ export const getMonthlyTime = async (req: Request, res: Response, next: NextFunc
 
 export const getAllPlans = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	const date = new Date(String(req.query.date));
-	// @ts-ignore
-	const userId = parseInt(String(req.user.userId));	
+	const userId = parseInt(String(req.query.userId));	
 	
 	try {
 		const { dailyId } = await prisma.daily.findFirst({
@@ -1573,8 +1561,7 @@ export const getAllPlans = async (req: Request, res: Response, next: NextFunctio
 
 export const getCompletedPlans = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	const date = new Date(String(req.query.date));
-	// @ts-ignore
-	const userId = parseInt(String(req.user.userId));
+	const userId = parseInt(String(req.query.userId));
 	
 	try {
 		const { dailyId } = await prisma.daily.findFirst({
@@ -1602,8 +1589,7 @@ export const getCompletedPlans = async (req: Request, res: Response, next: NextF
 
 export const getIncompletePlans = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	const date = new Date(String(req.query.date));
-	// @ts-ignore
-	const userId = parseInt(String(req.user.userId));	
+	const userId = parseInt(String(req.query.userId));	
 
 	try {
 		const { dailyId } = await prisma.daily.findFirst({
@@ -1632,8 +1618,7 @@ export const getIncompletePlans = async (req: Request, res: Response, next: Next
 export const getAllMonthlyStars = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	try {
 		let date = new Date(String(req.query.date));
-		// @ts-ignore
-		const userId = parseInt(String(req.user.userId));
+		const userId = parseInt(String(req.query.userId));
 		date.setDate(1);
 		let targetDate = new Date(JSON.parse(JSON.stringify(date)));
 
