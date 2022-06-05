@@ -14,9 +14,9 @@ import { deletePost,
 
 const router = express.Router();
 
-router.post("/", authMiddleware, createPost);
-router.patch("/", authMiddleware, updatePost);
-router.delete("/delete", authMiddleware, deletePost);
+router.post("/", createPost);
+router.patch("/", updatePost);
+router.delete("/delete", deletePost);
 router.get("/category", sortingPostByCategory);
 router.get("/kind", sortingByKind);
 router.get("/title", getPostByTitle);

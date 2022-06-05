@@ -11,10 +11,10 @@ import { createComment,
 
 const router = express.Router();
 
-router.post('', authMiddleware, createComment);
+router.post('', createComment);
 router.get('', getCommentWithoutReply);
-router.post('/reply', authMiddleware, createReply);
+router.post('/reply', createReply);
 router.get('/reply', getCommentWithReply);
-router.route('/:commentId').patch(authMiddleware, updateComment).delete(authMiddleware, deleteComment)
+router.route('/:commentId').patch(updateComment).delete(deleteComment)
 
 export default router;

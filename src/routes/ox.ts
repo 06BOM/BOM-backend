@@ -14,12 +14,12 @@ import {
 		
 const router = express.Router();
 
-router.post('', authMiddleware, createOxQuestion);
+router.post('', createOxQuestion);
 router.get('', getOxQuestion);
-router.patch('/:id', authMiddleware, updateOxQuestion);
-router.delete('/:id', authMiddleware, deleteOxQuestion);
+router.patch('/:id', updateOxQuestion);
+router.delete('/:id', deleteOxQuestion);
 router.get('/statistics', getOxStats);
-router.patch('/:id/total', authMiddleware, increaseTotalNumSolved);
-router.patch('/:id/correct', authMiddleware, increaseCorrectNum);
+router.patch('/:id/total', increaseTotalNumSolved);
+router.patch('/:id/correct', increaseCorrectNum);
 
 export default router;
