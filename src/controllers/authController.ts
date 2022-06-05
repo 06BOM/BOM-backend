@@ -175,9 +175,9 @@ export const logIn = async (req: Request, res: Response, next: NextFunction): Pr
 				);
 		
 				if (existUser === true) {
-					return res.status(201).json({ opcode: OPCODE.SUCCESS, payload: {accessToken, refreshToken} });
+					return res.status(201).json({ opcode: OPCODE.SUCCESS, payload: {accessToken, refreshToken}, user });
 				} else {
-					return res.status(200).json({ opcode: OPCODE.SUCCESS, payload: {accessToken, refreshToken} });
+					return res.status(200).json({ opcode: OPCODE.SUCCESS, payload: {accessToken, refreshToken}, user });
 				}
 			}
 
@@ -227,9 +227,9 @@ export const logIn = async (req: Request, res: Response, next: NextFunction): Pr
 				);
 
 				if (existUser === true) {
-					return res.status(201).json({ opcode: OPCODE.SUCCESS, payload: {accessToken, refreshToken} });
+					return res.status(201).json({ opcode: OPCODE.SUCCESS, payload: {accessToken, refreshToken}, user });
 				} else {
-					return res.status(200).json({ opcode: OPCODE.SUCCESS, payload: {accessToken, refreshToken} });
+					return res.status(200).json({ opcode: OPCODE.SUCCESS, payload: {accessToken, refreshToken}, user });
 				}
 			}
 		}
