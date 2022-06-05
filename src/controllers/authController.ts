@@ -206,7 +206,7 @@ export const logIn = async (req: Request, res: Response, next: NextFunction): Pr
 						platform: 'kakao',
 						platformId: String(response.data.id),
 						nickname: String(response.data.properties.nickname),
-						userName: String(response.data.properties.nickName)
+						userName: String(response.data.properties.nickname)
 					}
 			
 					user = await prisma.user.create({
