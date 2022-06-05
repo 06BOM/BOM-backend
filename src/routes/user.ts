@@ -11,5 +11,5 @@ import { getUser,
 const router = express.Router();
 
 router.patch("/character", changeCharacter);
-router.route("/:userId").get(getUser).delete(authMiddleware, deleteUser).patch(authMiddleware, modifyUser);
+router.route("/:userId").get(getUser).delete(deleteUser).patch(modifyUser);
 export default router;
