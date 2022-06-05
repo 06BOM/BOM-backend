@@ -1,4 +1,4 @@
-import app from "./app";
+import app from "./app"; //
 import http from "http"; // 이미 기본 설치되어있음
 import { Server } from "socket.io"; 
 import { PrismaClient } from "@prisma/client";
