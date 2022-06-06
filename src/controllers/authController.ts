@@ -141,26 +141,27 @@ export const logIn = async (req: Request, res: Response, next: NextFunction): Pr
 				console.log("response: ", response.data.response);
 		
 				let user = await prisma.user.findFirst({
-				where: {
-					AND: [
-						{ platform: "naver" },
-						{ platformId: response.data.response.id }
-					]
-				}});
+					where: {
+						AND: [
+							{ platform: "naver" },
+							{ platformId: response.data.response.id }
+						]
+					}
+				});
 		
 				if (!user) {
-				let userContent = {
-					platform: 'naver',
-					platformId: String(response.data.response.id),
-					nickname: String(response.data.response.name),
-					userName: String(response.data.response.name)
-				}
-				
-				user = await prisma.user.create({
-					data: userContent
-				});
+					let userContent = {
+						platform: 'naver',
+						platformId: String(response.data.response.id),
+						nickname: String(response.data.response.nickname),
+						userName: String(response.data.response.name)
+					}
+					
+					user = await prisma.user.create({
+						data: userContent
+					});
 
-				existUser = false;
+					existUser = false;
 				}
 				
 				const sessionId = await Sessions.createSession(user);
