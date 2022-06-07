@@ -152,7 +152,7 @@ export const logIn = async (req: Request, res: Response, next: NextFunction): Pr
 				let userContent = {
 					platform: 'naver',
 					platformId: String(response.data.response.id),
-					nickname: String(response.data.response.name),
+					nickname: String(response.data.response.nickname),
 					userName: String(response.data.response.name)
 				}
 				
