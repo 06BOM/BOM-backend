@@ -44,7 +44,8 @@ export const getCharacterImageUrl = async (req: Request, res: Response, next: Ne
 };
 
 export const getAllCharacters = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
-	const userId = Number(req.query.userId);
+	// @ts-ignore
+	const userId = Number(req.user.userId);
     let characters = [];
 
 	try {
@@ -78,7 +79,8 @@ export const getAllCharacters = async (req: Request, res: Response, next: NextFu
 export const createCollection = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
     
     let collectionData ={
-        userId : Number(req.query.userId),
+		// @ts-ignore
+        userId : Number(req.user.userId),
         characterId : Number(req.query.characterId)
     } 
 
@@ -96,7 +98,8 @@ export const createCollection = async (req: Request, res: Response, next: NextFu
 }
 
 export const deleteCollection = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {    
-    const userId = Number(req.query.userId);
+	// @ts-ignore
+    const userId = Number(req.user.userId);
     const characterId = Number(req.query.characterId);
 
     try {
@@ -118,7 +121,8 @@ export const deleteCollection = async (req: Request, res: Response, next: NextFu
 }
 
 export const searchCharacter = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
-    const userId = Number(req.query.userId);
+    // @ts-ignore
+    const userId = Number(req.user.userId);
     const search = String(req.query.search);
     let resultCharacter = [];
 
