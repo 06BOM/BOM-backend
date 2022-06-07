@@ -11,9 +11,9 @@ import {
 
 const router = express.Router();
 
-router.post('/', createQuestAttempt);
+router.post('/', authMiddleware, createQuestAttempt);
 router.get('/', getQuestAttempt);
-router.patch('/', updateQuestAttempt);
-router.delete('/', deleteQuestAttempt);
+router.patch('/', authMiddleware, updateQuestAttempt);
+router.delete('/', authMiddleware, deleteQuestAttempt);
 
 export default router;

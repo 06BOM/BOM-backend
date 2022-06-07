@@ -8,8 +8,8 @@ import { createCategory,
 
 const router = express.Router();
 
-router.post('', createCategory);
-router.delete('/:categoryId', deleteCategory);
-router.get('/user', getCategory);
+router.post('', authMiddleware, createCategory);
+router.delete('/:categoryId', authMiddleware, deleteCategory);
+router.get('/user', authMiddleware, getCategory);
 
 export default router;

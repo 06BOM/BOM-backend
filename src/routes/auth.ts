@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.post('/login', logIn);
 router.get('/callback', snsCallback);
-router.delete('/logout', logOut);
+router.delete('/logout', authMiddleware, logOut);
 router.post('/signin', signIn);
 router.post('/new', newToken);
 
