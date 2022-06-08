@@ -44,7 +44,6 @@ export const modifyUser = async (req: Request, res: Response, next: NextFunction
 		introduction: req.body.introduction,
 		grade: req.body.grade,
 		birth: req.body.birth,
-		star : req.body.star
 	}
 
 	let userId = Number(req.params.userId);
