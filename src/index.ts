@@ -38,6 +38,7 @@ async function createRoom(roomInfo) {
 		let room = await prisma.room.create({
 			data: roomInfo
 		})
+		console.log(`create room: ${room}`);
 	} catch (error){
 		console.log(error);
 	}
@@ -170,7 +171,7 @@ async function set10Questions(roomName, subject, grade){
 			});
 			questions.push(question);
 		}
-		//console.log("10개의 question id: ", questions);
+		console.log("get 10 question ids: ", questions);
 		questionsOfRooms.set(roomName, questions);
 		//let difference = allQuestionIds.filter(x => !questionIds.includes(x)); 추후 차집합 필요 시 사용
 	
@@ -188,7 +189,9 @@ async function throwStars(key, stars) {
 		const updateUser = await prisma.user.update({
             where: { userId: user.userId },
             data: { star : user.star + stars }
-        });		
+        });
+		
+		console.log(`update ${key}'s star: ${updateUser.star}`)
 	} catch (error){
 		console.log(error);
 	}	
@@ -198,7 +201,7 @@ wsServer.on("connection", socket => {
 	// socket.data.nickname = "Anon";
 
 	socket.onAny((event) => {
-		//console.log(`Socket Event:${event}`);
+		console.log(`Socket Event:${event}`);
 	});
     
 	socket.on("join_room", ({ roomName, nickname }) => { // {} 추가
@@ -207,7 +210,7 @@ wsServer.on("connection", socket => {
 			return;
 		}
 		socket.data.nickname = nickname;
-		//console.log("socket.data.nickname: ", socket.data.nickname);
+		console.log("socket.data.nickname: ", socket.data.nickname);
 		let playingF = 0;
 		if (playingFlag.get(roomName) === 1) {
 			//console.log("게임중이어서 방 입장 불가😖");
@@ -218,10 +221,11 @@ wsServer.on("connection", socket => {
 				if (checkExist !== null) {
 					socket.join(roomName);
 					//console.log("현재 존재하는 방들: ", socket.rooms);
+					console.log(nickname, "님 ", roomName, "방에 참여");
 					whereSocketIdIn.set(socket.id, roomName);
 					increaseParticipants(roomName);
-					//console.log("wherSocketIdIn: ", whereSocketIdIn);
-					// done(roomName, countRoom(roomName), playingF); 
+					//console.log("whereSocketIdIn: ", whereSocketIdIn);
+					//done(roomName, countRoom(roomName), playingF); 
 
 					oxbeforeox.set(socket.data.nickname, "");
 					let immScoreMap = new Map();
@@ -291,7 +295,8 @@ wsServer.on("connection", socket => {
 					socket.join(payload.roomName);
 					mutexStorage.set(payload.roomName, false);
 					increaseParticipants(payload.roomName);
-					//console.log("현재 존재하는 방들: ", socket.rooms);
+					console.log("현재 존재하는 방들: ", socket.rooms);
+					console.log(nickname, "님 ", payload.roomName, "방에 생성");
 					
 					let immChattingMap = new Map<string, string[]>();
 		
@@ -352,7 +357,7 @@ wsServer.on("connection", socket => {
 				readyStorage.set(roomName, removeIdArr);
 			}
 
-			//console.log("ready한 socket id들: ", readyStorage.get(roomName));
+			console.log("ready한 socket id들: ", readyStorage.get(roomName));
 			roomReadyArr = readyStorage.get(roomName);
 			// let idx = roomReadyArr.findIndex(element => element == socket.id);
 			// //console.log(`ready한 socket의 index: ${idx}`);
@@ -360,8 +365,10 @@ wsServer.on("connection", socket => {
 			if (roomReadyArr.length === wsServer.sockets.adapter.rooms.get(roomName)?.size) {
 				//console.log(true);
 				wsServer.sockets.in(roomName).emit("ready", true);
+				console.log("방 안의 유저 모두 준비 완료");
 			} else {
 				wsServer.sockets.in(roomName).emit("ready check");
+
 			}
 		});
 
@@ -369,6 +376,7 @@ wsServer.on("connection", socket => {
 			if ((readyStorage.get(roomName)).length === wsServer.sockets.adapter.rooms.get(roomName)?.size) {
 				//console.log(true);
 				wsServer.sockets.emit("ready", true);
+				console.log("방 안의 유저 모두 준비 완료");
 			}
 		});
 
@@ -421,7 +429,7 @@ wsServer.on("connection", socket => {
 			answer = questionsOfRooms.get(roomName)[index].oxanswer;
 			explanation = questionsOfRooms.get(roomName)[index].explanation;
         
-			//console.log("문제정보: ", answer, explanation, questionsOfRooms.get(roomName)[index].oxquestion, index);
+			console.log("문제정보: ",  questionsOfRooms.get(roomName)[index].oxquestion, answer, index);
 			wsServer.to(roomName).emit("round", questionsOfRooms.get(roomName)[index].oxquestion, index, false);
 			// wsServer.to(roomName).emit("timer", true);
 		});
@@ -429,14 +437,14 @@ wsServer.on("connection", socket => {
 		socket.on("ox", ({ userId, ox, roomName, index }) => {
 			console.log(`roomName: ${roomName} index: ${index} in "ox".............`);
 			socket.data.ox = ox;
-			console.log(`socket.data.ox 🙋‍♂️🙋‍♂️🙋‍♂️🙋‍♂️: ${socket.data.ox} by ${socket.data.nickname} in "ox"`);
+			console.log(`socket.data.ox: ${socket.data.ox} by ${socket.data.nickname} in "ox"`);
 
 			if (questionsOfRooms.get(roomName)[index].oxanswer === socket.data.ox) {	//정답
 
 				if (mutexStorage.get(roomName) === false) {
 					mutexStorage.set(roomName, true);
 					if (oxbeforeox.get(socket.data.nickname) !== socket.data.ox) {
-						console.log(`${socket.data.nickname}님!! 정답입니다.💚💚💚💚 `);
+						console.log(`${socket.data.nickname}님 정답⭕ `);
 						immMap = scoreListOfRooms.get(roomName);
 						immMap.forEach((value, key) => {
 							if (key === socket.data.nickname) {
@@ -451,7 +459,7 @@ wsServer.on("connection", socket => {
 				
 			} else if (questionsOfRooms.get(roomName)[index].oxanswer === "o" && socket.data.ox === "x" && oxbeforeox.get(socket.data.nickname) === "o") {
 
-				console.log(`${socket.data.nickname}님!! 오답입니다.❌❌❌`);
+				console.log(`${socket.data.nickname}님 오답❌`);
 
 				if (mutexStorage.get(roomName) === false) {
 					mutexStorage.set(roomName, true);
@@ -469,7 +477,7 @@ wsServer.on("connection", socket => {
 				}
 			} else if (questionsOfRooms.get(roomName)[index].oxanswer === "x" && socket.data.ox === "o" && oxbeforeox.get(socket.data.nickname) === "x") {
 
-				console.log(`${socket.data.nickname}님!! 오답입니다.❌❌❌`);
+				console.log(`${socket.data.nickname}님 오답❌`);
 
 				if (mutexStorage.get(roomName) === false) {
 					mutexStorage.set(roomName, true);
@@ -530,10 +538,9 @@ wsServer.on("connection", socket => {
 			}*/
 			socket.data.ox = "";
 			oxbeforeox.set(socket.data.nickname, "");
-			console.log("oxbefore", oxbeforeox);
 			immMap = scoreListOfRooms.get(payload.roomName);
 			sortScores = new Map([...immMap.entries()].sort((a, b) => b[1] - a[1]));
-			console.log('sortScores👈👈👈: ', sortScores);
+			console.log(`Scores: ${sortScores}`);
 			wsServer.to(payload.roomName).emit("score change", JSON.stringify(Array.from(sortScores)));
 			
 
@@ -652,7 +659,8 @@ wsServer.on("connection", socket => {
 			}
 			socket.leave(roomName);
 			reduceParticipants(roomName);
-			//console.log("exit-현재 존재하는 방들: ", socket.rooms);
+			console.log("exit 후 존재하는 방들: ", socket.rooms);
+			console.log(socket.data.nickname, "님 ", roomName, "방에서 퇴장");
 			//console.log("scoreListOfRooms: ", scoreListOfRooms)
 			// socket.to(roomName).emit("bye", socket.data.nickname, roomName, countRoom(roomName)); 버그유발
 			socket.emit("bye", socket.data.nickname, roomName, countRoom(roomName));
@@ -691,7 +699,8 @@ wsServer.on("connection", socket => {
 					wsServer.sockets.in(roomNamee).emit("clear");
 				}
 				reduceParticipants(roomNamee);
-				//console.log("exit-현재 존재하는 방들: ", socket.rooms);
+				console.log("exit 후 존재하는 방들: ", socket.rooms);
+				console.log(socket.data.nickname, "님 ", roomNamee, "방에서 퇴장");
 				//console.log("scoreListOfRooms: ", scoreListOfRooms)
 				socket.to(roomNamee).emit("bye", socket.data.nickname, roomNamee, countRoom(roomNamee));
 			}
