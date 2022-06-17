@@ -165,6 +165,7 @@ export const getPlanData = async (req: Request, res: Response, next: NextFunctio
 				category: true
 			}
 		});
+		console.log({ opcode: OPCODE.SUCCESS, result });
 		return res.json({ opcode: OPCODE.SUCCESS, result });
 		
 	} catch(error) {
@@ -346,6 +347,7 @@ export const createPlan = async (req: Request, res: Response, next: NextFunction
 				}
 			}
 		}
+		console.log({ opcode: OPCODE.SUCCESS, resultPlan });
 		return res.json({ opcode: OPCODE.SUCCESS, resultPlan });
 	} catch(error) {
 		console.log(error);
@@ -1004,6 +1006,7 @@ export const getPlanTime = async(req: Request, res: Response, next: NextFunction
 			select: { time: true }
 		})
 
+		console.log({ opcode: OPCODE.SUCCESS, time: time.time });
 		return res.json({ opcode: OPCODE.SUCCESS, time: time.time })
 
 	} catch(error) {
@@ -1054,6 +1057,7 @@ export const getDailyStudyTime = async (req: Request, res: Response, next: NextF
 			totalTime += time.time;
 		});
 
+		console.log({ opcode: OPCODE.SUCCESS, totalTime: totalTime });
 		return res.json({ opcode: OPCODE.SUCCESS, totalTime: totalTime });
 
 	} catch(error) {
@@ -1110,6 +1114,7 @@ export const getStatistic = async (req: Request, res: Response, next: NextFuncti
 			cnt._sum.time /= totalTime;
 		})
 
+		console.log({ opcode: OPCODE.SUCCESS, dailyPlanTimes });
 		return res.json({ opcode: OPCODE.SUCCESS, dailyPlanTimes });
 	}
 		catch(error) {
@@ -1232,7 +1237,7 @@ export const handleStar = async (req: Request, res: Response, next: NextFunction
 		const user = await prisma.user.findUnique({ where: { userId } });
 		const daily = await prisma.daily.findUnique({ where: { dailyId } });
 
-		await prisma.user.update({
+		const resultUser = await prisma.user.update({
 			where: {
 				userId	
 			},
@@ -1249,7 +1254,8 @@ export const handleStar = async (req: Request, res: Response, next: NextFunction
 				obtainedStar: daily.obtainedStar + 1
 			}
 		});
-
+		
+		console.log({ opcode: OPCODE.SUCCESS, star: resultUser.star })
 		return res.json({ opcode: OPCODE.SUCCESS });
 
 	} catch(error) {
@@ -1272,6 +1278,7 @@ export const getDailyStar = async (req: Request, res: Response, next: NextFuncti
 			}
 		});
 
+		console.log({ opcode: OPCODE.SUCCESS, star: obtainedStar })
 		return res.json({ opcode: OPCODE.SUCCESS, star: obtainedStar });
 	} catch(error) {
 		console.log(error);
@@ -1330,6 +1337,7 @@ export const getWeeklyStar = async (req: Request, res: Response, next: NextFunct
 			sum += day.obtainedStar;
 		});
 
+		console.log({ opcode: OPCODE.SUCCESS, stars: sum });
 		return res.json({ opcode: OPCODE.SUCCESS, stars: sum });
 
 	} catch(error) {
@@ -1451,6 +1459,7 @@ export const getMonthlyStar = async (req: Request, res: Response, next: NextFunc
 		days.map(day => {
 			sum += day.obtainedStar;
 		});
+		console.log({ opcode: OPCODE.SUCCESS, stars: sum });
 		return res.json({ opcode: OPCODE.SUCCESS, stars: sum });
 	} catch(error) {
 		console.log(error);
@@ -1552,6 +1561,7 @@ export const getAllPlans = async (req: Request, res: Response, next: NextFunctio
 				return plan;
 		}));
 
+		console.log({ opcode: OPCODE.SUCCESS, result });
 		return res.json({ opcode: OPCODE.SUCCESS, result });
 	} catch(error) {
 		console.log(error);
@@ -1580,6 +1590,7 @@ export const getCompletedPlans = async (req: Request, res: Response, next: NextF
 				]				
 			}
 		});	
+		console.log({ opcode: OPCODE.SUCCESS, plans });
 		return res.json({ opcode: OPCODE.SUCCESS, plans });
 	} catch(error) {
 		console.log(error);
@@ -1608,6 +1619,7 @@ export const getIncompletePlans = async (req: Request, res: Response, next: Next
 				]				
 			}
 		});	
+		console.log({ opcode: OPCODE.SUCCESS, plans });
 		return res.json({ opcode: OPCODE.SUCCESS, plans });
 	} catch(error) {
 		console.log(error);
@@ -1644,6 +1656,7 @@ export const getAllMonthlyStars = async (req: Request, res: Response, next: Next
 			}
 		});
 
+		console.log({ opcode: OPCODE.SUCCESS, allMonthlyStars });
 		return res.json({ opcode: OPCODE.SUCCESS, allMonthlyStars });
 	} catch(error) {
 		console.log(error);

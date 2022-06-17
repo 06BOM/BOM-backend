@@ -11,6 +11,7 @@ export const getUser = async (req: Request, res: Response, next: NextFunction): 
                 userId: userId
             },
         });
+		console.log({ opcode:OPCODE.SUCCESS, getUserResult });
 		return res.json({ opcode:OPCODE.SUCCESS, getUserResult });
 
 	} catch(error) {
@@ -56,7 +57,7 @@ export const modifyUser = async (req: Request, res: Response, next: NextFunction
             },
             data: userInfo
         });
-		
+		console.log({ opcode:OPCODE.SUCCESS, modifyUserResult });
 		return res.json({ opcode:OPCODE.SUCCESS, modifyUserResult });
 
 	} catch(error) {

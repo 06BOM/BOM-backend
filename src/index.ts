@@ -113,7 +113,8 @@ async function deleteRoom(roomName) {
 		let room = await prisma.room.deleteMany({
 			where: { roomName : roomName}
 		})
-
+		console.log("delete room");
+		
 	} catch (error){
 		console.log(error);
 	}

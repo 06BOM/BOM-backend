@@ -13,6 +13,8 @@ export const getCharacterInfomation = async (req: Request, res: Response, next: 
 				characterId
 			}
 		});
+
+        console.log({ opcode: OPCODE.SUCCESS, character });
 		return res.json({ opcode: OPCODE.SUCCESS, character });
 
 	} catch(error) {
@@ -35,6 +37,7 @@ export const getCharacterImageUrl = async (req: Request, res: Response, next: Ne
             }
 		});
 
+        console.log({ opcode: OPCODE.SUCCESS, character});
 		return res.json({ opcode: OPCODE.SUCCESS, character});
 
 	} catch(error) {
@@ -66,7 +69,8 @@ export const getAllCharacters = async (req: Request, res: Response, next: NextFu
                 })
             )  
         }
-
+        
+        console.log({ opcode: OPCODE.SUCCESS, characters});
 		return res.json({ opcode: OPCODE.SUCCESS, characters});
 
 	} catch(error) {
@@ -87,6 +91,7 @@ export const createCollection = async (req: Request, res: Response, next: NextFu
             data: collectionData
         })
 
+        console.log({ opcode: OPCODE.SUCCESS, resultCollection })
         return res.json({ opcode: OPCODE.SUCCESS, resultCollection })
 
     } catch(error) {
@@ -109,6 +114,7 @@ export const deleteCollection = async (req: Request, res: Response, next: NextFu
             }
         })
 
+        console.log({ opcode: OPCODE.SUCCESS })
         return res.json({ opcode: OPCODE.SUCCESS })
 
     } catch(error) {
@@ -152,9 +158,8 @@ export const searchCharacter = async (req: Request, res: Response, next: NextFun
                 })
             )  
         }
-        
 
-
+        console.log({ opcode: OPCODE.SUCCESS, resultCharacter })
         return res.json({ opcode: OPCODE.SUCCESS, resultCharacter })
 
     } catch(error) {
@@ -188,7 +193,7 @@ export const searchNotHavingCharacter = async (req: Request, res: Response, next
             }
         })
        
-        
+        console.log({ opcode: OPCODE.SUCCESS, notHavingCharacterData });
         return res.json({ opcode: OPCODE.SUCCESS, notHavingCharacterData })
 
     } catch(error) {
