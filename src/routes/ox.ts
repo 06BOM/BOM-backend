@@ -1,4 +1,6 @@
 import express from 'express';
+import { authMiddleware } from "../middleware";
+
 import { 
     createOxQuestion,
     getOxQuestion,
@@ -9,6 +11,7 @@ import {
     increaseCorrectNum
         } from "../controllers/oxController";
 
+		
 const router = express.Router();
 
 router.post('', createOxQuestion);

@@ -1,16 +1,15 @@
-//참고 https://codingcoding.tistory.com/1308
-
 import express from 'express';
+import { authMiddleware } from "../middleware";
 
-import { signin,
-         getUser, 
+
+import { getUser, 
          deleteUser, 
-         modifyUser 
+         modifyUser,
+         changeCharacter 
     } from '../controllers/userControllers';
 
 const router = express.Router();
 
-
-router.post("/signin", signin);
+router.patch("/character", changeCharacter);
 router.route("/:userId").get(getUser).delete(deleteUser).patch(modifyUser);
 export default router;

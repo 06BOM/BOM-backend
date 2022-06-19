@@ -1,4 +1,6 @@
 import express from 'express';
+import { authMiddleware } from '../middleware';
+
 import { getCharacterInfomation,
          getCharacterImageUrl,
          getAllCharacters,

@@ -5,7 +5,7 @@ import { NextFunction, Request, Response } from 'express';
 const prisma = new PrismaClient();
 
 export const createCategory = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
-    let category = {
+	let category = {
         categoryName: String(req.body.categoryName), 
         color: String(req.body.color), 
         type: req.body.type, 

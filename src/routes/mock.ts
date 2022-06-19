@@ -1,4 +1,6 @@
 import express from 'express';
+import { authMiddleware } from "../middleware";
+
 import { 
     createQuestQuestion,
     getQuestQuestion,
@@ -10,6 +12,7 @@ import {
     getQuestStats,
     getQuestQuestionsByUserId
         } from "../controllers/mockController";
+
 
 const router = express.Router();
 

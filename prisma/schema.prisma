@@ -4,18 +4,18 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = "mysql://root:ajouuniversity@damoyeo-db.c4gznlia3chr.ap-northeast-2.rds.amazonaws.com:3306/damoyeo"
+  url      = "mysql://root:root@localhost:3306/mydb"
 }
 
 model User {
   userId           Int            @id @default(autoincrement())
-  emailId          String         @unique @db.VarChar(45)
+  emailId          String?        @unique @db.VarChar(45)
   userName         String         @db.VarChar(45)
-  password         String         @db.VarChar(45)
+  password         String?        @db.VarChar(255)
   nickname         String         @db.VarChar(45)
-  birth            DateTime
-  phoneNum         String         @db.VarChar(45)
-  grade            Int
+  birth            DateTime?
+  phoneNum         String?        @db.VarChar(45)
+  grade            Int?
   star             Int            @default(0)
   timeItem         Int            @default(0)
   passItem         Int            @default(0)
@@ -26,6 +26,7 @@ model User {
   lockFreeDate     DateTime?
   userType         Int            @default(0)
   characterId      Int            @default(1)
+  salt             String?        @db.VarChar(255)
   character        Character      @relation(fields: [characterId], references: [characterId])
   categories       Category[]
   collections      Collection[]
@@ -106,7 +107,7 @@ model Message {
 }
 
 model Session {
-  sessionId Int      @id @default(autoincrement())
+  sessionId String   @id @db.VarChar(255)
   createdAt DateTime @default(now())
   userId    Int
   user      User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
@@ -182,7 +183,7 @@ model MockDB {
 
 model OXDB {
   oxquestionId   Int    @id @default(autoincrement())
-  oxquestion     String @db.VarChar(45)
+  oxquestion     String @db.VarChar(255)
   oxanswer       String @db.VarChar(45)
   subject        String @db.VarChar(45)
   grade          Int
@@ -190,7 +191,7 @@ model OXDB {
   totalNumSolved Int    @default(0)
   correctNum     Int    @default(0)
   provider       Int
-  explanation    String @db.VarChar(45)
+  explanation    String @db.VarChar(255)
   user           User   @relation(fields: [provider], references: [userId])
 
   @@index([provider], map: "OXDB_provider_fkey")
@@ -213,6 +214,7 @@ model Room {
   subject         String       @db.VarChar(45)
   userId          Int
   grade           Int
+  playingFlag     Boolean      @default(false)
   user            User         @relation(fields: [userId], references: [userId])
   oxUnitRange     OXUnitRange?
 

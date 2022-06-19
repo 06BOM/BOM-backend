@@ -1,4 +1,6 @@
 import express from 'express';
+import { authMiddleware } from "../middleware";
+
 import { createPlan, 
          deletePlan, 
          updatePlan, 
@@ -22,6 +24,7 @@ import { createPlan,
          getRepititionValidity 
     } from "../controllers/planController";
 
+
 const router = express.Router();
 
 router.post("/", createPlan);
@@ -29,8 +32,8 @@ router.get("/total", getDailyStudyTime);
 router.get("/week/average", getWeeklyAverageStudyTime);
 router.get("/month/average", getMonthlyAverageStudyTime);
 router.get("/statistic", getStatistic);
-router.get("/week/total",getWeeklyTime);
-router.get("/month/total",getMonthlyTime)
+router.get("/week/total", getWeeklyTime);
+router.get("/month/total", getMonthlyTime)
 router.route("/star").get(getDailyStar).post(handleStar);
 router.get("/week/star", getWeeklyStar);
 router.get("/month/star", getMonthlyStar);

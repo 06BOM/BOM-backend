@@ -13,7 +13,9 @@ export const getCharacterInfomation = async (req: Request, res: Response, next: 
 				characterId
 			}
 		});
-		return res.status(201).json({ opcode: OPCODE.SUCCESS, character });
+
+        console.log({ opcode: OPCODE.SUCCESS, character });
+		return res.json({ opcode: OPCODE.SUCCESS, character });
 
 	} catch(error) {
 		console.log(error);
@@ -35,7 +37,8 @@ export const getCharacterImageUrl = async (req: Request, res: Response, next: Ne
             }
 		});
 
-		return res.status(201).json({ opcode: OPCODE.SUCCESS, character});
+        console.log({ opcode: OPCODE.SUCCESS, character});
+		return res.json({ opcode: OPCODE.SUCCESS, character});
 
 	} catch(error) {
 		console.log(error);
@@ -45,17 +48,30 @@ export const getCharacterImageUrl = async (req: Request, res: Response, next: Ne
 
 export const getAllCharacters = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
 	const userId = Number(req.query.userId);
+    let characters = [];
 
 	try {
-		const characters = await prisma.collection.findMany({
+		const userCharacters = await prisma.collection.findMany({
 			where: {
 				userId: userId
 			},
-            select:{
+            select: {
                 characterId : true
             }
 		});
-		return res.status(201).json({ opcode: OPCODE.SUCCESS, characters});
+
+        for(let i =0; i< userCharacters.length; i++){
+            characters.push(
+                await prisma.character.findUnique({
+                    where:{
+                        characterId : userCharacters[i].characterId
+                    }
+                })
+            )  
+        }
+        
+        console.log({ opcode: OPCODE.SUCCESS, characters});
+		return res.json({ opcode: OPCODE.SUCCESS, characters});
 
 	} catch(error) {
 		console.log(error);
@@ -75,6 +91,7 @@ export const createCollection = async (req: Request, res: Response, next: NextFu
             data: collectionData
         })
 
+        console.log({ opcode: OPCODE.SUCCESS, resultCollection })
         return res.json({ opcode: OPCODE.SUCCESS, resultCollection })
 
     } catch(error) {
@@ -83,11 +100,9 @@ export const createCollection = async (req: Request, res: Response, next: NextFu
     }
 }
 
-export const deleteCollection = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
-    
+export const deleteCollection = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {    
     const userId = Number(req.query.userId);
     const characterId = Number(req.query.characterId);
-
 
     try {
         await prisma.collection.deleteMany({
@@ -99,6 +114,7 @@ export const deleteCollection = async (req: Request, res: Response, next: NextFu
             }
         })
 
+        console.log({ opcode: OPCODE.SUCCESS })
         return res.json({ opcode: OPCODE.SUCCESS })
 
     } catch(error) {
@@ -108,7 +124,6 @@ export const deleteCollection = async (req: Request, res: Response, next: NextFu
 }
 
 export const searchCharacter = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
-    
     const userId = Number(req.query.userId);
     const search = String(req.query.search);
     let resultCharacter = [];
@@ -143,9 +158,8 @@ export const searchCharacter = async (req: Request, res: Response, next: NextFun
                 })
             )  
         }
-        
 
-
+        console.log({ opcode: OPCODE.SUCCESS, resultCharacter })
         return res.json({ opcode: OPCODE.SUCCESS, resultCharacter })
 
     } catch(error) {
@@ -179,7 +193,7 @@ export const searchNotHavingCharacter = async (req: Request, res: Response, next
             }
         })
        
-        
+        console.log({ opcode: OPCODE.SUCCESS, notHavingCharacterData });
         return res.json({ opcode: OPCODE.SUCCESS, notHavingCharacterData })
 
     } catch(error) {

@@ -11,16 +11,19 @@ html(lang="en")
 		main 
 			div#welcome 
 				h6 (이름 먼저 꼭 넣어주세용😎)
-				form#name
-					input(placeholder="nickname", required, type="text")
-					button save
+				input#name(placeholder="nickname", required, type="text")
 				h6 방입장하기
 				form#room 
 					input(placeholder="room name", required, type="text")
 					button Enter Room
 				h6 방생성하기
 				form#createroom
-					input(placeholder="room name", required, type="text")
+					input#roomName(placeholder="room name", required, type="text")
+					br
+					input#grade(placeholder="grade", required, type="number")
+					br
+					input#subject(placeholder="subject", required, type="text")
+					br
 					button 생성
 				h4 Open Rooms: 
 				ul

@@ -1,4 +1,5 @@
 import express from 'express';
+import { authMiddleware } from "../middleware";
 
 import { deletePost,
          createPost,
@@ -13,7 +14,7 @@ import { deletePost,
 
 const router = express.Router();
 
-router.post("/",createPost);
+router.post("/", createPost);
 router.patch("/", updatePost);
 router.delete("/delete", deletePost);
 router.get("/category", sortingPostByCategory);
